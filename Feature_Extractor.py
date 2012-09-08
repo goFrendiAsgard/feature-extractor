@@ -39,7 +39,7 @@ class Feature_Extractor(object):
         self.classes = []
         self.data = []
         self.gene_length = 50
-        self.population_size = 200
+        self.population_size = 1000
     
     # -------------------------------- setters ------------------------------- #
     
@@ -143,6 +143,24 @@ class Feature_Extractor(object):
             expr = new_expr
         return expr
     
+    # execute expression
+    def _execute(self, expr, record):
+        result = 0
+        error = False
+        # get result and error state
+        try:
+            sandbox={}
+            # initialize features
+            for i in xrange(len(self.original_features)):
+                feature = self.original_features[i]       
+                exec(feature+' = '+str(record[i])) in sandbox 
+            # execute expr, and get the result         
+            exec('__result = '+expr) in sandbox                      
+            result = sandbox['__result']
+        except:
+            error = True    
+        return result, error
+    
     # calculate the fitness value of a phenotype
     def _calculate_fitness(self, phenotype):
         for classes in self.classes:
@@ -205,8 +223,12 @@ class Feature_Extractor(object):
             self._register_genotype(generation[i])
         
         # show the results
-        print('Fitness of All Phenotypes :')
-        print(self.phenotype_fitness)
+        print('')
+        print('# ============ Phenotype List (%d) : ============ #' %(len(self.phenotype_fitness)) )
+        for fitness in self.phenotype_fitness:
+            print('%s : %s' %(fitness, self.phenotype_fitness[fitness]))
+        print('# ============= End of Phenotype List ============ #')
+        print('')
         
         
 # ============================================================================ # 
@@ -215,12 +237,11 @@ class Feature_Extractor(object):
 if __name__ == '__main__':
  
     # declare parameters
-    features = ['<x>','<y>']
+    features = ['x','y']
     start_node = '<expr>'
     grammar = {
         start_node : [
-            '<value> <operator> <value>', 
-            '<value>', 
+            '<value> <operator> <value>',
             '<function>(<expr>)'],
         '<value>' : ['<feature>', '<number>'],
         '<feature>' : features,
@@ -229,7 +250,7 @@ if __name__ == '__main__':
             '<digit><digit>', 
             '0', '1', '2', '3', '4', 
             '5', '6', '7', '8', '9'],
-        '<operator>' : ['+', '-', '*', '/'],
+        '<operator>' : ['+', '-', '*', '/', '**'],
         '<function>' : ['sin', 'cos', 'tan', 'abs']
     }
     classes = ['A', 'B', 'C']
