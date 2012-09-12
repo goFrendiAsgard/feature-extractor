@@ -161,11 +161,55 @@ class Feature_Extractor(object):
             error = True    
         return result, error
     
+    # calculate how the data projected in new feature
+    def _calculate_projection(self, phenotype):
+        projection = {}
+        feature_count = len(self.original_features)
+        for label in self.classes:
+            projection[label] = {
+                'values' : [],
+                'minimum' : 0,
+                'maximum' : 0,
+                'error' : False
+            }
+        for record in self.data:
+            result = self._execute(phenotype, record)
+            label = record[feature_count]
+            if result[1]:
+                projection[label]['error'] = True
+            elif projection[label]['error'] == False:
+                value = result[0]
+                if len(projection[label]['values'])==0:
+                    projection[label]['minimum'] = value
+                    projection[label]['maximum'] = value
+                else:
+                    if value<projection[label]['minimum']:
+                        projection[label]['minimum'] = value
+                    if value>projection[label]['maximum']:
+                        projection[label]['maximum'] = value
+                projection[label]['values'].append(value) 
+        return projection    
+    
     # calculate the fitness value of a phenotype
     def _calculate_fitness(self, phenotype):
-        for classes in self.classes:
-            for record in self.data:
-                pass
+        projection = self._calculate_projection(phenotype)
+        fitness = {}
+        for label in self.classes:
+            if projection[label]['error']:
+                fitness[label] = 0
+                continue
+            else:
+                between_count = 0
+                for other_label in self.classes:
+                    if other_label == label:
+                        continue
+                    if projection[other_label]['error']:
+                        continue                    
+                    for value in projection[other_label]:
+                        if value >= projection[label]['minimum'] and value<= projection[label]['maximum']:
+                            between_count += 1
+                fitness[label] = 1/(between_count+0.001)
+        return fitness
     
     # register genotype into genotype_dictionary and fenotype_fitness
     def _register_genotype(self, gene):
@@ -241,9 +285,11 @@ if __name__ == '__main__':
     start_node = '<expr>'
     grammar = {
         start_node : [
-            '<value> <operator> <value>',
-            '<function>(<expr>)'],
-        '<value>' : ['<feature>', '<number>'],
+            '<expr> <operator> <expr>',
+            '<number> <operator> <feature>',
+            '<feature> <operator> <number>',
+            '<function>(<expr>)',
+            '<feature>'],
         '<feature>' : features,
         '<number>' : ['<digit>.<digit>', '<digit>'],
         '<digit>' : [
