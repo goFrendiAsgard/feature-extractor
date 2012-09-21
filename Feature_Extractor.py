@@ -271,12 +271,14 @@ class Feature_Extractor(object):
         for i in range(len(generation)):
             self._register_genotype(generation[i])
         
-        # show the results
-        #print('')
-        #print('# ============ Phenotype List (%d) : ============ #' %(len(self.phenotype_fitness)) )
-        #for fitness in self.phenotype_fitness:
-        #    print('%s : %s' %(fitness, self.phenotype_fitness[fitness]))
-        #print('# ============= End of Phenotype List ============ #')
+        # show phenotypes
+        print('')
+        print('# ============ Phenotype List (%d) : ============ #' %(len(self.phenotype_fitness)) )
+        for fitness in self.phenotype_fitness:
+            print('%s : %s' %(fitness, self.phenotype_fitness[fitness]))
+        print('# ============= End of Phenotype List ============ #')
+        print('')
+        
         # search the best for it's kind
         best_values = {}
         best_phenotype = {}
