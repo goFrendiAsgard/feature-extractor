@@ -39,7 +39,7 @@ class Feature_Extractor(object):
         self.classes = []
         self.data = []
         self.gene_length = 50
-        self.population_size = 1000
+        self.population_size = 200
     
     # -------------------------------- setters ------------------------------- #
     
@@ -114,7 +114,8 @@ class Feature_Extractor(object):
         gene_index = 0
         expr = self.start_node
         # for each level
-        for level in xrange(depth):
+        level = 0
+        while level < depth:
             i=0
             new_expr = ''
             # parse every character in the expr
@@ -141,6 +142,7 @@ class Feature_Extractor(object):
                     new_expr += expr[i:i+1]
                 i += 1
             expr = new_expr
+            level = level+1
         return expr
     
     # execute expression
@@ -200,15 +202,19 @@ class Feature_Extractor(object):
                 continue
             else:
                 between_count = 0
+                overlap_count = 0
                 for other_label in self.classes:
                     if other_label == label:
                         continue
                     if projection[other_label]['error']:
                         continue                    
-                    for value in projection[other_label]:
-                        if value >= projection[label]['minimum'] and value<= projection[label]['maximum']:
+                    for other_value in projection[other_label]['values']:
+                        if other_value >= projection[label]['minimum'] and other_value<= projection[label]['maximum']:
                             between_count += 1
-                fitness[label] = 1/(between_count+0.001)
+                        for value in projection[label]['values']:
+                            if value == other_value:
+                                overlap_count += 1
+                fitness[label] = 1/( overlap_count*0.1 + between_count*0.01 + 0.001)
         return fitness
     
     # register genotype into genotype_dictionary and fenotype_fitness
@@ -220,46 +226,45 @@ class Feature_Extractor(object):
         # if the gene is not exists is genotype_dictionary, then calculate
         # phenotype, and register it in genotype_dictionary.
         # else, just take phenotype value from genotype_dictionary
-        try:
+        if gene in self.genotype_dictionary:
             phenotype = self.genotype_dictionary[gene]
-        except:
+        else:
             phenotype = self._transform(gene)
-            self.genotype_dictionary[gene] = phenotype            
+            self.genotype_dictionary[gene] = phenotype          
         
         # register the phenotype fitness
-        try:
-            test = self.phenotype_fitness[phenotype]
-        except:
-            self.phenotype_fitness[phenotype] = self._calculate_fitness(phenotype)
+        if not (phenotype in self.phenotype_fitness):
+                self.phenotype_fitness[phenotype] = self._calculate_fitness(phenotype)
     
     # return new individu's genotype (binary string)
     def _new_individu(self):
         gene = ''
-        for i in range(self.gene_length):
+        i = 0
+        while i < self.gene_length:
             number = random.randint(0,10)
             if number<5:
                 gene += '0'
             else:
                 gene += '1'
+            i = i+1
         return gene
     
     # return new generation (array of binary string)
     def _new_generation(self):
         generation = []
-        for i in range(self.population_size):
+        i = 0
+        while i < self.population_size:
             individu = self._new_individu()
             generation.append(individu)
+            i = i+1
         return generation
     
     def process(self):
         # the original features has a VIP chance to be in competition
         for i in range(len(self.original_features)):
             phenotype = self.original_features[i]
-            try:
-                test = self.phenotype_fitness[phenotype]
-            except:
-                self.phenotype_fitness[phenotype] = self._calculate_fitness(phenotype)
-            
+            if not (phenotype in self.phenotype_fitness):
+                self.phenotype_fitness[phenotype] = self._calculate_fitness(phenotype) 
                 
         # new generation
         generation = self._new_generation()
@@ -267,11 +272,20 @@ class Feature_Extractor(object):
             self._register_genotype(generation[i])
         
         # show the results
-        print('')
-        print('# ============ Phenotype List (%d) : ============ #' %(len(self.phenotype_fitness)) )
-        for fitness in self.phenotype_fitness:
-            print('%s : %s' %(fitness, self.phenotype_fitness[fitness]))
-        print('# ============= End of Phenotype List ============ #')
+        #print('')
+        #print('# ============ Phenotype List (%d) : ============ #' %(len(self.phenotype_fitness)) )
+        #for fitness in self.phenotype_fitness:
+        #    print('%s : %s' %(fitness, self.phenotype_fitness[fitness]))
+        #print('# ============= End of Phenotype List ============ #')
+        # search the best for it's kind
+        best_values = {}
+        best_phenotype = {}
+        for label in self.classes:
+            for fitness in self.phenotype_fitness:
+                if (not (label in best_values)) or (best_values[label]<self.phenotype_fitness[fitness][label]):
+                    best_values[label] = self.phenotype_fitness[fitness][label]
+                    best_phenotype[label] = fitness
+            print('%s : %s ,fitness: %s' %(label, best_phenotype[label], best_values[label]) )
         print('')
         
         
@@ -281,7 +295,7 @@ class Feature_Extractor(object):
 if __name__ == '__main__':
  
     # declare parameters
-    features = ['x','y']
+    features = ['sepal_length','sepal_width','petal_length','petal_width']
     start_node = '<expr>'
     grammar = {
         start_node : [
@@ -299,15 +313,159 @@ if __name__ == '__main__':
         '<operator>' : ['+', '-', '*', '/', '**'],
         '<function>' : ['sin', 'cos', 'tan', 'abs']
     }
-    classes = ['A', 'B', 'C']
+    classes = ['Iris-setosa', 'Iris-versicolor', 'Iris-virginica']
     data = [
-        [0, 0, 'A'],
-        [1, 1, 'A'],
-        [2, 2, 'B'],
-        [3, 3, 'B'],
-        [4, 4, 'C'],
-        [5, 5, 'C']
-    ]
+            [5.1,3.5,1.4,0.2,'Iris-setosa'],
+            [4.9,3.0,1.4,0.2,'Iris-setosa'],
+            [4.7,3.2,1.3,0.2,'Iris-setosa'],
+            [4.6,3.1,1.5,0.2,'Iris-setosa'],
+            [5.0,3.6,1.4,0.2,'Iris-setosa'],
+            [5.4,3.9,1.7,0.4,'Iris-setosa'],
+            [4.6,3.4,1.4,0.3,'Iris-setosa'],
+            [5.0,3.4,1.5,0.2,'Iris-setosa'],
+            [4.4,2.9,1.4,0.2,'Iris-setosa'],
+            [4.9,3.1,1.5,0.1,'Iris-setosa'],
+            [5.4,3.7,1.5,0.2,'Iris-setosa'],
+            [4.8,3.4,1.6,0.2,'Iris-setosa'],
+            [4.8,3.0,1.4,0.1,'Iris-setosa'],
+            [4.3,3.0,1.1,0.1,'Iris-setosa'],
+            [5.8,4.0,1.2,0.2,'Iris-setosa'],
+            [5.7,4.4,1.5,0.4,'Iris-setosa'],
+            [5.4,3.9,1.3,0.4,'Iris-setosa'],
+            [5.1,3.5,1.4,0.3,'Iris-setosa'],
+            [5.7,3.8,1.7,0.3,'Iris-setosa'],
+            [5.1,3.8,1.5,0.3,'Iris-setosa'],
+            [5.4,3.4,1.7,0.2,'Iris-setosa'],
+            [5.1,3.7,1.5,0.4,'Iris-setosa'],
+            [4.6,3.6,1.0,0.2,'Iris-setosa'],
+            [5.1,3.3,1.7,0.5,'Iris-setosa'],
+            [4.8,3.4,1.9,0.2,'Iris-setosa'],
+            [5.0,3.0,1.6,0.2,'Iris-setosa'],
+            [5.0,3.4,1.6,0.4,'Iris-setosa'],
+            [5.2,3.5,1.5,0.2,'Iris-setosa'],
+            [5.2,3.4,1.4,0.2,'Iris-setosa'],
+            [4.7,3.2,1.6,0.2,'Iris-setosa'],
+            [4.8,3.1,1.6,0.2,'Iris-setosa'],
+            [5.4,3.4,1.5,0.4,'Iris-setosa'],
+            [5.2,4.1,1.5,0.1,'Iris-setosa'],
+            [5.5,4.2,1.4,0.2,'Iris-setosa'],
+            [4.9,3.1,1.5,0.1,'Iris-setosa'],
+            [5.0,3.2,1.2,0.2,'Iris-setosa'],
+            [5.5,3.5,1.3,0.2,'Iris-setosa'],
+            [4.9,3.1,1.5,0.1,'Iris-setosa'],
+            [4.4,3.0,1.3,0.2,'Iris-setosa'],
+            [5.1,3.4,1.5,0.2,'Iris-setosa'],
+            [5.0,3.5,1.3,0.3,'Iris-setosa'],
+            [4.5,2.3,1.3,0.3,'Iris-setosa'],
+            [4.4,3.2,1.3,0.2,'Iris-setosa'],
+            [5.0,3.5,1.6,0.6,'Iris-setosa'],
+            [5.1,3.8,1.9,0.4,'Iris-setosa'],
+            [4.8,3.0,1.4,0.3,'Iris-setosa'],
+            [5.1,3.8,1.6,0.2,'Iris-setosa'],
+            [4.6,3.2,1.4,0.2,'Iris-setosa'],
+            [5.3,3.7,1.5,0.2,'Iris-setosa'],
+            [5.0,3.3,1.4,0.2,'Iris-setosa'],
+            [7.0,3.2,4.7,1.4,'Iris-versicolor'],
+            [6.4,3.2,4.5,1.5,'Iris-versicolor'],
+            [6.9,3.1,4.9,1.5,'Iris-versicolor'],
+            [5.5,2.3,4.0,1.3,'Iris-versicolor'],
+            [6.5,2.8,4.6,1.5,'Iris-versicolor'],
+            [5.7,2.8,4.5,1.3,'Iris-versicolor'],
+            [6.3,3.3,4.7,1.6,'Iris-versicolor'],
+            [4.9,2.4,3.3,1.0,'Iris-versicolor'],
+            [6.6,2.9,4.6,1.3,'Iris-versicolor'],
+            [5.2,2.7,3.9,1.4,'Iris-versicolor'],
+            [5.0,2.0,3.5,1.0,'Iris-versicolor'],
+            [5.9,3.0,4.2,1.5,'Iris-versicolor'],
+            [6.0,2.2,4.0,1.0,'Iris-versicolor'],
+            [6.1,2.9,4.7,1.4,'Iris-versicolor'],
+            [5.6,2.9,3.6,1.3,'Iris-versicolor'],
+            [6.7,3.1,4.4,1.4,'Iris-versicolor'],
+            [5.6,3.0,4.5,1.5,'Iris-versicolor'],
+            [5.8,2.7,4.1,1.0,'Iris-versicolor'],
+            [6.2,2.2,4.5,1.5,'Iris-versicolor'],
+            [5.6,2.5,3.9,1.1,'Iris-versicolor'],
+            [5.9,3.2,4.8,1.8,'Iris-versicolor'],
+            [6.1,2.8,4.0,1.3,'Iris-versicolor'],
+            [6.3,2.5,4.9,1.5,'Iris-versicolor'],
+            [6.1,2.8,4.7,1.2,'Iris-versicolor'],
+            [6.4,2.9,4.3,1.3,'Iris-versicolor'],
+            [6.6,3.0,4.4,1.4,'Iris-versicolor'],
+            [6.8,2.8,4.8,1.4,'Iris-versicolor'],
+            [6.7,3.0,5.0,1.7,'Iris-versicolor'],
+            [6.0,2.9,4.5,1.5,'Iris-versicolor'],
+            [5.7,2.6,3.5,1.0,'Iris-versicolor'],
+            [5.5,2.4,3.8,1.1,'Iris-versicolor'],
+            [5.5,2.4,3.7,1.0,'Iris-versicolor'],
+            [5.8,2.7,3.9,1.2,'Iris-versicolor'],
+            [6.0,2.7,5.1,1.6,'Iris-versicolor'],
+            [5.4,3.0,4.5,1.5,'Iris-versicolor'],
+            [6.0,3.4,4.5,1.6,'Iris-versicolor'],
+            [6.7,3.1,4.7,1.5,'Iris-versicolor'],
+            [6.3,2.3,4.4,1.3,'Iris-versicolor'],
+            [5.6,3.0,4.1,1.3,'Iris-versicolor'],
+            [5.5,2.5,4.0,1.3,'Iris-versicolor'],
+            [5.5,2.6,4.4,1.2,'Iris-versicolor'],
+            [6.1,3.0,4.6,1.4,'Iris-versicolor'],
+            [5.8,2.6,4.0,1.2,'Iris-versicolor'],
+            [5.0,2.3,3.3,1.0,'Iris-versicolor'],
+            [5.6,2.7,4.2,1.3,'Iris-versicolor'],
+            [5.7,3.0,4.2,1.2,'Iris-versicolor'],
+            [5.7,2.9,4.2,1.3,'Iris-versicolor'],
+            [6.2,2.9,4.3,1.3,'Iris-versicolor'],
+            [5.1,2.5,3.0,1.1,'Iris-versicolor'],
+            [5.7,2.8,4.1,1.3,'Iris-versicolor'],
+            [6.3,3.3,6.0,2.5,'Iris-virginica'],
+            [5.8,2.7,5.1,1.9,'Iris-virginica'],
+            [7.1,3.0,5.9,2.1,'Iris-virginica'],
+            [6.3,2.9,5.6,1.8,'Iris-virginica'],
+            [6.5,3.0,5.8,2.2,'Iris-virginica'],
+            [7.6,3.0,6.6,2.1,'Iris-virginica'],
+            [4.9,2.5,4.5,1.7,'Iris-virginica'],
+            [7.3,2.9,6.3,1.8,'Iris-virginica'],
+            [6.7,2.5,5.8,1.8,'Iris-virginica'],
+            [7.2,3.6,6.1,2.5,'Iris-virginica'],
+            [6.5,3.2,5.1,2.0,'Iris-virginica'],
+            [6.4,2.7,5.3,1.9,'Iris-virginica'],
+            [6.8,3.0,5.5,2.1,'Iris-virginica'],
+            [5.7,2.5,5.0,2.0,'Iris-virginica'],
+            [5.8,2.8,5.1,2.4,'Iris-virginica'],
+            [6.4,3.2,5.3,2.3,'Iris-virginica'],
+            [6.5,3.0,5.5,1.8,'Iris-virginica'],
+            [7.7,3.8,6.7,2.2,'Iris-virginica'],
+            [7.7,2.6,6.9,2.3,'Iris-virginica'],
+            [6.0,2.2,5.0,1.5,'Iris-virginica'],
+            [6.9,3.2,5.7,2.3,'Iris-virginica'],
+            [5.6,2.8,4.9,2.0,'Iris-virginica'],
+            [7.7,2.8,6.7,2.0,'Iris-virginica'],
+            [6.3,2.7,4.9,1.8,'Iris-virginica'],
+            [6.7,3.3,5.7,2.1,'Iris-virginica'],
+            [7.2,3.2,6.0,1.8,'Iris-virginica'],
+            [6.2,2.8,4.8,1.8,'Iris-virginica'],
+            [6.1,3.0,4.9,1.8,'Iris-virginica'],
+            [6.4,2.8,5.6,2.1,'Iris-virginica'],
+            [7.2,3.0,5.8,1.6,'Iris-virginica'],
+            [7.4,2.8,6.1,1.9,'Iris-virginica'],
+            [7.9,3.8,6.4,2.0,'Iris-virginica'],
+            [6.4,2.8,5.6,2.2,'Iris-virginica'],
+            [6.3,2.8,5.1,1.5,'Iris-virginica'],
+            [6.1,2.6,5.6,1.4,'Iris-virginica'],
+            [7.7,3.0,6.1,2.3,'Iris-virginica'],
+            [6.3,3.4,5.6,2.4,'Iris-virginica'],
+            [6.4,3.1,5.5,1.8,'Iris-virginica'],
+            [6.0,3.0,4.8,1.8,'Iris-virginica'],
+            [6.9,3.1,5.4,2.1,'Iris-virginica'],
+            [6.7,3.1,5.6,2.4,'Iris-virginica'],
+            [6.9,3.1,5.1,2.3,'Iris-virginica'],
+            [5.8,2.7,5.1,1.9,'Iris-virginica'],
+            [6.8,3.2,5.9,2.3,'Iris-virginica'],
+            [6.7,3.3,5.7,2.5,'Iris-virginica'],
+            [6.7,3.0,5.2,2.3,'Iris-virginica'],
+            [6.3,2.5,5.0,1.9,'Iris-virginica'],
+            [6.5,3.0,5.2,2.0,'Iris-virginica'],
+            [6.2,3.4,5.4,2.3,'Iris-virginica'],
+            [5.9,3.0,5.1,1.8,'Iris-virginica']
+        ]
     
     # create Feature_Extractor, and set it's parameter
     fe = Feature_Extractor()
