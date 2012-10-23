@@ -214,6 +214,7 @@ class Feature_Extractor(object):
                         for value in projection[label]['values']:
                             if value == other_value:
                                 overlap_count += 1
+                # TODO : add intra-varriance too
                 fitness[label] = 1/( overlap_count*0.1 + between_count*0.01 + 0.001)
         return fitness
     
