@@ -68,18 +68,26 @@ class GA_Base(object):
         self._mutation_rate = 0.3
         self._crossover_rate = 0.3
         self._new_rate = 0.2
+        self._fitness_measurement = 'MAX'
         self._individual_benchmark_rank = {} # rank of individual in current generation
         self._individual_total_fitness = {} # total fitness of individuals
     
-    def _sort(self,benchmark):
+    def _sort(self,benchmark,lst=None):
         '''
         Quick sorting self._individual_benchmark_rank
         '''
-        lst = self._individual_benchmark_rank[benchmark]
-        pivot = lst[0]
-        lesser = self._sort([x for x in lst[1:] if x['fitness'] < pivot['fitness']])
-        greater = self._sort([x for x in lst[1:] if x['fitness'] >= pivot['fitness']])
-        return lesser + [pivot] + greater
+        if lst is None:
+            lst = self._individual_benchmark_rank[benchmark]
+        if len(lst)==0:
+            return lst
+        else:
+            pivot = lst[0]
+            lesser = self._sort(benchmark, [x for x in lst[1:] if x['fitness'] < pivot['fitness']])
+            greater = self._sort(benchmark, [x for x in lst[1:] if x['fitness'] >= pivot['fitness']])
+            if self._fitness_measurement == 'MAX':
+                return greater + [pivot] + lesser                
+            else:
+                return lesser + [pivot] + greater        
     
     def _process_population(self,generation_index):
         '''
@@ -96,19 +104,19 @@ class GA_Base(object):
                 individual_benchmark['index'] = individual_index
                 individual_benchmark['fitness'] = self._fitness[individual_index][benchmark]
                 self._individual_benchmark_rank[benchmark].append(individual_benchmark)
-                self._individual_total_fitness += self._fitness[individual_index][benchmark]
+                self._individual_total_fitness[benchmark] += self._fitness[individual_index][benchmark]
             # quick sort
-            self._individual_benchmark_rank[benchmark] = self._sort(self,benchmark)
+            self._individual_benchmark_rank[benchmark] = self._sort(benchmark)
             
     
-    def _get_individual_indexes(self,benchmark='default'):
+    def _get_random_individual_indexes(self,benchmark='default'):
         # take random individual (roulette wheel scenario for a benchmark)
         num = random.random() * self._individual_total_fitness[benchmark]
         acc = 0
-        for i in xrange(self._individual_benchmark_rank):
-            acc += self._individual_benchmark_rank[i]['fitness']
+        for i in xrange(len(self._individual_benchmark_rank[benchmark])):
+            acc += self._individual_benchmark_rank[benchmark][i]['fitness']
             if acc>= num:
-                return self._individual_benchmark_rank['index']
+                return self._individual_benchmark_rank[benchmark][i]['index']
     
     def _get_elite_individual_indexes(self,count,benchmark='default'):
         individuals = []
@@ -117,21 +125,21 @@ class GA_Base(object):
         return individuals
     
     def _add_to_generation(self,individual_index, generation_index=0):
-        if generation_index < (len(self._generations)-1):
-            self._generations[generation_index] = []
+        while generation_index > (len(self._generations)-1):
+            self._generations.append([])
         self._generations[generation_index].append(individual_index)
         
     
     def _register_individual(self,individual, generation_index=0):
         # completing individual representation
-        individual = self._do_process_individual(individual)
+        individual = self.do_process_individual(individual)
         try:    
             # add to generation      
             individual_index = self._individuals.index(individual)
             self._add_to_generation(individual_index, generation_index)            
         except:
             # calculation fitness
-            fitness = self._do_calculate_fitness(individual)
+            fitness = self.do_calculate_fitness(individual)
             # register individual and fitness as 'already calculated'
             # so we don't need to calculate it again whenever meet such an individual
             self._individuals.append(individual)
@@ -141,17 +149,30 @@ class GA_Base(object):
             self._add_to_generation(individual_index, generation_index)
     
     def process(self):
+        benchmark_count = len(self._benchmarks)
         total_rate = self._elitism_rate + self._mutation_rate + self._crossover_rate + self._new_rate
         elitism_count = int(self._population_size * self._elitism_rate/total_rate)
-        mutation_count = elitism_count + int(self._population_size * self._mutation_rate/total_rate)
-        crossover_count = mutation_count + int(self._population_size * self._crossover_rate/total_rate)
-        elite_individual_per_benchmark = elitism_count/len(self._benchmarks) or 1
-        mutation_individual_per_benchmark = mutation_count/len(self._benchmarks) or 1
-        crossover_individual_per_benchmark = crossover_count/len(self._benchmarks) or 1
+        mutation_count = int(self._population_size * self._mutation_rate/total_rate)
+        crossover_count = int(self._population_size * self._crossover_rate/total_rate)
+        elite_individual_per_benchmark = elitism_count/benchmark_count or 1
+        mutation_individual_per_benchmark = mutation_count/benchmark_count or 1
+        crossover_individual_per_benchmark = crossover_count/benchmark_count or 1
+        
+        # adjust population size
+        minimum_population_size = benchmark_count * (elite_individual_per_benchmark+mutation_individual_per_benchmark+crossover_individual_per_benchmark)        
+        if self._population_size<minimum_population_size:
+            self._population_size = minimum_population_size
+        
+        print('Elite individual : %d' %(elite_individual_per_benchmark * benchmark_count))
+        print('Mutation Individual : %d' %(mutation_individual_per_benchmark * benchmark_count))
+        print('Crossover Individual : %d' %(crossover_individual_per_benchmark * benchmark_count))
+        
         # for every generation
         gen = 0
-        while gen<self._max_epoch:
-            if gen>0:
+        while gen<self._max_epoch:            
+            if gen==0:
+                self._generations.append([])
+            else:
                 # for every benchmark
                 for benchmark in self._benchmarks:
                     # _get_elite_individual_indexes
@@ -160,17 +181,20 @@ class GA_Base(object):
                         self._add_to_generation(individual_index, gen)
                     # mutation
                     for i in xrange(mutation_individual_per_benchmark):
-                        individual = self._get_individual_indexes(benchmark)
+                        individual_index = self._get_random_individual_indexes(benchmark)
+                        individual = self._individuals[individual_index]
                         new_individual = self.do_mutation(individual)
                         self._register_individual(new_individual, gen)
                     # crossover
                     for i in xrange(int(crossover_individual_per_benchmark/2) or 1):
-                        individual_1 = self._get_individual_indexes(benchmark)
-                        individual_2 = self._get_individual_indexes(benchmark)
+                        individual_1_index = self._get_random_individual_indexes(benchmark)
+                        individual_2_index = self._get_random_individual_indexes(benchmark)
+                        individual_1 = self._individuals[individual_1_index]
+                        individual_2 = self._individuals[individual_2_index]
                         new_individual_1, new_individual_2 = self.do_crossover(individual_1, individual_2)
                         self._register_individual(new_individual_1, gen)
                         self._register_individual(new_individual_2, gen)
-            i = len(self._generations[gen])
+            i = len(self._generations[gen])            
             # fill out the current generation with new individuals
             while i<self._population_size:
                 individual = self.do_generate_new_individual()
@@ -178,12 +202,15 @@ class GA_Base(object):
                 i+=1
             # process the population
             self._process_population(gen)
-                
+            
+            # print the output
+            print('Generation %d' % (gen+1))
+            
             gen+=1
     
     def show(self):
         benchmarks = self._benchmarks
-        generation_index = np.arange(len(self._generations)) 
+        generation_indexes = np.arange(len(self._generations)) 
         # max_fitnesses and min_fitnesses of each generation for every benchmark
         max_fitnesses = {}
         min_fitnesses = {}          
@@ -191,49 +218,70 @@ class GA_Base(object):
             max_fitnesses[benchmark] = []
             min_fitnesses[benchmark] = [] 
         # variation of each generation
-        variations = []   
-        for i in xrange(generation_index):
+        variations = []
+        most_minimum = 0
+        most_maximum = 0
+        for i in xrange(len(generation_indexes)):
             max_fitness = {}
             min_fitness = {}
             unique_index = []
-            for j in xrange(self._generations[i]):
-                if not j in unique_index:
-                    unique_index.append(j)
+            for j in xrange(len(self._generations[i])):
+                index = self._generations[i][j]
+                if not index in unique_index:
+                    unique_index.append(index)
                 for benchmark in benchmarks:
                     if j == 0:
-                        max_fitness[benchmark] = self._fitness[j][benchmark]
-                        min_fitness[benchmark] = self._fitness[j][benchmark]
+                        max_fitness[benchmark] = self._fitness[index][benchmark]
+                        min_fitness[benchmark] = self._fitness[index][benchmark]
+                        if i == 0:
+                            most_minimum = min_fitness[benchmark]
+                            most_maximum = max_fitness[benchmark]
                     else:
-                        if self._fitness[j][benchmark] > max_fitness[benchmark]:
-                            max_fitness[benchmark] = self._fitness[j][benchmark]
-                        if self._fitness[j][benchmark] < min_fitness[benchmark]:
-                            min_fitness[benchmark] = self._fitness[j][benchmark]
-            max_fitnesses[benchmark].append(max_fitness[benchmark])
-            min_fitnesses[benchmark].append(min_fitness[benchmark])
+                        if self._fitness[index][benchmark] > max_fitness[benchmark]:
+                            max_fitness[benchmark] = self._fitness[index][benchmark]
+                        if self._fitness[index][benchmark] < min_fitness[benchmark]:
+                            min_fitness[benchmark] = self._fitness[index][benchmark]
+                    if min_fitness[benchmark] < most_minimum:
+                        most_minimum = min_fitness[benchmark]
+                    if max_fitness[benchmark] > most_maximum:
+                        most_maximum = max_fitness[benchmark]                      
+            for benchmark in benchmarks:
+                max_fitnesses[benchmark].append(max_fitness[benchmark])
+                min_fitnesses[benchmark].append(min_fitness[benchmark])
             variations.append(len(unique_index))
+            
+        fig_y_range = most_maximum - most_minimum
+        min_y = most_minimum - (fig_y_range * 0.5)
+        max_y = most_maximum + (fig_y_range * 0.5)
                     
         fig = plt.figure()
         # maximum
         sp_1 = fig.add_subplot(2,2,1)
-        sp_1.set_title('Maximum Fitness of Generations')
-        sp_1.set_y_label('Fitness Value')
-        sp_1.set_x_label('Generation')
+        sp_1.set_title('Maximum Fitness')
+        sp_1.set_ylabel('Fitness Value')
+        sp_1.set_xlabel('Generation')
+        sp_1.set_ylim(min_y,max_y)      
         for benchmark in benchmarks:
-            sp_1.plot(generation_index, max_fitnesses[benchmark])
+            sp_1.plot(generation_indexes, max_fitnesses[benchmark], label=benchmark)
+        sp_1.legend(shadow=True, loc=0)
         # minimum
         sp_2 = fig.add_subplot(2,2,2)
-        sp_2.set_title('Minimum Fitness of Generations')
-        sp_2.set_y_label('Fitness Value')
-        sp_2.set_x_label('Generation')
+        sp_2.set_title('Minimum Fitness')
+        sp_2.set_ylabel('Fitness Value')
+        sp_2.set_xlabel('Generation')
+        sp_2.set_ylim(min_y,max_y) 
         for benchmark in benchmarks:
-            sp_2.plot(generation_index, min_fitnesses[benchmark])
+            sp_2.plot(generation_indexes, min_fitnesses[benchmark], label=benchmark)
+        sp_2.legend(shadow=True, loc=0)
         # variation
         sp_3 = fig.add_subplot(2,2,3)
-        sp_3.set_title('Minimum Fitness of Generations')
-        sp_3.set_y_label('Fitness Value')
-        sp_3.set_x_label('Generation')
-        sp_3.plot(generation_index, variations)
-        fig.show()
+        sp_3.set_title('Variations')
+        sp_3.set_ylabel('Individual Variation')
+        sp_3.set_xlabel('Generation')
+        sp_3.plot(generation_indexes, variations)
+        #adjust subplot
+        plt.subplots_adjust(hspace = 0.5, wspace = 1)
+        plt.show()
     
     def do_generate_new_individual(self):
         '''
@@ -322,6 +370,19 @@ class GA_Base(object):
     @new_rate.setter
     def new_rate(self,value):
         self._new_rate = float(value)
+    
+    @property
+    def fitness_measurement(self):
+        return self._fitness_measurement
+    @fitness_measurement.setter
+    def fitness_measurement(self, value):
+        if type(value) is str:
+            if value.upper() == 'MAX':
+                self._fitness_measurement = 'MAX'
+            else:
+                self._fitness_measurement = 'MIN'
+        else:
+            self._fitness_measurement = 'MAX'
     
     @property
     def representations(self):
