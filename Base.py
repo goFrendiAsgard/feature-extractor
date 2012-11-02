@@ -210,7 +210,8 @@ class GA_Base(object):
     
     def best_individuals(self,count=1,benchmark='default',representation='default'):
         if count==1:
-            return self._individuals[0][representation]
+            index = self._individual_benchmark_rank[benchmark][0]['index']
+            return self._individuals[index][representation]
         else:
             representations = []
             for i in xrange(count):

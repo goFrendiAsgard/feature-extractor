@@ -58,5 +58,6 @@ if __name__ == '__main__':
     ga.max_epoch=100
     ga.process()
     print(ga.best_individuals(5, benchmark='value', representation='default'))
+    print(ga.best_individuals(6, benchmark='value', representation='default'))
     print(ga.best_individuals(1, benchmark='value', representation='default'))
     ga.show()
