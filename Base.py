@@ -208,6 +208,16 @@ class GA_Base(object):
             
             gen+=1
     
+    def best_individuals(self,count=1,benchmark='default',representation='default'):
+        if count==1:
+            return self._individuals[0][representation]
+        else:
+            representations = []
+            for i in xrange(count):
+                index = self._individual_benchmark_rank[benchmark][i]['index']
+                representations.append(self._individuals[index][representation])
+            return representations
+    
     def show(self):
         benchmarks = self._benchmarks
         generation_indexes = np.arange(len(self._generations)) 
