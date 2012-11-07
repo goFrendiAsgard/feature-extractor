@@ -26,6 +26,7 @@ def bin_digit_needed(decimal):
     '''
     return len(dec_to_bin(decimal))
 
+randomizer = random.Random(10)
     
 
 class GA_Base(object):
@@ -99,7 +100,12 @@ class GA_Base(object):
         for benchmark in self._benchmarks:
             self._individual_benchmark_rank[benchmark] = []
             self._individual_total_fitness[benchmark] = 0.0
-            for individual_index in self._generations[generation_index]:
+            indexes = []
+            if generation_index<(self._max_epoch-1):
+                indexes = self._generations[generation_index]
+            else:
+                indexes = xrange(len(self._individuals))
+            for individual_index in indexes:
                 individual_benchmark = {}
                 individual_benchmark['index'] = individual_index
                 individual_benchmark['fitness'] = self._fitness[individual_index][benchmark]
@@ -111,7 +117,7 @@ class GA_Base(object):
     
     def _get_random_individual_indexes(self,benchmark='default'):
         # take random individual (roulette wheel scenario for a benchmark)
-        num = random.random() * self._individual_total_fitness[benchmark]
+        num = randomizer.random() * self._individual_total_fitness[benchmark]
         acc = 0
         for i in xrange(len(self._individual_benchmark_rank[benchmark])):
             acc += self._individual_benchmark_rank[benchmark][i]['fitness']
@@ -132,14 +138,14 @@ class GA_Base(object):
     
     def _register_individual(self,individual, generation_index=0):
         # completing individual representation
-        individual = self.do_process_individual(individual)
-        try:    
+        individual = self._process_individual(individual)
+        if individual in self._individuals:
             # add to generation      
             individual_index = self._individuals.index(individual)
             self._add_to_generation(individual_index, generation_index)            
-        except:
+        else:
             # calculation fitness
-            fitness = self.do_calculate_fitness(individual)
+            fitness = self._calculate_fitness(individual)
             # register individual and fitness as 'already calculated'
             # so we don't need to calculate it again whenever meet such an individual
             self._individuals.append(individual)
@@ -183,7 +189,7 @@ class GA_Base(object):
                     for i in xrange(mutation_individual_per_benchmark):
                         individual_index = self._get_random_individual_indexes(benchmark)
                         individual = self._individuals[individual_index]
-                        new_individual = self.do_mutation(individual)
+                        new_individual = self._mutation(individual)
                         self._register_individual(new_individual, gen)
                     # crossover
                     for i in xrange(int(crossover_individual_per_benchmark/2) or 1):
@@ -191,13 +197,13 @@ class GA_Base(object):
                         individual_2_index = self._get_random_individual_indexes(benchmark)
                         individual_1 = self._individuals[individual_1_index]
                         individual_2 = self._individuals[individual_2_index]
-                        new_individual_1, new_individual_2 = self.do_crossover(individual_1, individual_2)
+                        new_individual_1, new_individual_2 = self._crossover(individual_1, individual_2)
                         self._register_individual(new_individual_1, gen)
                         self._register_individual(new_individual_2, gen)
             i = len(self._generations[gen])            
             # fill out the current generation with new individuals
             while i<self._population_size:
-                individual = self.do_generate_new_individual()
+                individual = self._generate_new_individual()
                 self._register_individual(individual, gen)
                 i+=1
             # process the population
@@ -293,6 +299,56 @@ class GA_Base(object):
         #adjust subplot
         plt.subplots_adjust(hspace = 0.5, wspace = 1)
         plt.show()
+    
+    def _generate_new_individual(self):
+        new_individual = self.do_generate_new_individual()
+        # check type
+        if not type(new_individual) is dict:
+            new_individual={}
+        return new_individual
+    
+    def _mutation(self,individual):
+        individual = dict(individual)
+        new_individual = self.do_mutation(individual)
+        # check type
+        if not type(new_individual) is dict:
+            new_individual={}
+        return new_individual
+    
+    def _crossover(self,individual_1,individual_2):
+        individual_1 = dict(individual_1)
+        individual_2 = dict(individual_2)
+        new_individual_1, new_individual_2 = self.do_crossover(individual_1,individual_2)
+        # check type
+        if not type(new_individual_1) is dict:
+            new_individual_1={}
+        if not type(new_individual_2) is dict:
+            new_individual_2={}
+        return new_individual_1, new_individual_2
+    
+    def _process_individual(self,individual):
+        individual = dict(individual)
+        individual = self.do_process_individual(individual)
+        # check type
+        if not type(individual) is dict:
+            individual={}
+        # check key
+        for representation in self._representations:
+            if not representation in individual:
+                individual[representation] = None
+        return individual
+    
+    def _calculate_fitness(self,individual):
+        individual = dict(individual)
+        fitness = self.do_calculate_fitness(individual) 
+        # check type
+        if not type(fitness) is dict:
+            fitness={}
+        # check key
+        for benchmark in self._benchmarks:
+            if not benchmark in fitness:
+                fitness[benchmark] = None
+        return fitness
     
     def do_generate_new_individual(self):
         '''
