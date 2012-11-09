@@ -110,7 +110,7 @@ class GA_Base(object):
                 individual_benchmark['index'] = individual_index
                 individual_benchmark['fitness'] = self._fitness[individual_index][benchmark]
                 self._individual_benchmark_rank[benchmark].append(individual_benchmark)
-                self._individual_total_fitness[benchmark] += self._fitness[individual_index][benchmark]
+                self._individual_total_fitness[benchmark] += float(self._fitness[individual_index][benchmark])
             # quick sort
             self._individual_benchmark_rank[benchmark] = self._sort(benchmark)
             
@@ -335,7 +335,10 @@ class GA_Base(object):
         # check key
         for representation in self._representations:
             if not representation in individual:
-                individual[representation] = None
+                individual[representation] = 0.0
+        for representation in individual:
+            if not representation in self._representations:
+                self._representations.append(representation)
         return individual
     
     def _calculate_fitness(self,individual):
@@ -347,7 +350,10 @@ class GA_Base(object):
         # check key
         for benchmark in self._benchmarks:
             if not benchmark in fitness:
-                fitness[benchmark] = None
+                fitness[benchmark] = 0.0
+        for benchmark in fitness:
+            if not benchmark in self._benchmarks:
+                self._benchmarks.append(benchmark)
         return fitness
     
     def do_generate_new_individual(self):

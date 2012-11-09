@@ -9,7 +9,7 @@ from Base import bin_to_dec
 
 class GA(Genetics_Algorithm):
     '''
-    Genetics Algorithm class
+    GA class
     '''
             
     def do_calculate_fitness(self, individual):
@@ -21,7 +21,8 @@ class GA(Genetics_Algorithm):
 
 if __name__ == '__main__':
     ga = GA()
-    ga.population_size = 20
+    ga.individual_length = 20
+    ga.population_size = 10
     ga.fitness_measurement = 'max'
     ga.benchmarks = ['value', 'zero count']
     ga.max_epoch=100

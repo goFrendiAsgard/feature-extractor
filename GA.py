@@ -10,13 +10,18 @@ class Genetics_Algorithm(GA_Base):
     '''
     Genetics Algorithm class
     '''
+    
+    def __init__(self):
+        super(Genetics_Algorithm, self).__init__()
+        self._individual_length = 5
+        
     def do_process_individual(self, individual):
         return individual
     
     def do_generate_new_individual(self):
         individual = {}
         individual['default'] = ''
-        while len(individual['default'])<5:
+        while len(individual['default'])<self._individual_length:
             rnd = randomizer.randrange(0,2)
             individual['default'] = individual['default'] + str(rnd)
         return individual
@@ -32,7 +37,7 @@ class Genetics_Algorithm(GA_Base):
         return individual_1, individual_2
     
     def do_mutation(self, individual):
-        rnd = randomizer.randrange(5)
+        rnd = randomizer.randrange(self._individual_length)
         lst = list(individual['default'])
         if lst[rnd] == '0':
             lst[rnd] = '1'
@@ -40,3 +45,10 @@ class Genetics_Algorithm(GA_Base):
             lst[rnd] = '0'
         individual['default'] = ''.join(lst)
         return individual
+    
+    @property
+    def individual_length(self):
+        return self._individual_length
+    @individual_length.setter
+    def individual_length(self,value):
+        self._individual_length = value
