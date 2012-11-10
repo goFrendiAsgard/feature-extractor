@@ -3,13 +3,22 @@ feature-extractor
 
 Feature Extraction program with Grammatical Evolution
 This package contains of several modules.
-* Base.py contains: 
- - GA_Base class
- - randomizer object
- - bin_to_dec function
- - dec_to_bin function
- - bin_digit_needed function
-* GA.py contains:
- - Genetics_Algorithm class
-* GE.py contains:
- - Grammatical_Evolution class
+* utils.py contains:
+  - object
+	 - randomizer
+  - function
+	 - bin_to_dec
+	 - dec_to_bin
+	 - bin_digit_needed
+	 - execute
+	 - plus
+	 - minus
+	 - multiply
+	 - divide
+* classes.py contains:
+  - classes
+  	- Tree
+  	- GA_Base
+  	- Genetics_Algorithm
+  	- Grammatical_Evolution
+  	- Genetics_Programming

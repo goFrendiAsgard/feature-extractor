@@ -4,8 +4,8 @@ Created on Nov 8, 2012
 @author: gofrendi
 '''
 
-from GA import Genetics_Algorithm
-from Base import bin_to_dec
+from utils import bin_to_dec
+from classes import Genetics_Algorithm
 
 class GA(Genetics_Algorithm):
     '''

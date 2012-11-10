@@ -1,33 +1,44 @@
 '''
-Created on Oct 23, 2012
+Created on Nov 10, 2012
 
 @author: gofrendi
 '''
 
-import random
+import utils
 import matplotlib.pyplot as plt
 import numpy as np
 
-def bin_to_dec(binary):
-    '''
-    decimal form of binary
-    '''
-    return int(binary,2)
-
-def dec_to_bin(decimal):
-    '''
-    binary form of decimal
-    '''
-    return str(bin(decimal)[2:])
-
-def bin_digit_needed(decimal):
-    '''
-    binary digit needed to represent decimal number
-    '''
-    return len(dec_to_bin(decimal))
-
-randomizer = random.Random(10)
+class Tree(object):
+    def __init__(self):
+        self.data = ''
+        self.children = [None, None]
     
+    def get_child(self,index):
+        return Tree(self.children[index])
+    
+    def add_child(self,value,index=None):
+        if (not index is None) and index>=len(self.children):
+            index = None
+        if type(value) is str:
+            child = Tree()
+            child.data = value
+            if index is None:
+                self.children.append(child)
+            else:
+                self.children[index] = child
+        elif type(value) is Tree:
+            value = Tree(child)
+            if index is None:
+                self.children.append(child)
+            else:
+                self.children[index] = child
+    
+    def remove_child(self,index):
+        del(self.children[index])
+    
+    @property
+    def children_count(self):
+        return len(self.children)
 
 class GA_Base(object):
     '''
@@ -116,8 +127,10 @@ class GA_Base(object):
             
     
     def _get_random_individual_indexes(self,benchmark='default'):
-        # take random individual (roulette wheel scenario for a benchmark)
-        num = randomizer.random() * self._individual_total_fitness[benchmark]
+        '''
+        take random individual (roulette wheel scenario for a benchmark)
+        '''
+        num = utils.randomizer.random() * self._individual_total_fitness[benchmark]
         acc = 0
         for i in xrange(len(self._individual_benchmark_rank[benchmark])):
             acc += self._individual_benchmark_rank[benchmark][i]['fitness']
@@ -475,4 +488,134 @@ class GA_Base(object):
         if type(value) == list:
             self._benchmarks = value
         else:
-            self._benchmarks.append(value)        
+            self._benchmarks.append(value)
+
+class Genetics_Algorithm(GA_Base):
+    '''
+    Genetics Algorithm class
+    '''
+    
+    def __init__(self):
+        super(Genetics_Algorithm, self).__init__()
+        self._individual_length = 5
+        
+    def do_process_individual(self, individual):
+        return individual
+    
+    def do_generate_new_individual(self):
+        individual = {}
+        individual['default'] = ''
+        while len(individual['default'])<self._individual_length:
+            rnd = utils.randomizer.randrange(0,2)
+            individual['default'] = individual['default'] + str(rnd)
+        return individual
+    
+    def do_crossover(self, individual_1, individual_2):
+        rnd = utils.randomizer.randrange(min(len(individual_1['default']),len(individual_2['default'])))
+        gene_1 = individual_1['default'][:rnd]
+        gene_2 = individual_1['default'][rnd:]
+        gene_3 = individual_2['default'][:rnd]
+        gene_4 = individual_2['default'][rnd:]
+        individual_1['default'] = gene_1 + gene_4
+        individual_2['default'] = gene_2 + gene_3
+        return individual_1, individual_2
+    
+    def do_mutation(self, individual):
+        rnd = utils.randomizer.randrange(self._individual_length)
+        lst = list(individual['default'])
+        if lst[rnd] == '0':
+            lst[rnd] = '1'
+        else:
+            lst[rnd] = '0'
+        individual['default'] = ''.join(lst)
+        return individual
+    
+    @property
+    def individual_length(self):
+        return self._individual_length
+    @individual_length.setter
+    def individual_length(self,value):
+        self._individual_length = value
+
+class Grammatical_Evolution(Genetics_Algorithm):
+    
+    def __init__(self):
+        super(Grammatical_Evolution, self).__init__()
+        self.representations = ['default', 'phenotype']
+        self._variables = ['x','y']
+        self._grammar = {
+            'expr':['var','expr op expr'],
+            'var' :['x','y'],
+            'op'  :['+','-','*','/']
+        }
+        self._start_node = 'expr'
+    
+    def _transform(self, gene):
+        depth = 10
+        gene_index = 0
+        expr = self._start_node
+        # for each level
+        level = 0
+        while level < depth:
+            i=0
+            new_expr = ''
+            # parse every character in the expr
+            while i<len(expr):                
+                found = False
+                for key in self._grammar:
+                    # if there is a keyword in the grammar, replace it with rule in production
+                    if (expr[i:i+len(key)] == key):
+                        found = True
+                        # count how many transformation possibility exists
+                        possibility = len(self._grammar[key])
+                        # how many binary digit needed to represent the possibilities
+                        digit_needed = utils.bin_digit_needed(possibility)
+                        # if end of gene, then start over from the beginning
+                        if(gene_index+digit_needed)>len(gene):
+                            gene_index = 0
+                        # get part of gene that will be used
+                        used_gene = gene[gene_index:gene_index+digit_needed]
+                        if(used_gene == ''):
+                            print gene, gene_index, digit_needed, len(gene)  
+                        
+                        gene_index = gene_index + digit_needed                          
+                                               
+                        rule_index = utils.bin_to_dec(used_gene) % possibility
+                        new_expr += self._grammar[key][rule_index]
+                        i+= len(key)-1
+                if not found:
+                    new_expr += expr[i:i+1]
+                i += 1
+            expr = new_expr
+            level = level+1
+        return expr
+    
+    def do_process_individual(self, individual):
+        genotype = individual['default']
+        phenotype = self._transform(genotype)
+        individual['phenotype'] = phenotype
+        return individual
+    
+    @property
+    def grammar(self):
+        return self._grammar
+    @grammar.setter
+    def grammar(self,value):
+        self._grammar = value
+    
+    @property
+    def variables(self):
+        return self._variables
+    @variables.setter
+    def variables(self,value):
+        self._variables = value
+    
+    @property
+    def start_node(self):
+        return self._start_node
+    @start_node.setter
+    def start_node(self,value):
+        self._start_node = value
+
+class Genetics_Programming(GA_Base):
+    pass

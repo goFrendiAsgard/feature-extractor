@@ -4,14 +4,15 @@ Created on Nov 9, 2012
 @author: gofrendi
 '''
 
-from GE import Grammatical_Evolution
+from utils import execute
+from classes import Grammatical_Evolution
 
 class GE(Grammatical_Evolution):
     def do_calculate_fitness(self, individual):
         fitness = {}
         record = [5,4]
         val = 9
-        result, error = self.execute(individual['phenotype'], record)
+        result, error = execute(individual['phenotype'], record)
         if error:
             fitness['default'] = 100000
         else:
@@ -21,7 +22,7 @@ class GE(Grammatical_Evolution):
 if __name__ == '__main__':
     ge = GE()
     ge.individual_length = 50
-    ge.population_size = 5
+    ge.population_size = 10
     ge.fitness_measurement = 'min'
     ge.variables = ['x','y']
     ge.start_node = 'expr'
