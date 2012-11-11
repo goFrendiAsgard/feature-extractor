@@ -26,6 +26,7 @@ if __name__ == '__main__':
     ga.fitness_measurement = 'max'
     ga.benchmarks = ['value', 'zero count']
     ga.max_epoch=100
+    ga.stopping_value = {'value':1024000, 'zero count': 16}
     ga.process()
     print(ga.best_individuals(6, benchmark='value', representation='default'))
     print(ga.best_individuals(benchmark='value', representation='default'))

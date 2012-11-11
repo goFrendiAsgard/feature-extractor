@@ -8,6 +8,22 @@ import random
 
 randomizer = random.Random(10)
 
+def plus(num_1, num_2):
+    return num_1 + num_2
+
+def minus(num_1, num_2):
+    return num_1 - num_2
+
+def multiply(num_1, num_2):
+    return num_1 * num_2
+
+def divide(num_1, num_2):
+    return num_1/num_2
+
+def power(num_1, num_2):
+    return num_1 ** num_2
+
+
 def bin_to_dec(binary):
     '''
     decimal form of binary
@@ -26,7 +42,7 @@ def bin_digit_needed(decimal):
     '''
     return len(dec_to_bin(decimal))
 
-def execute(expr, record):
+def execute(expr, record, variables):
     '''
     execute string as python program, give tuple(result, error) as return value
     '''
@@ -35,9 +51,10 @@ def execute(expr, record):
     # get result and error state
     try:
         sandbox={}
+        exec ('from utils import *') in sandbox
         # initialize features
-        for i in xrange(len(self._variables)):
-            feature = self._variables[i]       
+        for i in xrange(len(variables)):
+            feature = variables[i]       
             exec(feature+' = '+str(record[i])) in sandbox 
         # execute expr, and get the result         
         exec('__result = '+expr) in sandbox                      
@@ -46,14 +63,4 @@ def execute(expr, record):
         error = True    
     return result, error
 
-def plus(num_1, num_2):
-    return num_1 + num_2
 
-def minus(num_1, num_2):
-    return num_1 - num_2
-
-def multiply(num_1, num_2):
-    return num_1 * num_2
-
-def divide(num_1, num_2):
-    return num_1/num_2

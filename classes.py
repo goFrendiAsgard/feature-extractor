@@ -59,15 +59,28 @@ class Tree(object):
             program += ')'
         return program
     
-    def generate(self,nodes=[['x','y'],['plus','minus','multiply','divide']]):
-        children_count = utils.randomizer.randrange(0,len(nodes))
+    def generate(self,nodes=[['x','y'],[],['plus','minus','multiply','divide']],max_level = 10):
+        children_count = 0
+        if max_level > 0:
+            children_count = utils.randomizer.randrange(0,len(nodes))
+        # anticipate if there is an empty array among nodes
+        while len(nodes[children_count])==0:
+            if children_count<len(nodes)-1:
+                children_count += 1
+            else:
+                children_count = 0
+        # generate node_index
         node_index = utils.randomizer.randrange(0,len(nodes[children_count]))
         self.data = nodes[children_count][node_index]
         self.children = []
-        for i in xrange(children_count):
-            self.add_child()
-            child = self.get_child(i)
-            child.generate(nodes)
+        if children_count>0:
+            for i in xrange(children_count):
+                self.add_child()
+                child = self.get_child(i)
+                child.generate(nodes, max_level-1)
+    
+    def __repr__(self, *args, **kwargs):
+        return self.as_program()
     
     @property
     def children_count(self):
@@ -128,6 +141,7 @@ class GA_Base(object):
         self._crossover_rate = 0.3
         self._new_rate = 0.2
         self._fitness_measurement = 'MAX'
+        self._stopping_value = None
         self._individual_benchmark_rank = {} # rank of individual in current generation
         self._individual_total_fitness = {} # total fitness of individuals
     
@@ -148,7 +162,7 @@ class GA_Base(object):
             else:
                 return lesser + [pivot] + greater        
     
-    def _process_population(self,generation_index):
+    def _process_population(self,generation_index, end=False):
         '''
         Process the population
         making self._individual_benchmark_rank and self._individual_total_fitness
@@ -159,7 +173,7 @@ class GA_Base(object):
             self._individual_benchmark_rank[benchmark] = []
             self._individual_total_fitness[benchmark] = 0.0
             indexes = []
-            if generation_index<(self._max_epoch-1):
+            if not end:
                 indexes = self._generations[generation_index]
             else:
                 indexes = xrange(len(self._individuals))
@@ -215,7 +229,7 @@ class GA_Base(object):
             self._add_to_generation(individual_index, generation_index)
     
     def process(self):
-        benchmark_count = len(self._benchmarks)
+        benchmark_count = len(self.benchmarks)
         total_rate = self._elitism_rate + self._mutation_rate + self._crossover_rate + self._new_rate
         elitism_count = int(self._population_size * self._elitism_rate/total_rate)
         mutation_count = int(self._population_size * self._mutation_rate/total_rate)
@@ -223,6 +237,20 @@ class GA_Base(object):
         elite_individual_per_benchmark = elitism_count/benchmark_count or 1
         mutation_individual_per_benchmark = mutation_count/benchmark_count or 1
         crossover_individual_per_benchmark = crossover_count/benchmark_count or 1
+        
+        # stopping value
+        if type(self.stopping_value) is dict:
+            for benchmark in self.benchmarks:                
+                if not benchmark in self.stopping_value:
+                    self.stopping_value[benchmark] = None
+            for benchmark in self.stopping_value:
+                if not benchmark in self.benchmarks:
+                    del(self.stopping_value[benchmark])
+        elif not self.stopping_value is None:
+            stopping_value = float(self.stopping_value)
+            self.stopping_value = {}
+            for benchmark in self.benchmarks:
+                self.stopping_value[benchmark] = stopping_value
         
         # adjust population size
         minimum_population_size = benchmark_count * (elite_individual_per_benchmark+mutation_individual_per_benchmark+crossover_individual_per_benchmark)        
@@ -266,11 +294,40 @@ class GA_Base(object):
                 individual = self._generate_new_individual()
                 self._register_individual(individual, gen)
                 i+=1
+            
+            ended = False
+            # check stopping condition
+            if not self.stopping_value is None:
+                can_stop = True
+                self._process_population(gen, ended)
+                for benchmark in self.benchmarks:
+                    if self.stopping_value[benchmark] is None:
+                        continue
+                    else:
+                        index = self._individual_benchmark_rank[benchmark][0]['index']
+                        fitness = self.fitness[index][benchmark]
+                        print benchmark, fitness, self.fitness_measurement
+                        if self.fitness_measurement == 'MAX':
+                            if fitness < self.stopping_value[benchmark]:
+                                can_stop = False
+                                break
+                        else:
+                            if fitness > self.stopping_value[benchmark]:
+                                can_stop = False
+                                break
+                ended = can_stop
+            
+            ended = ended or gen==(self._max_epoch-1)
+            
             # process the population
-            self._process_population(gen)
+            self._process_population(gen, ended)
             
             # print the output
             print('Generation %d' % (gen+1))
+            
+            # break if ended
+            if ended:
+                break
             
             gen+=1
     
@@ -522,7 +579,7 @@ class GA_Base(object):
         return self._representations
     @representations.setter
     def representations(self,value):
-        if type(value) == list:
+        if type(value) is list:
             self._representations = value
         else:
             self._representations.append(value)
@@ -532,10 +589,18 @@ class GA_Base(object):
         return self._benchmarks
     @benchmarks.setter
     def benchmarks(self,value):
-        if type(value) == list:
+        if type(value) is list:
             self._benchmarks = value
         else:
             self._benchmarks.append(value)
+    
+    @property
+    def stopping_value(self):
+        return self._stopping_value
+    @stopping_value.setter
+    def stopping_value(self,value):
+        self._stopping_value = value
+            
 
 class Genetics_Algorithm(GA_Base):
     '''
@@ -544,7 +609,7 @@ class Genetics_Algorithm(GA_Base):
     
     def __init__(self):
         super(Genetics_Algorithm, self).__init__()
-        self._individual_length = 5
+        self._individual_length = 10
         
     def do_process_individual(self, individual):
         return individual
@@ -598,7 +663,7 @@ class Grammatical_Evolution(Genetics_Algorithm):
         self._start_node = 'expr'
     
     def _transform(self, gene):
-        depth = 10
+        depth = 20
         gene_index = 0
         expr = self._start_node
         # for each level
@@ -668,7 +733,7 @@ class Genetics_Programming(GA_Base):
     def __init__(self):
         super(Genetics_Programming,self).__init__()
         self.representation = ['default','phenotype']
-        self._nodes = [['x','y'],['plus','minus','multiply','divide']]
+        self._nodes = [['x','y'],[],['plus','minus','multiply','divide']]
     
     def do_process_individual(self, individual):
         individual['phenotype'] = individual['default'].as_program()

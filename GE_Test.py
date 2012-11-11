@@ -12,7 +12,7 @@ class GE(Grammatical_Evolution):
         fitness = {}
         record = [5,4]
         val = 9
-        result, error = execute(individual['phenotype'], record)
+        result, error = execute(individual['phenotype'], record, self.variables)
         if error:
             fitness['default'] = 100000
         else:
@@ -21,8 +21,8 @@ class GE(Grammatical_Evolution):
 
 if __name__ == '__main__':
     ge = GE()
-    ge.individual_length = 50
-    ge.population_size = 10
+    ge.individual_length = 100
+    ge.population_size = 5
     ge.fitness_measurement = 'min'
     ge.variables = ['x','y']
     ge.start_node = 'expr'
@@ -31,7 +31,8 @@ if __name__ == '__main__':
         'var' :['x','y'],
         'op'  :['+','-','*','/']
     }    
-    ge.max_epoch=10
+    ge.max_epoch=100
+    ge.stopping_value = 0
     ge.process()
     print(ge.best_individuals(6, representation='default'))
     print(ge.best_individuals(representation='default'))
