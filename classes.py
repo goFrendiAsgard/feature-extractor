@@ -144,6 +144,7 @@ class GA_Base(object):
         self._stopping_value = None
         self._individual_benchmark_rank = {} # rank of individual in current generation
         self._individual_total_fitness = {} # total fitness of individuals
+        self._label = ''
     
     def _sort(self,benchmark,lst=None):
         '''
@@ -306,7 +307,6 @@ class GA_Base(object):
                     else:
                         index = self._individual_benchmark_rank[benchmark][0]['index']
                         fitness = self.fitness[index][benchmark]
-                        print benchmark, fitness, self.fitness_measurement
                         if self.fitness_measurement == 'MAX':
                             if fitness < self.stopping_value[benchmark]:
                                 can_stop = False
@@ -353,8 +353,12 @@ class GA_Base(object):
             min_fitnesses[benchmark] = [] 
         # variation of each generation
         variations = []
-        most_minimum = 0
-        most_maximum = 0
+        most_minimum_minimum = 0
+        most_maximum_minimum = 0
+        most_minimum_maximum = 0
+        most_maximum_maximum = 0
+        min_variation = 0
+        max_variation = 0
         for i in xrange(len(generation_indexes)):
             max_fitness = {}
             min_fitness = {}
@@ -366,27 +370,45 @@ class GA_Base(object):
                 for benchmark in benchmarks:
                     if j == 0:
                         max_fitness[benchmark] = self._fitness[index][benchmark]
-                        min_fitness[benchmark] = self._fitness[index][benchmark]
-                        if i == 0:
-                            most_minimum = min_fitness[benchmark]
-                            most_maximum = max_fitness[benchmark]
+                        min_fitness[benchmark] = self._fitness[index][benchmark]                        
                     else:
                         if self._fitness[index][benchmark] > max_fitness[benchmark]:
                             max_fitness[benchmark] = self._fitness[index][benchmark]
                         if self._fitness[index][benchmark] < min_fitness[benchmark]:
-                            min_fitness[benchmark] = self._fitness[index][benchmark]
-                    if min_fitness[benchmark] < most_minimum:
-                        most_minimum = min_fitness[benchmark]
-                    if max_fitness[benchmark] > most_maximum:
-                        most_maximum = max_fitness[benchmark]                      
+                            min_fitness[benchmark] = self._fitness[index][benchmark]                 
+                        
+                                             
             for benchmark in benchmarks:
+                if i == 0:
+                    most_minimum_minimum = min_fitness[benchmark]
+                    most_maximum_minimum = min_fitness[benchmark]
+                    most_minimum_maximum = max_fitness[benchmark]
+                    most_maximum_maximum = max_fitness[benchmark]
+                else:
+                    if min_fitness[benchmark] < most_minimum_minimum:
+                        most_minimum_minimum = min_fitness[benchmark]
+                    if min_fitness[benchmark] > most_maximum_minimum:
+                        most_maximum_minimum = min_fitness[benchmark]
+                    if max_fitness[benchmark] < most_minimum_maximum:
+                        most_minimum_maximum = max_fitness[benchmark]
+                    if max_fitness[benchmark] > most_maximum_maximum:
+                        most_maximum_maximum = max_fitness[benchmark] 
+                # add to max and min fitnesses
                 max_fitnesses[benchmark].append(max_fitness[benchmark])
                 min_fitnesses[benchmark].append(min_fitness[benchmark])
-            variations.append(len(unique_index))
             
-        fig_y_range = most_maximum - most_minimum
-        min_y = most_minimum - (fig_y_range * 0.5)
-        max_y = most_maximum + (fig_y_range * 0.5)
+            variation = len(unique_index)
+            if i == 0:
+                min_variation = variation
+                max_variation = variation
+            else:
+                if min_variation>variation:
+                    min_variation = variation
+                if max_variation<variation:
+                    max_variation = variation
+            variations.append(variation)
+            
+        
                     
         fig = plt.figure()
         # maximum
@@ -394,7 +416,10 @@ class GA_Base(object):
         sp_1.set_title('Maximum Fitness')
         sp_1.set_ylabel('Fitness Value')
         sp_1.set_xlabel('Generation')
-        sp_1.set_ylim(min_y,max_y)      
+        fig_y_range = most_maximum_maximum - most_minimum_maximum
+        min_y = most_minimum_maximum - (fig_y_range * 0.25)
+        max_y = most_maximum_maximum + (fig_y_range * 0.25)
+        sp_1.set_ylim(min_y, max_y)      
         for benchmark in benchmarks:
             sp_1.plot(generation_indexes, max_fitnesses[benchmark], label=benchmark)
         sp_1.legend(shadow=True, loc=0)
@@ -403,7 +428,10 @@ class GA_Base(object):
         sp_2.set_title('Minimum Fitness')
         sp_2.set_ylabel('Fitness Value')
         sp_2.set_xlabel('Generation')
-        sp_2.set_ylim(min_y,max_y) 
+        fig_y_range = most_maximum_minimum - most_minimum_minimum
+        min_y = most_minimum_minimum - (fig_y_range * 0.25)
+        max_y = most_maximum_minimum + (fig_y_range * 0.25)
+        sp_2.set_ylim(min_y, max_y) 
         for benchmark in benchmarks:
             sp_2.plot(generation_indexes, min_fitnesses[benchmark], label=benchmark)
         sp_2.legend(shadow=True, loc=0)
@@ -412,9 +440,14 @@ class GA_Base(object):
         sp_3.set_title('Variations')
         sp_3.set_ylabel('Individual Variation')
         sp_3.set_xlabel('Generation')
+        fig_y_range = max_variation - min_variation
+        min_y = min_variation - (fig_y_range * 0.25)
+        max_y = max_variation + (fig_y_range * 0.25)
+        sp_3.set_ylim(min_y, max_y)
         sp_3.plot(generation_indexes, variations)
         #adjust subplot
         plt.subplots_adjust(hspace = 0.5, wspace = 1)
+        plt.suptitle('%s, Fitness Measurement : %s' %(self.label, self.fitness_measurement))
         plt.show()
     
     def _generate_new_individual(self):
@@ -600,7 +633,13 @@ class GA_Base(object):
     @stopping_value.setter
     def stopping_value(self,value):
         self._stopping_value = value
-            
+    
+    @property
+    def label(self):
+        return self._label
+    @label.setter
+    def label(self, value):
+        self._label = value
 
 class Genetics_Algorithm(GA_Base):
     '''
@@ -610,6 +649,7 @@ class Genetics_Algorithm(GA_Base):
     def __init__(self):
         super(Genetics_Algorithm, self).__init__()
         self._individual_length = 10
+        self.label = 'Genetics Algorithm'
         
     def do_process_individual(self, individual):
         return individual
@@ -653,6 +693,7 @@ class Grammatical_Evolution(Genetics_Algorithm):
     
     def __init__(self):
         super(Grammatical_Evolution, self).__init__()
+        self.label = 'Grammatical Evolution'
         self.representations = ['default', 'phenotype']
         self._variables = ['x','y']
         self._grammar = {
@@ -687,8 +728,6 @@ class Grammatical_Evolution(Genetics_Algorithm):
                             gene_index = 0
                         # get part of gene that will be used
                         used_gene = gene[gene_index:gene_index+digit_needed]
-                        if(used_gene == ''):
-                            print gene, gene_index, digit_needed, len(gene)  
                         
                         gene_index = gene_index + digit_needed                          
                                                
@@ -732,6 +771,7 @@ class Grammatical_Evolution(Genetics_Algorithm):
 class Genetics_Programming(GA_Base):
     def __init__(self):
         super(Genetics_Programming,self).__init__()
+        self.label = 'Genetics Programming'
         self.representation = ['default','phenotype']
         self._nodes = [['x','y'],[],['plus','minus','multiply','divide']]
     
