@@ -10,35 +10,82 @@ import numpy as np
 
 class Tree(object):
     def __init__(self):
-        self.data = ''
-        self.children = [None, None]
+        self._data = ''
+        self._children = []
+    
+    def get_random_node(self):
+        if self.children_count>0:
+            child_index = utils.randomizer.randrange(0,self.children_count)
+            rnd = utils.randomizer.randrange(0,2)
+            if rnd==0:
+                return self.get_child(child_index)
+            else:
+                return self.get_child(child_index).get_random_node()
+        else:
+            return self
     
     def get_child(self,index):
-        return Tree(self.children[index])
+        return self.children[index]
     
-    def add_child(self,value,index=None):
-        if (not index is None) and index>=len(self.children):
-            index = None
+    def replace_child(self,index,value):
+        self._children[index] = value
+    
+    def add_child(self,value=None):
         if type(value) is str:
             child = Tree()
             child.data = value
-            if index is None:
-                self.children.append(child)
-            else:
-                self.children[index] = child
+            self._children.append(child)
         elif type(value) is Tree:
-            value = Tree(child)
-            if index is None:
-                self.children.append(child)
-            else:
-                self.children[index] = child
+            child = value
+            self._children.append(child)
+        else:
+            child = Tree()
+            self._children.append(child)
     
     def remove_child(self,index):
         del(self.children[index])
     
+    def as_program(self):
+        program = ''
+        if self.children_count==0:
+            program = self._data
+        else:
+            program = self._data + '('
+            for i in xrange(len(self._children)):
+                child = self._children[i]
+                program += child.as_program()
+                if i<len(self._children)-1:
+                    program += ','                
+            program += ')'
+        return program
+    
+    def generate(self,nodes=[['x','y'],['plus','minus','multiply','divide']]):
+        children_count = utils.randomizer.randrange(0,len(nodes))
+        node_index = utils.randomizer.randrange(0,len(nodes[children_count]))
+        self.data = nodes[children_count][node_index]
+        self.children = []
+        for i in xrange(children_count):
+            self.add_child()
+            child = self.get_child(i)
+            child.generate(nodes)
+    
     @property
     def children_count(self):
         return len(self.children)
+    
+    @property
+    def children(self):
+        return self._children
+    @children.setter
+    def children(self, value):
+        self._children = value
+    
+    @property
+    def data(self):
+        return self._data
+    @data.setter
+    def data(self,value):
+        self._data = value
 
 class GA_Base(object):
     '''
@@ -618,4 +665,37 @@ class Grammatical_Evolution(Genetics_Algorithm):
         self._start_node = value
 
 class Genetics_Programming(GA_Base):
-    pass
+    def __init__(self):
+        super(Genetics_Programming,self).__init__()
+        self.representation = ['default','phenotype']
+        self._nodes = [['x','y'],['plus','minus','multiply','divide']]
+    
+    def do_process_individual(self, individual):
+        individual['phenotype'] = individual['default'].as_program()
+        return individual
+    
+    def do_generate_new_individual(self):
+        tree = Tree()
+        tree.generate(self._nodes)
+        individual = {'default':tree}
+        return individual
+    
+    def do_crossover(self, individual_1, individual_2):
+        node_1 = individual_1['default'].get_random_node()
+        node_2 = individual_2['default'].get_random_node()
+        node_1, node_2 = node_2, node_1
+        return individual_1, individual_2
+    
+    def do_mutation(self, individual):
+        node = individual['default'].get_random_node()
+        children_count = node.children_count
+        rnd = utils.randomizer.randrange(0,len(self._nodes[children_count]))
+        node.data = self._nodes[children_count][rnd]
+        return individual
+    
+    @property
+    def nodes(self):
+        return self._nodes
+    @nodes.setter
+    def nodes(self,value):
+        self._nodes = value

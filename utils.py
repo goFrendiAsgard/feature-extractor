@@ -26,7 +26,7 @@ def bin_digit_needed(decimal):
     '''
     return len(dec_to_bin(decimal))
 
-def execute(self, expr, record):
+def execute(expr, record):
     '''
     execute string as python program, give tuple(result, error) as return value
     '''
