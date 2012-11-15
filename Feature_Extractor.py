@@ -29,8 +29,9 @@ class GE_Multi_Fitness(classes.Grammatical_Evolution):
         self.records = []
     
     def do_calculate_fitness(self, individual):
-        utils.execute(expr, record, variables)
-        return classes.Grammatical_Evolution.do_calculate_fitness(self, individual)
+        pass
+        #utils.execute(expr, record, variables)
+        #return classes.Grammatical_Evolution.do_calculate_fitness(self, individual)
 
 class Feature_Extractor(object):
     def __init__(self):
