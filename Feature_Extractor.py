@@ -3,9 +3,8 @@ Created on Nov 13, 2012
 
 @author: gofrendi
 '''
-import classes, utils, numpy
+import classes, utils, numpy, time
 from sklearn import svm, datasets
-import matplotlib.pyplot as plt
 
 def count_unmatch(data_1, data_2):
     if len(data_1) == len(data_2) and len(data_1)>0:
@@ -18,10 +17,15 @@ def count_unmatch(data_1, data_2):
         raise TypeError
 
 def calculate_mse(data_1, data_2):
+    num_types = (float,int,long,complex)
     if (len(data_1) == len(data_2)) and len(data_1)>0:
         se = 0.0
         for i in xrange(len(data_1)):
-            se += (data_1[i] - data_2[i]) ** 2
+            # both data is number
+            if isinstance(data_1[i], num_types) and isinstance(data_2[i], num_types):
+                se += (data_1[i] - data_2[i]) ** 2
+            else:
+                se += 1
         mse = se/len(data_1)
         return mse
     else:
@@ -30,7 +34,7 @@ def calculate_mse(data_1, data_2):
 def get_comparison(data_1, data_2):
     return 'Unmatch = %d, MSE = %f' %(count_unmatch(data_1,data_2), calculate_mse(data_1,data_2))
 
-def select_feature(data, mask):
+def gene_to_feature(data, mask):
     new_data = []
     if type(data[0]) is list:
         for i in xrange(len(data)):
@@ -48,24 +52,62 @@ def select_feature(data, mask):
 def get_feature_count(data):
     return len(data[0])
 
-def show_svm(training_data, training_target, test_data, test_target, mask=[], variables=[], label='', svc=None):
+def gene_to_svm(gene, feature_count):
+    kernel_gene = gene[feature_count:feature_count+2]
+    degree_gene = gene[feature_count+2:feature_count+4]
+    gamma_gene = gene[feature_count+4:feature_count+6]
+    kernel_option = {'00':'linear', '01':'linear', '10':'rbf', '11':'poly'}
+    degree_value = utils.bin_to_dec(degree_gene)+1
+    gamma_value = float(utils.bin_to_dec(gamma_gene)+1)/10.0
+    svc = svm.SVC(kernel=kernel_option[kernel_gene], C=1.0, degree=degree_value, gamma=gamma_value)
+    return svc
+
+def process_svm(training_data, training_target, test_data, test_target, variables=[], label='', svc=None):
+    utils.write("Processing SVM '%s'" % (label))
+    
     if svc is None:
-        svc = svm.SVC(kernel='linear').fit(training_data, training_target)    
-    if len(mask)>0:
-        training_data = select_feature(training_data, mask)
-        test_data = select_feature(test_data, mask)
-        variables = select_feature(variables, mask)
+        svc = svm.SVC(kernel='linear')
         
+    utils.write("Training SVM '%s'" % (label))
+    start_time = time.time()
+    svc.fit(training_data, training_target)    
+    end_time = time.time()
+    utils.write("Done training SVM '%s'" % (label))
+    training_time = end_time - start_time
+    
+    utils.write("Executing SVM '%s'" % (label))
+    start_time = time.time()    
     svc_training_prediction = svc.predict(training_data)
     svc_test_prediction = svc.predict(test_data)
-    label = ' '+label+' '
-    limitter_count = int((90-len(label))/2)
-    print('='*limitter_count + label + '='*limitter_count)
-    print('TRAINING      : '+get_comparison(training_target,svc_training_prediction))
-    print('TEST          : '+get_comparison(test_target,svc_test_prediction))
-    print('FEATURE COUNT : '+str(get_feature_count(training_data)))
-    print('USED FEATURE  : '+", ".join(variables))
+    end_time = time.time()
+    utils.write("Done executing '%s'" % (label))
+    execution_time = end_time - start_time
+    utils.write("Done Processing SVM '%s'" % (label))
+    print('')
     
+    label = ' '+label+' '
+    limitter_count = int((70-len(label))/2)
+    result = ''
+    result += '='*limitter_count + label + '='*limitter_count+'\r\n'
+    result += 'TRAINING      : '+get_comparison(training_target,svc_training_prediction)+'\r\n'
+    result += 'TEST          : '+get_comparison(test_target,svc_test_prediction)+'\r\n'
+    result += 'FEATURES COUNT: '+str(get_feature_count(training_data))+'\r\n'
+    result += 'USED FEATURES : '+", ".join(variables)+'\r\n'
+    result += 'TRAINING TIME : '+str(training_time)+' second(s)\r\n'
+    result += 'EXECUTION TIME: '+str(execution_time)+' second(s)\r\n\r\n'
+    return result
+
+def build_new_data(data, old_variables, new_features):
+    new_data = []
+    for record in data:
+        new_record = []
+        for feature in new_features:
+            result, error = utils.execute(feature, record, old_variables)
+            if error:
+                result = -1
+            new_record.append(result)
+        new_data.append(new_record)
+    return new_data
 
 class GA_SVM(classes.Genetics_Algorithm): 
     def __init__(self):
@@ -88,19 +130,13 @@ class GA_SVM(classes.Genetics_Algorithm):
         gene = individual['default']
         # if the dataset is empty, then everything is impossible, don't try to do anything
         if not len(self.training_data) == 0 and not len(self.training_data[0]) == 0:
-            feature_count = len(self.training_data[0]) # how many feature available in the data
-            
+            feature_count = len(self.training_data[0]) # how many feature available in the data            
             # feature selection by using first digits of the gene
-            new_training_data = select_feature(self.training_data, gene)
-            
-            # perform svm (actually we still able to give some improvements, like choosing kernel etc)
-            kernel_gene = gene[feature_count:feature_count+2]
-            degree_gene = gene[feature_count+2:feature_count+4]
-            gamma_gene = gene[feature_count+4:feature_count+6]
-            kernel_option = {'00':'linear', '01':'linear', '10':'rbf', '11':'poly'}
-            degree_value = utils.bin_to_dec(degree_gene)+1
-            gamma_value = float(utils.bin_to_dec(gamma_gene)+1)/10.0
-            svc = svm.SVC(kernel=kernel_option[kernel_gene], C=1.0, degree=degree_value, gamma=gamma_value).fit(new_training_data, self.training_target)
+            new_training_data = gene_to_feature(self.training_data, gene)
+            # perform svm
+            svc = gene_to_svm(gene, feature_count)
+            svc.fit(new_training_data, self.training_target)
+            # predict
             prediction = svc.predict(new_training_data)
             individual['svc'] = svc
             individual['unmatch_count'] = count_unmatch(self.training_target, prediction)
@@ -110,9 +146,9 @@ class GA_SVM(classes.Genetics_Algorithm):
     def do_calculate_fitness(self, individual):                    
         return {'unmatch_count': individual['unmatch_count'], 'mse':individual['mse']}
 
-class GE_Multi_Fitness(classes.Grammatical_Evolution):
+class GE_Base(classes.Grammatical_Evolution):
     def __init__(self):
-        super(GE_Multi_Fitness, self).__init__()
+        super(GE_Base, self).__init__()
         self.fitness_measurement = 'MIN'
         self.variables = []
         self.grammar = {
@@ -126,10 +162,114 @@ class GE_Multi_Fitness(classes.Grammatical_Evolution):
         self.training_target = []
         self.classes = []
     
+    def _bad_fitness(self):
+        fitness = {}
+        for benchmark in self.benchmarks:
+            fitness[benchmark] = 1000000000
+        return fitness
+    
+    def _calculate_projection(self, phenotype):
+        '''
+        return error, global projection, per-group projection, per-group max projection value and per-group min projection value
+        when training_data and training_target projected by the phenotype
+        '''
+        error = False
+        training_data = self.training_data
+        training_target = self.training_target
+        variables = self.variables
+        projection = {}
+        global_projection = []
+        min_projection = {}
+        max_projection = {}
+        for group in self.classes:
+            projection[group] = []
+            min_projection[group] = 0
+            max_projection[group] = 0
+            
+        # calculate projection
+        for i in xrange(len(training_data)):
+            record = training_data[i]
+            for group in self.classes:
+                if group == training_target[i]:
+                    result, error = utils.execute(phenotype, record, variables)
+                    if error:
+                        return error, global_projection, projection, min_projection, max_projection
+                    else:
+                        result = float(result)
+                        if len(projection[group]) == 0:
+                            min_projection[group] = result
+                            max_projection[group] = result
+                        else:
+                            if result<min_projection[group]:
+                                min_projection[group] = result
+                            if result>max_projection[group]:
+                                max_projection[group] = result
+                        projection[group].append(result)
+                        global_projection.append(result)
+        return error, global_projection, projection, min_projection, max_projection
+    
+    def _pack_projection_attribute(self, global_stdev, phenotype_complexity, local_stdev, between_count, collide_count, projection_count):
+        return {
+           'global_stdev' : global_stdev,
+           'phenotype_complexity' : phenotype_complexity,
+           'local_stdev' : local_stdev,
+           'between_count' : between_count,
+           'collide_count' : collide_count,
+           'projection_count' : projection_count
+        }
+    
+    def _calculate_projection_attribute(self, phenotype):
+        '''
+        return a dictionary which contains of global_stdev, 
+        phenotype_complexity, local_stdev, between_count, collide_count and projection_count
+        '''
+        
+        # calculate projection        
+        error, global_projection, projection, max_projection, min_projection = self._calculate_projection(phenotype)
+        
+        global_stdev = 0.0000000001 # avoid division by zero
+        phenotype_complexity = len(phenotype)
+        local_stdev = {}
+        between_count = {}
+        collide_count = {}
+        projection_count = {}
+        
+        
+        if error:
+            attributes = self._pack_projection_attribute(global_stdev, phenotype_complexity, local_stdev, between_count, collide_count, projection_count)
+            return error, attributes
+        
+        # calculate projection attribute                    
+        global_stdev = max(numpy.std(global_projection), 0.0000000001) # avoid division by zero
+        phenotype_complexity = len(phenotype)
+        local_stdev = {}
+        between_count = {}
+        collide_count = {}
+        projection_count = {}
+        for current_group in self.classes:
+            # stdev
+            local_stdev[current_group] = numpy.std(projection[current_group])
+            between_count[current_group] = 0
+            collide_count[current_group] = 0
+            projection_count[current_group] = len(projection[current_group])
+            for compare_group in self.classes:
+                if compare_group == current_group:
+                    continue
+                else:
+                    for i in xrange(len(projection[current_group])):                            
+                        # between max and min range of other projection
+                        if max_projection[compare_group]>projection[current_group][i] and min_projection[compare_group]<projection[current_group][i]:
+                            between_count[current_group] += 1
+                        # collide (not-separable)
+                        for j in xrange(len(projection[compare_group])):
+                            if projection[compare_group][j] == projection[current_group][i]:
+                                collide_count[current_group] += 1
+        # return projection attributes
+        attributes = self._pack_projection_attribute(global_stdev, phenotype_complexity, local_stdev, between_count, collide_count, projection_count)
+        return error, attributes
+    
     def process(self):
-        # adjust grammar & benchmark
-        self.grammar['<var>'] = self.variables
-        self.benchmarks = self.classes
+        self.grammar['<var>'] = self.variables        
         # cheating, add some assumpted individuals, ensure that the original ones are involved in competition
         gene_var_prefix = '00'
         variable_count = len(self.variables)
@@ -144,70 +284,65 @@ class GE_Multi_Fitness(classes.Grammatical_Evolution):
             self.assumpted_individuals.append({'default':gene})
         # do process as nothing happens before :)
         classes.Grammatical_Evolution.process(self)
+        
+class GE_Multi_Fitness(GE_Base):    
+    def __init__(self):
+        super(GE_Multi_Fitness, self).__init__()
+    
+    def process(self):
+        # adjust benchmark        
+        self.benchmarks = self.classes
+        GE_Base.process(self)
+        
+    def do_calculate_fitness(self, individual):
+        # calculate projection attribute
+        phenotype = individual['phenotype']
+        error, attributes = self._calculate_projection_attribute(phenotype)        
+        if error:
+            return self._bad_fitness()
+        
+        global_stdev = attributes['global_stdev']
+        phenotype_complexity = attributes['phenotype_complexity']
+        local_stdev = attributes['local_stdev']
+        between_count = attributes['between_count']
+        collide_count = attributes['collide_count']
+        projection_count = attributes['projection_count']
+        
+        # calculate fitness
+        fitness = self._bad_fitness()        
+        for group in self.classes:            
+            fitness[group] = local_stdev[group]/global_stdev + 0.1 * phenotype_complexity + 10*between_count[group]/projection_count[group] + 100* collide_count[group]/projection_count[group]            
+        return fitness
+
+class GE_Global_Fitness(GE_Base):
+    def __init__(self):
+        super(GE_Global_Fitness, self).__init__()
+    
+    def _bad_fitness(self):
+        return {'default':100000000}
     
     def do_calculate_fitness(self, individual):
-        training_data = self.training_data
-        training_target = self.training_target
+        # calculate projection attribute
         phenotype = individual['phenotype']
-        variables = self.variables
-        projection = {}
+        error, attributes = self._calculate_projection_attribute(phenotype)        
+        if error:
+            return self._bad_fitness()
+        
+        global_stdev = attributes['global_stdev']
+        phenotype_complexity = attributes['phenotype_complexity']
+        local_stdev = attributes['local_stdev']
+        between_count = attributes['between_count']
+        collide_count = attributes['collide_count']
+        projection_count = attributes['projection_count']
+        
+        # calculate fitness
+        bad_accumulation = 0
+        for group in self.classes:
+            bad_accumulation += local_stdev[group]/global_stdev + 10*between_count[group]/projection_count[group] + 100 * collide_count[group]/projection_count[group] 
+        fitness_value = 0.1 * phenotype_complexity+ bad_accumulation/len(self.classes)
+        # return fitness value
         fitness = {}
-        exec_error = {}
-        min_projection = {}
-        max_projection = {}
-        for benchmark in self.benchmarks:
-            projection[benchmark] = []             
-            fitness[benchmark] = 0
-            exec_error[benchmark] = False
-            min_projection[benchmark] = 0
-            max_projection[benchmark] = 0
-        # calculate projection
-        for i in xrange(len(training_data)):
-            record = training_data[i]
-            for benchmark in self.benchmarks:
-                if benchmark == training_target[i]:
-                    result, error = utils.execute(phenotype, record, variables)
-                    if error:
-                        exec_error[benchmark] = True
-                        continue
-                    else:
-                        result = float(result)
-                        if len(projection[benchmark]) == 0:
-                            min_projection[benchmark] = result
-                            max_projection[benchmark] = result
-                        else:
-                            if result<min_projection[benchmark]:
-                                min_projection[benchmark] = result
-                            if result>max_projection[benchmark]:
-                                max_projection[benchmark] = result
-                        projection[benchmark].append(result)                        
-                    break
-        # calculate fitnesses
-        for current_benchmark in self.benchmarks:
-            
-            if exec_error[current_benchmark]:
-                fitness[current_benchmark] = 10000000
-            else:
-                phenotype_length = len(phenotype)
-                # standard deviation
-                stdev = numpy.std(projection[current_benchmark])
-                fitness[current_benchmark] = 0.1*phenotype_length + 0.1*stdev
-                for compare_benchmark in self.benchmarks:
-                    if compare_benchmark == current_benchmark:
-                        continue
-                    else:                        
-                        between_count = 0
-                        collide_count = 0
-                        element_count = len(projection[current_benchmark])
-                        for i in xrange(len(projection[current_benchmark])):                            
-                            # between max and min range of other projection
-                            if max_projection[compare_benchmark]>projection[current_benchmark][i] and min_projection[compare_benchmark]<projection[current_benchmark][i]:
-                                between_count += 1
-                            # collide (not-separable)
-                            for j in xrange(len(projection[compare_benchmark])):
-                                if projection[compare_benchmark][j] == projection[current_benchmark][i]:
-                                    collide_count += 1
-                        fitness[current_benchmark] += 1*between_count + 100*collide_count
+        fitness['default'] = fitness_value
         return fitness
 
 class Feature_Extractor(object):
@@ -227,7 +362,6 @@ class Feature_Extractor(object):
         training_target = []
         test_data = []
         test_target = []
-        extractors = []
         for record in training_records:
             training_data.append(record[0:-1])
             training_target.append(record[-1])
@@ -241,13 +375,51 @@ class Feature_Extractor(object):
             variables.append('var_'+str(i))
             i+=1
         
+        # define output
+        output = ''
+        
+        # Original SVM
+        output += process_svm(training_data, training_target, test_data, test_target, variables, 'Original SVM')
+        
         # GA SVM
         ga_svm = GA_SVM()
         ga_svm.training_data = training_data
         ga_svm.training_target = training_target
         ga_svm.label = 'GA SVM'
         ga_svm.stopping_value = 0
-        extractors.append(ga_svm)
+        ga_svm.max_epoch = 100
+        ga_svm.population_size = 50
+        ga_svm.process()
+        gene = ga_svm.best_individuals(1, benchmark='unmatch_count', representation='default')
+        new_training_data = gene_to_feature(training_data, gene)
+        new_test_data = gene_to_feature(test_data, gene)
+        feature_count = len(new_training_data[0])
+        output += process_svm(new_training_data, training_target, new_test_data, test_target, variables, ga_svm.label, gene_to_svm(gene, feature_count))
+        
+        # GE Global-Fitness (My Previous Research)
+        ge_global_fitness = GE_Global_Fitness()
+        ge_global_fitness.classes = classes
+        ge_global_fitness.variables = variables
+        ge_global_fitness.training_data = training_data
+        ge_global_fitness.training_target = training_target
+        ge_global_fitness.label = 'GE Global Fitness'
+        ge_global_fitness.stopping_value = 0.1
+        ge_global_fitness.max_epoch = 100
+        ge_global_fitness.individual_length = 30
+        ge_global_fitness.population_size = 50
+        ge_global_fitness.process()
+        # new features
+        best_phenotypes = ge_global_fitness.best_individuals(len(classes), representation='phenotype')
+        new_features = []
+        for best_phenotype in best_phenotypes:
+            if not (best_phenotype in new_features):
+                new_features.append(best_phenotype)
+        # training data in new features
+        new_training_data = build_new_data(training_data, variables, new_features)
+        new_test_data = build_new_data(test_data, variables, new_features)
+        output += process_svm(new_training_data, training_target, new_test_data, test_target, new_features, ge_global_fitness.label)
+        
+        
         
         # GE Multi-Fitness (My Hero :D )
         ge_multi_fitness = GE_Multi_Fitness()
@@ -256,78 +428,33 @@ class Feature_Extractor(object):
         ge_multi_fitness.training_data = training_data
         ge_multi_fitness.training_target = training_target
         ge_multi_fitness.label = 'GE Multi Fitness'
-        ge_multi_fitness.stopping_value = 0
+        ge_multi_fitness.stopping_value = 0.1
         ge_multi_fitness.max_epoch = 100
         ge_multi_fitness.individual_length = 30
-        ge_multi_fitness.population_size = 100
-        extractors.append(ge_multi_fitness)
-        
-        # process extractors       
-        for extractor in extractors:
-            extractor.process()
-                
-        # show original svm performance
-        show_svm(training_data, training_target, test_data, test_target, [], variables, 'Original SVM')
-        
-        # show ga_svm performance
-        svc = ga_svm.best_individuals(1, benchmark='unmatch_count', representation='svc')
-        gene = ga_svm.best_individuals(1, benchmark='unmatch_count', representation='default')
-        show_svm(training_data, training_target, test_data, test_target, gene, variables, 'GA SVM', svc)
-        
-        # show ge_multi_fitness performance        
+        ge_multi_fitness.population_size = 50
+        ge_multi_fitness.process()
         # new features
         new_features = []
         for group in classes:
             best_phenotype = ge_multi_fitness.best_individuals(1, benchmark=group, representation='phenotype')
             if not (best_phenotype in new_features):
-                new_features.append(best_phenotype)
-        
+                new_features.append(best_phenotype)        
         # training_data in new features
-        new_training_data = []
-        for record in training_data:
-            new_record = []
-            for feature in new_features:
-                result, error = utils.execute(feature, record, variables)
-                if error:
-                    result = -1
-                new_record.append(result)
-            new_training_data.append(new_record)
-        # test_data in new features
-        new_test_data = []
-        for record in test_data:
-            new_record = []
-            for feature in new_features:
-                result, error = utils.execute(feature, record, variables)
-                if error:
-                    result = -1
-                new_record.append(result)
-            new_test_data.append(new_record)
+        new_training_data = build_new_data(training_data, variables, new_features)
+        new_test_data = build_new_data(test_data, variables, new_features)
+        output += process_svm(new_training_data, training_target, new_test_data, test_target, new_features, ge_multi_fitness.label)
+                
         
-        
-        show_svm(new_training_data, training_target, new_test_data, test_target, [], new_features, 'GE Multi-Fitness')
-        
-        # show extractors graphics
-        for extractor in extractors:
-            extractor.show()
-        
-        # try hybrid
-        '''
-        ga_svm = GA_SVM()
-        ga_svm.training_data = new_training_data
-        ga_svm.training_target = training_target
-        ga_svm.label = 'GA SVM'
-        ga_svm.stopping_value = 0
-        ga_svm.process()
-        svc = ga_svm.best_individuals(1, benchmark='unmatch_count', representation='svc')
-        gene = ga_svm.best_individuals(1, benchmark='unmatch_count', representation='default')
-        show_svm(training_data, training_target, test_data, test_target, gene, variables, 'GA SVM', svc)
+        # print up everything
+        print output
         ga_svm.show()
-        '''
+        ge_global_fitness.show()
+        ge_multi_fitness.show()
 
 if __name__ == '__main__':
     
-    
-    # this is just for temporary, we will use iris dataset
+    '''
+    # this is just for temporary, we will use iris dataset    
     ds = datasets.load_iris()
     data = list(ds.data)
     target = list(ds.target)
@@ -340,8 +467,9 @@ if __name__ == '__main__':
         records.append(record)
     variables = ['petal_length','petal_width','sepal_length','sepal_width']
     training_records = records[0:20]+records[50:70]+records[130:150]
+    '''
     
-    
+    # UDAH BAGUS YANG INI
     randomizer = utils.randomizer
     records = []
     for i in xrange(200):
@@ -355,8 +483,8 @@ if __name__ == '__main__':
         else:
             c = 2
         records.append([x,y,c])
-    training_records = records[0:50]
-    variables = ['x','y']    
+    training_records = records[0:60]
+    variables = ['x','y']
     
     
     # make feature extractor

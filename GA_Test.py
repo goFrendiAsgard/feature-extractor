@@ -28,10 +28,12 @@ if __name__ == '__main__':
     ga.max_epoch=100
     ga.stopping_value = {'value':1024000, 'zero count': 16}
     ga.process()
+    '''
     print(ga.best_individuals(6, benchmark='value', representation='default'))
     print(ga.best_individuals(benchmark='value', representation='default'))
     print(ga.best_individuals(6, benchmark='zero count', representation='default'))
     print(ga.best_individuals(benchmark='zero count', representation='default'))
     for i in xrange(len(ga._individuals)):
         print(ga._individuals[i], ga._fitness[i])
+    '''
     ga.show()

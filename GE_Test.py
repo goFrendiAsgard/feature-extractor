@@ -37,7 +37,9 @@ if __name__ == '__main__':
     print(ge.best_individuals(6, representation='default'))
     print(ge.best_individuals(representation='default'))
     print(ge.best_individuals(6, representation='phenotype'))
+    '''
     print(ge.best_individuals(representation='phenotype'))
     for i in xrange(len(ge._individuals)):
         print(ge._individuals[i], ge._fitness[i])
+    '''
     ge.show()

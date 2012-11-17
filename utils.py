@@ -5,6 +5,7 @@ Created on Nov 10, 2012
 '''
 
 import random
+from sys import stdout
 
 randomizer = random.Random(10)
 
@@ -28,6 +29,14 @@ def sqr(num):
 
 def sqrt(num):
     return num ** 0.5
+
+def write(text):
+    # clear the line
+    stdout.write("\r%s" % (' '*70))
+    stdout.flush()
+    # write new thing
+    stdout.write("\r%s" % (text))
+    stdout.flush()
 
 
 def bin_to_dec(binary):

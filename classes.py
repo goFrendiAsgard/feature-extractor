@@ -7,6 +7,7 @@ Created on Nov 10, 2012
 import utils
 import matplotlib.pyplot as plt
 import numpy as np
+from sys import stdout
 
 class Tree(object):
     def __init__(self):
@@ -133,14 +134,14 @@ class GA_Base(object):
         self._fitness = [] # array of dictionary
         self._assumpted_individuals = []
         self._generations = []
-        self._max_epoch = 100
+        self._max_epoch = 50
         self._population_size = 100
         self._representations = ['default']
         self._benchmarks = ['default']
         self._elitism_rate = 0.2
-        self._mutation_rate = 0.3
+        self._mutation_rate = 0.4
         self._crossover_rate = 0.3
-        self._new_rate = 0.2
+        self._new_rate = 0.1
         self._fitness_measurement = 'MAX'
         self._stopping_value = None
         self._individual_benchmark_rank = {} # rank of individual in current generation
@@ -231,7 +232,9 @@ class GA_Base(object):
             individual_index = self._individuals.index(individual)
             self._add_to_generation(individual_index, generation_index)
     
-    def process(self):
+    def process(self):        
+        utils.write("Processing %s" % (self.label))
+                
         benchmark_count = len(self.benchmarks)
         total_rate = self._elitism_rate + self._mutation_rate + self._crossover_rate + self._new_rate
         elitism_count = int(self._population_size * self._elitism_rate/total_rate)
@@ -258,12 +261,7 @@ class GA_Base(object):
         # adjust population size
         minimum_population_size = benchmark_count * (elite_individual_per_benchmark+mutation_individual_per_benchmark+crossover_individual_per_benchmark)        
         if self._population_size<minimum_population_size:
-            self._population_size = minimum_population_size
-        
-        print('Processing "%s"' %(self.label))
-        print('Elite individual : %d' %(elite_individual_per_benchmark * benchmark_count))
-        print('Mutation Individual : %d' %(mutation_individual_per_benchmark * benchmark_count))
-        print('Crossover Individual : %d' %(crossover_individual_per_benchmark * benchmark_count))        
+            self._population_size = minimum_population_size     
         
         
         self._generations.append([])
@@ -335,13 +333,15 @@ class GA_Base(object):
             self._process_population(gen, ended)
             
             # print the output
-            print('Generation %d of "%s"' % (gen+1, self.label))
+            utils.write("Processing generation %d of %s" % (gen+1, self.label))
             
             # break if ended
             if ended:
                 break
             
             gen+=1
+        utils.write("Done processing %s" % (self.label))
+        print('')
     
     def best_individuals(self,count=1,benchmark='default',representation='default'):
         if count==1:
@@ -367,107 +367,125 @@ class GA_Base(object):
     
     def show(self):
         benchmarks = self._benchmarks
-        generation_indexes = np.arange(len(self._generations)) 
-        # max_fitnesses and min_fitnesses of each generation for every benchmark
-        max_fitnesses = {}
-        min_fitnesses = {}          
+        generation_indexes = np.arange(len(self._generations))
+        
+        # create figure
+        fig = plt.figure()
+        benchmark_count = len(self.benchmarks)
+        subplot_index = 1
+        
+        # minimum and maximum x for each benchmark equavalent to the count of generations
+        x_range = max(len(generation_indexes)-1, 1.0)
+        min_x = 1 - 0.01 * x_range
+        max_x = len(generation_indexes) + 0.01 * x_range
+        # for each benchmark, draw its max and min graphics
         for benchmark in benchmarks:
-            max_fitnesses[benchmark] = []
-            min_fitnesses[benchmark] = [] 
-        # variation of each generation
+            # get maximum and minimum
+            max_fitnesses = []
+            min_fitnesses = []
+            max_max_fitness = 0
+            min_max_fitness = 0
+            max_min_fitness = 0
+            min_min_fitness = 0
+            for i in xrange(len(generation_indexes)):
+                max_fitness = 0
+                min_fitness = 0
+                for j in xrange(len(self._generations[i])):
+                    index = self._generations[i][j]
+                    fitness = self.fitness[index][benchmark]
+                    if j==0:
+                        max_fitness = fitness
+                        min_fitness = fitness
+                    else:
+                        if fitness > max_fitness:
+                            max_fitness = fitness
+                        if fitness < min_fitness:
+                            min_fitness = fitness
+                # add max & min fitness to max_fitnesses and min_fitnesses
+                max_fitnesses.append(max_fitness)
+                min_fitnesses.append(min_fitness)
+                if i==0:
+                    max_max_fitness = max_fitness
+                    min_max_fitness = max_fitness
+                    max_min_fitness = min_fitness
+                    min_min_fitness = min_fitness
+                else:
+                    if max_fitness > max_max_fitness:
+                        max_max_fitness = max_fitness
+                    if max_fitness < min_max_fitness:
+                        min_max_fitness = max_fitness
+                    if min_fitness > max_min_fitness:
+                        max_min_fitness = min_fitness
+                    if min_fitness < min_min_fitness:
+                        min_min_fitness = min_fitness
+                        
+            # maximum benchmark subplot
+            sp = fig.add_subplot(benchmark_count+1, 2, subplot_index)
+            subplot_index += 1
+            sp.set_title('Maximum Fitness for '+str(benchmark))
+            sp.set_ylabel('Fitness Value')
+            sp.set_xlabel('Generation Index')
+            if len(generation_indexes) == 1:
+                sp.plot(generation_indexes+1, max_fitnesses, 'bo')
+            else:
+                sp.plot(generation_indexes+1, max_fitnesses)
+            y_range = max(max_max_fitness - min_max_fitness, 1.0)
+            min_y = min_max_fitness - 0.05 * y_range
+            max_y = max_max_fitness + 0.05 * y_range
+            sp.set_ylim(min_y, max_y)
+            sp.set_xlim(min_x, max_x)
+            
+            # minimum benchmark subplot
+            sp = fig.add_subplot(benchmark_count+1, 2, subplot_index)
+            subplot_index += 1
+            sp.set_title('Minimum Fitness for '+str(benchmark))
+            sp.set_ylabel('Fitness Value')
+            sp.set_xlabel('Generation Index')
+            if len(generation_indexes) == 1:
+                sp.plot(generation_indexes+1, min_fitnesses,'bo')
+            else:
+                sp.plot(generation_indexes+1, min_fitnesses)
+            y_range = max(max_min_fitness - min_min_fitness, 1.0)
+            min_y = min_min_fitness - 0.05 * y_range
+            max_y = max_min_fitness + 0.05 * y_range
+            sp.set_ylim(min_y, max_y)
+            sp.set_xlim(min_x, max_x)
+        
         variations = []
-        most_minimum_minimum = 0
-        most_maximum_minimum = 0
-        most_minimum_maximum = 0
-        most_maximum_maximum = 0
-        min_variation = 0
         max_variation = 0
+        min_variation = 0
         for i in xrange(len(generation_indexes)):
-            max_fitness = {}
-            min_fitness = {}
-            unique_index = []
+            unique_individuals = []
             for j in xrange(len(self._generations[i])):
                 index = self._generations[i][j]
-                if not index in unique_index:
-                    unique_index.append(index)
-                for benchmark in benchmarks:
-                    if j == 0:
-                        max_fitness[benchmark] = self._fitness[index][benchmark]
-                        min_fitness[benchmark] = self._fitness[index][benchmark]                        
-                    else:
-                        if self._fitness[index][benchmark] > max_fitness[benchmark]:
-                            max_fitness[benchmark] = self._fitness[index][benchmark]
-                        if self._fitness[index][benchmark] < min_fitness[benchmark]:
-                            min_fitness[benchmark] = self._fitness[index][benchmark]                 
-                        
-                                             
-            for benchmark in benchmarks:
-                if i == 0:
-                    most_minimum_minimum = min_fitness[benchmark]
-                    most_maximum_minimum = min_fitness[benchmark]
-                    most_minimum_maximum = max_fitness[benchmark]
-                    most_maximum_maximum = max_fitness[benchmark]
-                else:
-                    if min_fitness[benchmark] < most_minimum_minimum:
-                        most_minimum_minimum = min_fitness[benchmark]
-                    if min_fitness[benchmark] > most_maximum_minimum:
-                        most_maximum_minimum = min_fitness[benchmark]
-                    if max_fitness[benchmark] < most_minimum_maximum:
-                        most_minimum_maximum = max_fitness[benchmark]
-                    if max_fitness[benchmark] > most_maximum_maximum:
-                        most_maximum_maximum = max_fitness[benchmark] 
-                # add to max and min fitnesses
-                max_fitnesses[benchmark].append(max_fitness[benchmark])
-                min_fitnesses[benchmark].append(min_fitness[benchmark])
-            
-            variation = len(unique_index)
-            if i == 0:
-                min_variation = variation
+                if not index in unique_individuals:
+                    unique_individuals.append(index)
+            variation = len(unique_individuals)
+            if i==0:
                 max_variation = variation
+                min_variation = variation
             else:
-                if min_variation>variation:
-                    min_variation = variation
-                if max_variation<variation:
+                if max_variation < variation:
                     max_variation = variation
+                if min_variation > variation:
+                    min_variation = variation
             variations.append(variation)
-            
+        # individual variation
+        sp = fig.add_subplot(benchmark_count+1, 2, subplot_index)
+        subplot_index += 1
+        sp.set_title('Individual Variation')
+        sp.set_ylabel('Unique individual')
+        sp.set_xlabel('Generation Index')
+        if len(generation_indexes) == 1:
+            sp.plot(generation_indexes+1, variations,'bo')
+        else:
+            sp.plot(generation_indexes+1, variations)
+        y_range = max(max_variation - min_variation, 1.0)
+        min_y = min_variation - 0.05 * y_range
+        max_y = max_variation + 0.05 * y_range
+        sp.set_ylim(min_y, max_y)
+        sp.set_xlim(min_x, max_x)
         
-                    
-        fig = plt.figure()
-        # maximum
-        sp_1 = fig.add_subplot(2,2,1)
-        sp_1.set_title('Maximum Fitness')
-        sp_1.set_ylabel('Fitness Value')
-        sp_1.set_xlabel('Generation')
-        fig_y_range = max(most_maximum_maximum - most_minimum_maximum, 1.0)
-        min_y = most_minimum_maximum - (fig_y_range * 0.25)
-        max_y = most_maximum_maximum + (fig_y_range * 0.25)
-        sp_1.set_ylim(min_y, max_y)      
-        for benchmark in benchmarks:
-            sp_1.plot(generation_indexes, max_fitnesses[benchmark], label=str(benchmark))
-        sp_1.legend(shadow=True, loc=0)
-        # minimum
-        sp_2 = fig.add_subplot(2,2,2)
-        sp_2.set_title('Minimum Fitness')
-        sp_2.set_ylabel('Fitness Value')
-        sp_2.set_xlabel('Generation')
-        fig_y_range = max(most_maximum_minimum - most_minimum_minimum, 1.0)
-        min_y = most_minimum_minimum - (fig_y_range * 0.25)
-        max_y = most_maximum_minimum + (fig_y_range * 0.25)
-        sp_2.set_ylim(min_y, max_y) 
-        for benchmark in benchmarks:
-            sp_2.plot(generation_indexes, min_fitnesses[benchmark], label=str(benchmark))
-        sp_2.legend(shadow=True, loc=0)
-        # variation
-        sp_3 = fig.add_subplot(2,2,3)
-        sp_3.set_title('Variations')
-        sp_3.set_ylabel('Individual Variation')
-        sp_3.set_xlabel('Generation')
-        fig_y_range = max(max_variation - min_variation, 1.0)
-        min_y = min_variation - (fig_y_range * 0.25)
-        max_y = max_variation + (fig_y_range * 0.25)
-        sp_3.set_ylim(min_y, max_y)
-        sp_3.plot(generation_indexes, variations)
         #adjust subplot
         plt.subplots_adjust(hspace = 0.5, wspace = 1)
         plt.suptitle('%s, Fitness Measurement : %s' %(self.label, self.fitness_measurement))
