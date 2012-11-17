@@ -23,6 +23,12 @@ def divide(num_1, num_2):
 def power(num_1, num_2):
     return num_1 ** num_2
 
+def sqr(num):
+    return num ** 2
+
+def sqrt(num):
+    return num ** 0.5
+
 
 def bin_to_dec(binary):
     '''
@@ -58,7 +64,7 @@ def execute(expr, record, variables):
             exec(feature+' = '+str(record[i])) in sandbox 
         # execute expr, and get the result         
         exec('__result = '+expr) in sandbox                      
-        result = sandbox['__result']
+        result = float(sandbox['__result'])
     except:
         error = True    
     return result, error

@@ -131,6 +131,7 @@ class GA_Base(object):
         '''
         self._individuals = [] # array of dictionary
         self._fitness = [] # array of dictionary
+        self._assumpted_individuals = []
         self._generations = []
         self._max_epoch = 100
         self._population_size = 100
@@ -157,11 +158,12 @@ class GA_Base(object):
         else:
             pivot = lst[0]
             lesser = self._sort(benchmark, [x for x in lst[1:] if x['fitness'] < pivot['fitness']])
-            greater = self._sort(benchmark, [x for x in lst[1:] if x['fitness'] >= pivot['fitness']])
+            equal = [x for x in lst[1:] if x['fitness'] == pivot['fitness']]
+            greater = self._sort(benchmark, [x for x in lst[1:] if x['fitness'] > pivot['fitness']])
             if self._fitness_measurement == 'MAX':
-                return greater + [pivot] + lesser                
+                return greater + [pivot] + equal + lesser                
             else:
-                return lesser + [pivot] + greater        
+                return lesser + equal + [pivot] + greater        
     
     def _process_population(self,generation_index, end=False):
         '''
@@ -258,16 +260,26 @@ class GA_Base(object):
         if self._population_size<minimum_population_size:
             self._population_size = minimum_population_size
         
+        print('Processing "%s"' %(self.label))
         print('Elite individual : %d' %(elite_individual_per_benchmark * benchmark_count))
         print('Mutation Individual : %d' %(mutation_individual_per_benchmark * benchmark_count))
-        print('Crossover Individual : %d' %(crossover_individual_per_benchmark * benchmark_count))
+        print('Crossover Individual : %d' %(crossover_individual_per_benchmark * benchmark_count))        
+        
+        
+        self._generations.append([])
+        
+        # add individuals based on assumptions
+        if self.assumpted_individuals is None:
+            self.assumpted_individuals=[]
+        if len(self.assumpted_individuals)>0:
+            for i in xrange(min(len(self.assumpted_individuals), self.population_size)):
+                new_individual =  self._process_individual(self.assumpted_individuals[i])
+                self._register_individual(new_individual, 0)        
         
         # for every generation
         gen = 0
-        while gen<self._max_epoch:            
-            if gen==0:
-                self._generations.append([])
-            else:
+        while gen<self._max_epoch:
+            if gen>0:
                 # for every benchmark
                 for benchmark in self._benchmarks:
                     # _get_elite_individual_indexes
@@ -323,7 +335,7 @@ class GA_Base(object):
             self._process_population(gen, ended)
             
             # print the output
-            print('Generation %d' % (gen+1))
+            print('Generation %d of "%s"' % (gen+1, self.label))
             
             # break if ended
             if ended:
@@ -334,13 +346,24 @@ class GA_Base(object):
     def best_individuals(self,count=1,benchmark='default',representation='default'):
         if count==1:
             index = self._individual_benchmark_rank[benchmark][0]['index']
-            return self._individuals[index][representation]
+            return self.individuals[index][representation]
         else:
             representations = []
             for i in xrange(count):
                 index = self._individual_benchmark_rank[benchmark][i]['index']
-                representations.append(self._individuals[index][representation])
+                representations.append(self.individuals[index][representation])
             return representations
+    
+    def best_fitnesses(self,count=1,benchmark='default'):
+        if count==1:
+            index = self._individual_benchmark_rank[benchmark][0]['index']
+            return self.fitness[index][benchmark]
+        else:
+            fitnesses = []
+            for i in xrange(count):
+                index = self._individual_benchmark_rank[benchmark][i]['index']
+                fitnesses.append(self.fitnesses[index][benchmark])
+            return fitnesses
     
     def show(self):
         benchmarks = self._benchmarks
@@ -416,31 +439,31 @@ class GA_Base(object):
         sp_1.set_title('Maximum Fitness')
         sp_1.set_ylabel('Fitness Value')
         sp_1.set_xlabel('Generation')
-        fig_y_range = most_maximum_maximum - most_minimum_maximum
+        fig_y_range = max(most_maximum_maximum - most_minimum_maximum, 1.0)
         min_y = most_minimum_maximum - (fig_y_range * 0.25)
         max_y = most_maximum_maximum + (fig_y_range * 0.25)
         sp_1.set_ylim(min_y, max_y)      
         for benchmark in benchmarks:
-            sp_1.plot(generation_indexes, max_fitnesses[benchmark], label=benchmark)
+            sp_1.plot(generation_indexes, max_fitnesses[benchmark], label=str(benchmark))
         sp_1.legend(shadow=True, loc=0)
         # minimum
         sp_2 = fig.add_subplot(2,2,2)
         sp_2.set_title('Minimum Fitness')
         sp_2.set_ylabel('Fitness Value')
         sp_2.set_xlabel('Generation')
-        fig_y_range = most_maximum_minimum - most_minimum_minimum
+        fig_y_range = max(most_maximum_minimum - most_minimum_minimum, 1.0)
         min_y = most_minimum_minimum - (fig_y_range * 0.25)
         max_y = most_maximum_minimum + (fig_y_range * 0.25)
         sp_2.set_ylim(min_y, max_y) 
         for benchmark in benchmarks:
-            sp_2.plot(generation_indexes, min_fitnesses[benchmark], label=benchmark)
+            sp_2.plot(generation_indexes, min_fitnesses[benchmark], label=str(benchmark))
         sp_2.legend(shadow=True, loc=0)
         # variation
         sp_3 = fig.add_subplot(2,2,3)
         sp_3.set_title('Variations')
         sp_3.set_ylabel('Individual Variation')
         sp_3.set_xlabel('Generation')
-        fig_y_range = max_variation - min_variation
+        fig_y_range = max(max_variation - min_variation, 1.0)
         min_y = min_variation - (fig_y_range * 0.25)
         max_y = max_variation + (fig_y_range * 0.25)
         sp_3.set_ylim(min_y, max_y)
@@ -640,6 +663,13 @@ class GA_Base(object):
     @label.setter
     def label(self, value):
         self._label = value
+    
+    @property
+    def assumpted_individuals(self):
+        return self._assumpted_individuals
+    @assumpted_individuals.setter
+    def assumpted_individuals(self,value):
+        self._assumpted_individuals = value
 
 class Genetics_Algorithm(GA_Base):
     '''
