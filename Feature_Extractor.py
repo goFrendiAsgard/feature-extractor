@@ -393,8 +393,9 @@ class Feature_Extractor(object):
         gene = ga_svm.best_individuals(1, benchmark='unmatch_count', representation='default')
         new_training_data = gene_to_feature(training_data, gene)
         new_test_data = gene_to_feature(test_data, gene)
+        new_variables = gene_to_feature(variables, gene)
         feature_count = len(new_training_data[0])
-        output += process_svm(new_training_data, training_target, new_test_data, test_target, variables, ga_svm.label, gene_to_svm(gene, feature_count))
+        output += process_svm(new_training_data, training_target, new_test_data, test_target, new_variables, ga_svm.label, gene_to_svm(gene, feature_count))
         
         # GE Global-Fitness (My Previous Research)
         ge_global_fitness = GE_Global_Fitness()
@@ -453,7 +454,7 @@ class Feature_Extractor(object):
 
 if __name__ == '__main__':
     
-    '''
+    
     # this is just for temporary, we will use iris dataset    
     ds = datasets.load_iris()
     data = list(ds.data)
@@ -467,15 +468,16 @@ if __name__ == '__main__':
         records.append(record)
     variables = ['petal_length','petal_width','sepal_length','sepal_width']
     training_records = records[0:20]+records[50:70]+records[130:150]
-    '''
     
+    
+    '''
     # UDAH BAGUS YANG INI
     randomizer = utils.randomizer
     records = []
     for i in xrange(200):
         x = randomizer.randrange(-7,7)
         y = randomizer.randrange(-7,7)
-        r = (x**2+y**2)
+        r = (x**2+y**2) ** 0.5
         if r<3:
             c = 0
         elif r<6:
@@ -485,6 +487,7 @@ if __name__ == '__main__':
         records.append([x,y,c])
     training_records = records[0:60]
     variables = ['x','y']
+    '''
     
     
     # make feature extractor
