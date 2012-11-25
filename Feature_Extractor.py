@@ -3,7 +3,8 @@ Created on Nov 13, 2012
 
 @author: gofrendi
 '''
-import classes, utils, numpy, time
+import numpy, time
+import classes, utils
 from sklearn import svm, datasets
 
 def count_unmatch(data_1, data_2):
@@ -94,6 +95,11 @@ def process_svm(training_data, training_target, test_data, test_target, variable
     result += 'FEATURES COUNT: '+str(get_feature_count(training_data))+'\r\n'
     result += 'USED FEATURES : '+", ".join(variables)+'\r\n'
     result += 'TRAINING TIME : '+str(training_time)+' second(s)\r\n'
+    result += 'KERNEL        : '+svc.kernel+'\r\n'
+    if svc.kernel=='poly':
+        result += 'DEGREE        : '+str(svc.degree)+'\r\n'
+    elif svc.kernel=='rbf':
+        result += 'GAMMA         : '+str(svc.gamma)+'\r\n'
     result += 'EXECUTION TIME: '+str(execution_time)+' second(s)\r\n\r\n'
     return result
 
@@ -455,7 +461,7 @@ class Feature_Extractor(object):
 if __name__ == '__main__':
     
     
-    # this is just for temporary, we will use iris dataset    
+    # this is just for temporary, we will use iris dataset       
     ds = datasets.load_iris()
     data = list(ds.data)
     target = list(ds.target)
@@ -487,7 +493,7 @@ if __name__ == '__main__':
         records.append([x,y,c])
     training_records = records[0:60]
     variables = ['x','y']
-    '''
+    '''    
     
     
     # make feature extractor
