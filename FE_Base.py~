@@ -3,9 +3,13 @@ Created on Nov 13, 2012
 
 @author: gofrendi
 '''
+import os, sys
+lib_path = os.path.abspath('./thesis_program')
+sys.path.insert(0,lib_path)
+
 import numpy, time
 import classes, utils
-from sklearn import svm, datasets
+from sklearn import svm
 
 def count_unmatch(data_1, data_2):
     if len(data_1) == len(data_2) and len(data_1)>0:
@@ -457,49 +461,3 @@ class Feature_Extractor(object):
         ga_svm.show()
         ge_global_fitness.show()
         ge_multi_fitness.show()
-
-if __name__ == '__main__':
-    
-    
-    # this is just for temporary, we will use iris dataset       
-    ds = datasets.load_iris()
-    data = list(ds.data)
-    target = list(ds.target)
-    records = []
-    for i in xrange(len(data)):
-        record = []
-        for j in xrange(len(data[i])):
-            record.append(data[i][j])
-        record.append(target[i])
-        records.append(record)
-    variables = ['petal_length','petal_width','sepal_length','sepal_width']
-    training_records = records[0:20]+records[50:70]+records[130:150]
-    
-    
-    '''
-    # UDAH BAGUS YANG INI
-    randomizer = utils.randomizer
-    records = []
-    for i in xrange(200):
-        x = randomizer.randrange(-7,7)
-        y = randomizer.randrange(-7,7)
-        r = (x**2+y**2) ** 0.5
-        if r<3:
-            c = 0
-        elif r<6:
-            c = 1
-        else:
-            c = 2
-        records.append([x,y,c])
-    training_records = records[0:60]
-    variables = ['x','y']
-    '''    
-    
-    
-    # make feature extractor
-    fe = Feature_Extractor()
-    fe.training_records = training_records
-    fe.test_records = records
-    fe.variables = variables
-    fe.measurement = 'error'
-    fe.process()

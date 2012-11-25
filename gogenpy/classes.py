@@ -7,7 +7,6 @@ Created on Nov 10, 2012
 import utils
 import matplotlib.pyplot as plt
 import numpy as np
-from sys import stdout
 
 class Tree(object):
     def __init__(self):

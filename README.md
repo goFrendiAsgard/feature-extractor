@@ -1,8 +1,9 @@
 feature-extractor
 =================
 
-Feature Extraction program with Grammatical Evolution
-This package contains of several modules.
+Feature Extraction program with Grammatical Evolution.
+We have FE_Base, and gogenpy package
+gogenpy package contains of several modules.
 * utils.py contains:
   - object:
 	 - randomizer
