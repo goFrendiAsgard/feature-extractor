@@ -7,8 +7,8 @@ import os, sys
 lib_path = os.path.abspath('../')
 sys.path.insert(0,lib_path)
 
-from utils import execute
-from classes import Genetics_Programming
+from gogenpy.utils import execute
+from gogenpy.classes import Genetics_Programming
 
 class GE(Genetics_Programming):
     def do_calculate_fitness(self, individual):

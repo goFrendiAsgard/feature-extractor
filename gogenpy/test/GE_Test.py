@@ -7,8 +7,8 @@ import os, sys
 lib_path = os.path.abspath('../')
 sys.path.insert(0,lib_path)
 
-from utils import execute
-from classes import Grammatical_Evolution
+from gogenpy.utils import execute
+from gogenpy.classes import Grammatical_Evolution
 
 class GE(Grammatical_Evolution):
     def do_calculate_fitness(self, individual):

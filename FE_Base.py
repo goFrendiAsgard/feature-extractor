@@ -8,7 +8,7 @@ lib_path = os.path.abspath('./gogenpy')
 sys.path.insert(0,lib_path)
 
 import numpy, time
-import classes, utils
+from gogenpy import classes, utils
 from sklearn import svm
 
 def count_unmatch(data_1, data_2):
@@ -64,7 +64,13 @@ def gene_to_svm(gene, feature_count):
     kernel_option = {'00':'linear', '01':'linear', '10':'rbf', '11':'poly'}
     degree_value = utils.bin_to_dec(degree_gene)+1
     gamma_value = float(utils.bin_to_dec(gamma_gene)+1)/10.0
-    svc = svm.SVC(kernel=kernel_option[kernel_gene], C=1.0, degree=degree_value, gamma=gamma_value)
+    svc = None
+    try:
+        # sklearn 0.13 can use max-iter
+        svc = svm.SVC(kernel=kernel_option[kernel_gene], degree=degree_value, gamma=gamma_value, class_weight='auto', max_iter=1000)
+    except:
+        # sklearn 0.12.1 can't use max-iter
+        svc = svm.SVC(kernel=kernel_option[kernel_gene], degree=degree_value, gamma=gamma_value, class_weight='auto')
     return svc
 
 def process_svm(training_data, training_target, test_data, test_target, variables=[], label='', svc=None):

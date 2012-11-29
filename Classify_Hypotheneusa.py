@@ -1,5 +1,5 @@
 from FE_Base import Feature_Extractor
-import utils
+from gogenpy import utils
     
 randomizer = utils.randomizer
 records = []

@@ -7,8 +7,8 @@ import os, sys
 lib_path = os.path.abspath('../')
 sys.path.insert(0,lib_path)
 
-from utils import bin_to_dec
-from classes import Genetics_Algorithm
+from gogenpy.utils import bin_to_dec
+from gogenpy.classes import Genetics_Algorithm
 
 class GA(Genetics_Algorithm):
     '''
