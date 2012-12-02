@@ -146,6 +146,7 @@ class GA_Base(object):
         self._individual_benchmark_rank = {} # rank of individual in current generation
         self._individual_total_fitness = {} # total fitness of individuals
         self._label = ''
+        self._convergance_rate = 0.3
     
     def _sort(self,benchmark,lst=None):
         '''
@@ -275,7 +276,7 @@ class GA_Base(object):
         
         # for every generation
         gen = 0
-        while gen<self._max_epoch:
+        while gen<self._max_epoch:            
             if gen>0:
                 # for every benchmark
                 for benchmark in self._benchmarks:
@@ -326,6 +327,15 @@ class GA_Base(object):
                                 break
                 ended = can_stop
             
+            # check convergance
+            unique_individuals = []
+            for individual in self.generations[gen]:
+                if not individual in unique_individuals:
+                    unique_individuals.append(individual)
+            unique_individual_count = len(unique_individuals)
+            if unique_individual_count<= self.convergance_rate * self.population_size:
+                ended = True
+                        
             ended = ended or gen==(self._max_epoch-1)
             
             # process the population
@@ -687,6 +697,13 @@ class GA_Base(object):
     @assumpted_individuals.setter
     def assumpted_individuals(self,value):
         self._assumpted_individuals = value
+    
+    @property
+    def convergance_rate(self):
+        return self._convergance_rate
+    @convergance_rate.setter
+    def convergance_rate(self, value):
+        self._convergance_rate = value
 
 class Genetics_Algorithm(GA_Base):
     '''

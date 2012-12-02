@@ -367,6 +367,7 @@ class Feature_Extractor(object):
         self.test_records = []
         self.variables = []
         self.measurement = 'unmatch_count' # unmatch_count or mse
+        self.max_epoch = 100
         
     def process(self):
         # get classes
@@ -403,7 +404,7 @@ class Feature_Extractor(object):
         ga_svm.training_target = training_target
         ga_svm.label = 'GA SVM'
         ga_svm.stopping_value = 0
-        ga_svm.max_epoch = 100
+        ga_svm.max_epoch = self.max_epoch
         ga_svm.population_size = 50
         ga_svm.process()
         gene = ga_svm.best_individuals(1, benchmark='unmatch_count', representation='default')
@@ -421,7 +422,7 @@ class Feature_Extractor(object):
         ge_global_fitness.training_target = training_target
         ge_global_fitness.label = 'GE Global Fitness'
         ge_global_fitness.stopping_value = 0.1
-        ge_global_fitness.max_epoch = 100
+        ge_global_fitness.max_epoch = self.max_epoch
         ge_global_fitness.individual_length = 30
         ge_global_fitness.population_size = 50
         ge_global_fitness.process()
@@ -446,7 +447,7 @@ class Feature_Extractor(object):
         ge_multi_fitness.training_target = training_target
         ge_multi_fitness.label = 'GE Multi Fitness'
         ge_multi_fitness.stopping_value = 0.1
-        ge_multi_fitness.max_epoch = 100
+        ge_multi_fitness.max_epoch = self.max_epoch
         ge_multi_fitness.individual_length = 30
         ge_multi_fitness.population_size = 50
         ge_multi_fitness.process()
