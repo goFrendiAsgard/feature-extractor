@@ -44,23 +44,23 @@ def gene_to_feature(data, mask):
     if type(data[0]) is list:
         for i in xrange(len(data)):
             new_record = []
-            for j in xrange(len(data[i])):
+            for j in xrange(6, len(data[i])+6):
                 if mask[j] == '1':
-                    new_record.append(data[i][j])
+                    new_record.append(data[i][j-6])
             new_data.append(new_record)
     else:
-        for i in xrange(len(data)):
+        for i in xrange(6, len(data)+6):
             if mask[i] == '1':
-                new_data.append(data[i])
+                new_data.append(data[i-6])
     return new_data
 
 def get_feature_count(data):
     return len(data[0])
 
-def gene_to_svm(gene, feature_count):
-    kernel_gene = gene[feature_count:feature_count+2]
-    degree_gene = gene[feature_count+2:feature_count+4]
-    gamma_gene = gene[feature_count+4:feature_count+6]
+def gene_to_svm(gene):
+    kernel_gene = gene[0:2]
+    degree_gene = gene[2:4]
+    gamma_gene = gene[4:6]
     kernel_option = {'00':'linear', '01':'linear', '10':'rbf', '11':'poly'}
     degree_value = utils.bin_to_dec(degree_gene)+1
     gamma_value = float(utils.bin_to_dec(gamma_gene)+1)/10.0
@@ -73,23 +73,33 @@ def gene_to_svm(gene, feature_count):
         svc = svm.SVC(kernel=kernel_option[kernel_gene], degree=degree_value, gamma=gamma_value, class_weight='auto')
     return svc
 
-def process_svm(training_data, training_target, test_data, test_target, variables=[], label='', svc=None):
+def process_svm(training_data, training_target, test_data, test_target, old_features=[], new_features=[], label='', svc=None):
     utils.write("Processing SVM '%s'" % (label))
     
     if svc is None:
         svc = svm.SVC(kernel='linear')
+    
+    start_time = time.time()
+    new_training_data = build_new_data(training_data, old_features, new_features)
+    end_time = time.time()
+    training_preprocessing_time = end_time - start_time
+    
+    start_time = time.time()
+    new_test_data = build_new_data(test_data, old_features, new_features)
+    end_time = time.time()
+    test_preprocessing_time = end_time - start_time
         
     utils.write("Training SVM '%s'" % (label))
     start_time = time.time()
-    svc.fit(training_data, training_target)    
+    svc.fit(new_training_data, training_target)    
     end_time = time.time()
     utils.write("Done training SVM '%s'" % (label))
     training_time = end_time - start_time
     
     utils.write("Executing SVM '%s'" % (label))
     start_time = time.time()    
-    svc_training_prediction = svc.predict(training_data)
-    svc_test_prediction = svc.predict(test_data)
+    svc_training_prediction = svc.predict(new_training_data)
+    svc_test_prediction = svc.predict(new_test_data)
     end_time = time.time()
     utils.write("Done executing '%s'" % (label))
     execution_time = end_time - start_time
@@ -103,22 +113,27 @@ def process_svm(training_data, training_target, test_data, test_target, variable
     result += 'TRAINING      : '+get_comparison(training_target,svc_training_prediction)+'\r\n'
     result += 'TEST          : '+get_comparison(test_target,svc_test_prediction)+'\r\n'
     result += 'FEATURES COUNT: '+str(get_feature_count(training_data))+'\r\n'
-    result += 'USED FEATURES : '+", ".join(variables)+'\r\n'
-    result += 'TRAINING TIME : '+str(training_time)+' second(s)\r\n'
+    result += 'USED FEATURES : '+", ".join(new_features)+'\r\n'    
     result += 'KERNEL        : '+svc.kernel+'\r\n'
     if svc.kernel=='poly':
         result += 'DEGREE        : '+str(svc.degree)+'\r\n'
     elif svc.kernel=='rbf':
         result += 'GAMMA         : '+str(svc.gamma)+'\r\n'
-    result += 'EXECUTION TIME: '+str(execution_time)+' second(s)\r\n\r\n'
+    result += 'TRAINING PREP : '+str(training_preprocessing_time)+' second(s)\r\n'
+    result += 'TEST PREP     : '+str(test_preprocessing_time)+' second(s)\r\n'
+    result += 'TRAINING TIME : '+str(training_time)+' second(s)\r\n'
+    result += 'TEST TIME     : '+str(execution_time)+' second(s)\r\n\r\n'
     return result
 
-def build_new_data(data, old_variables, new_features):
+def build_new_data(data, old_features, new_features):
+    '''
+    This function is used to represent data in new_features
+    '''
     new_data = []
     for record in data:
         new_record = []
         for feature in new_features:
-            result, error = utils.execute(feature, record, old_variables)
+            result, error = utils.execute(feature, record, old_features)
             if error:
                 result = -1
             new_record.append(result)
@@ -145,12 +160,11 @@ class GA_SVM(classes.Genetics_Algorithm):
     def do_process_individual(self, individual):
         gene = individual['default']
         # if the dataset is empty, then everything is impossible, don't try to do anything
-        if not len(self.training_data) == 0 and not len(self.training_data[0]) == 0:
-            feature_count = len(self.training_data[0]) # how many feature available in the data            
+        if not len(self.training_data) == 0 and not len(self.training_data[0]) == 0:           
             # feature selection by using first digits of the gene
             new_training_data = gene_to_feature(self.training_data, gene)
             # perform svm
-            svc = gene_to_svm(gene, feature_count)
+            svc = gene_to_svm(gene)
             svc.fit(new_training_data, self.training_target)
             # predict
             prediction = svc.predict(new_training_data)
@@ -281,7 +295,8 @@ class GE_Base(classes.Grammatical_Evolution):
                             if projection[compare_group][j] == projection[current_group][i]:
                                 collide_count[current_group] += 1
         # return projection attributes
-        attributes = self._pack_projection_attribute(global_stdev, phenotype_complexity, local_stdev, between_count, collide_count, projection_count)
+        attributes = self._pack_projection_attribute(global_stdev, phenotype_complexity, 
+            local_stdev, between_count, collide_count, projection_count)
         return error, attributes
     
     def process(self):
@@ -396,7 +411,7 @@ class Feature_Extractor(object):
         output = ''
         
         # Original SVM
-        output += process_svm(training_data, training_target, test_data, test_target, variables, 'Original SVM')
+        output += process_svm(training_data, training_target, test_data, test_target, variables, variables, 'Original SVM')
         
         # GA SVM
         ga_svm = GA_SVM()
@@ -408,11 +423,8 @@ class Feature_Extractor(object):
         ga_svm.population_size = 50
         ga_svm.process()
         gene = ga_svm.best_individuals(1, benchmark='unmatch_count', representation='default')
-        new_training_data = gene_to_feature(training_data, gene)
-        new_test_data = gene_to_feature(test_data, gene)
         new_variables = gene_to_feature(variables, gene)
-        feature_count = len(new_training_data[0])
-        output += process_svm(new_training_data, training_target, new_test_data, test_target, new_variables, ga_svm.label, gene_to_svm(gene, feature_count))
+        output += process_svm(training_data, training_target, test_data, test_target, variables, new_variables, ga_svm.label, gene_to_svm(gene))
         
         # GE Global-Fitness (My Previous Research)
         ge_global_fitness = GE_Global_Fitness()
@@ -432,10 +444,7 @@ class Feature_Extractor(object):
         for best_phenotype in best_phenotypes:
             if not (best_phenotype in new_features):
                 new_features.append(best_phenotype)
-        # training data in new features
-        new_training_data = build_new_data(training_data, variables, new_features)
-        new_test_data = build_new_data(test_data, variables, new_features)
-        output += process_svm(new_training_data, training_target, new_test_data, test_target, new_features, ge_global_fitness.label)
+        output += process_svm(training_data, training_target, test_data, test_target, variables, new_features, ge_global_fitness.label)
         
         
         
@@ -456,11 +465,8 @@ class Feature_Extractor(object):
         for group in classes:
             best_phenotype = ge_multi_fitness.best_individuals(1, benchmark=group, representation='phenotype')
             if not (best_phenotype in new_features):
-                new_features.append(best_phenotype)        
-        # training_data in new features
-        new_training_data = build_new_data(training_data, variables, new_features)
-        new_test_data = build_new_data(test_data, variables, new_features)
-        output += process_svm(new_training_data, training_target, new_test_data, test_target, new_features, ge_multi_fitness.label)
+                new_features.append(best_phenotype)
+        output += process_svm(training_data, training_target, test_data, test_target, variables, new_features, ge_multi_fitness.label)
                 
         
         # print up everything

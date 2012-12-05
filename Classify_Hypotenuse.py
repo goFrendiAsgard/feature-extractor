@@ -28,6 +28,7 @@ fe.variables = variables
 fe.measurement = 'error'
 fe.process()
 
+'''
 training_records = records[61:120]
 fe = Feature_Extractor()
 fe.max_epoch = 200
@@ -54,5 +55,4 @@ fe.test_records = records
 fe.variables = variables
 fe.measurement = 'error'
 fe.process()
-
-
+'''
