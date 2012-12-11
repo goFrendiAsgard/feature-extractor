@@ -226,16 +226,23 @@ class GE_Base(classes.Grammatical_Evolution):
                         return error, global_projection, projection, min_projection, max_projection
                     else:
                         result = float(result)
-                        if len(projection[group]) == 0:
-                            min_projection[group] = result
-                            max_projection[group] = result
-                        else:
-                            if result<min_projection[group]:
-                                min_projection[group] = result
-                            if result>max_projection[group]:
-                                max_projection[group] = result
                         projection[group].append(result)
                         global_projection.append(result)
+        # calculate min and max projection
+        min_global_projection = min(global_projection)
+        global_projection_range = max(global_projection)-min(global_projection)
+        if global_projection_range==0:
+            global_projection_range = 1
+        # normalize global projection
+        for i in xrange(len(global_projection)):
+            global_projection[i] = (global_projection[i]-min_global_projection)/global_projection_range
+        # normalize per-group projection
+        for group in self.classes:
+            for i in xrange(len(projection[group])):
+                projection[group][i] = (projection[group][i]-min_global_projection)/global_projection_range
+            min_projection[group] = min(projection[group])
+            max_projection[group] = max(projection[group])
+        
         return error, global_projection, projection, min_projection, max_projection
     
     def _pack_projection_attribute(self, global_stdev, phenotype_complexity, local_stdev, between_count, collide_count, projection_count):
@@ -254,11 +261,14 @@ class GE_Base(classes.Grammatical_Evolution):
         phenotype_complexity, local_stdev, between_count, collide_count and projection_count
         '''
         
-        # calculate projection        
+        # calculate projection
+        start_time = time.time()        
         error, global_projection, projection, max_projection, min_projection = self._calculate_projection(phenotype)
+        end_time = time.time()
+        time_complexity = end_time - start_time
         
         global_stdev = 0.0000000001 # avoid division by zero
-        phenotype_complexity = len(phenotype)
+        phenotype_complexity = time_complexity
         local_stdev = {}
         between_count = {}
         collide_count = {}
@@ -471,6 +481,6 @@ class Feature_Extractor(object):
         
         # print up everything
         print output
-        ga_svm.show()
-        ge_global_fitness.show()
-        ge_multi_fitness.show()
+        ga_svm.show(True, 'ga_svm.png')
+        ge_global_fitness.show(True, 'ge_global_fitness.png')
+        ge_multi_fitness.show(True, 'ge_multi_fitness.png')

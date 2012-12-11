@@ -374,12 +374,12 @@ class GA_Base(object):
                 fitnesses.append(self.fitnesses[index][benchmark])
             return fitnesses
     
-    def show(self):
+    def show(self, silent=False, file_name='figure.png'):
         benchmarks = self._benchmarks
         generation_indexes = np.arange(len(self._generations))
         
         # create figure
-        fig = plt.figure()
+        fig = plt.figure(figsize=(20.0, 12.0))
         benchmark_count = len(self.benchmarks)
         subplot_index = 1
         
@@ -496,9 +496,15 @@ class GA_Base(object):
         sp.set_xlim(min_x, max_x)
         
         #adjust subplot
-        plt.subplots_adjust(hspace = 0.5, wspace = 1)
+        plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
         plt.suptitle('%s, Fitness Measurement : %s' %(self.label, self.fitness_measurement))
-        plt.show()
+        
+        if silent:
+            plt.savefig(file_name, dpi=100)
+            print('save plot to '+file_name)
+        else:
+            plt.show()
+            print('show figure')
     
     def _generate_new_individual(self):
         new_individual = self.do_generate_new_individual()
