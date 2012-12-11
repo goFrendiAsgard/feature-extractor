@@ -8,51 +8,21 @@ for i in xrange(240):
     y = randomizer.randrange(-7,7)
     r = (x**2+y**2) ** 0.5
     if r<3:
-        c = 0
+        c = 'kecil'
     elif r<6:
-        c = 1
+        c = 'sedang'
     else:
-        c = 2
+        c = 'besar'
     records.append([x,y,c])
 
 variables = ['x','y']
 
 
 # make feature extractor
-training_records = records[0:60]
 fe = Feature_Extractor()
 fe.max_epoch = 200
-fe.training_records = training_records
-fe.test_records = records
+fe.records = records
+fe.fold = 3
 fe.variables = variables
 fe.measurement = 'error'
 fe.process()
-
-'''
-training_records = records[61:120]
-fe = Feature_Extractor()
-fe.max_epoch = 200
-fe.training_records = training_records
-fe.test_records = records
-fe.variables = variables
-fe.measurement = 'error'
-fe.process()
-
-training_records = records[121:180]
-fe = Feature_Extractor()
-fe.max_epoch = 200
-fe.training_records = training_records
-fe.test_records = records
-fe.variables = variables
-fe.measurement = 'error'
-fe.process()
-
-training_records = records[181:240]
-fe = Feature_Extractor()
-fe.max_epoch = 200
-fe.training_records = training_records
-fe.test_records = records
-fe.variables = variables
-fe.measurement = 'error'
-fe.process()
-'''

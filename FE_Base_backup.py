@@ -8,7 +8,6 @@ lib_path = os.path.abspath('./gogenpy')
 sys.path.insert(0,lib_path)
 
 import numpy, time
-import math
 from gogenpy import classes, utils
 from sklearn import svm
 
@@ -37,13 +36,8 @@ def calculate_mse(data_1, data_2):
     else:
         raise TypeError
 
-def get_result(data_1, data_2):
-    unmatch = count_unmatch(data_1,data_2)
-    mse = calculate_mse(data_1,data_2)
-    data_count = len(data_1)
-    error_percentage = (float(unmatch)/float(data_count)) * 100.0
-    accuracy = 100.0 - error_percentage
-    return {"unmatch":unmatch, "mse":mse, "data_count":data_count, "error_percentage":error_percentage, "accuracy":accuracy}
+def get_comparison(data_1, data_2):
+    return 'Unmatch = %d, MSE = %f' %(count_unmatch(data_1,data_2), calculate_mse(data_1,data_2))
 
 def gene_to_feature(data, mask):
     new_data = []
@@ -112,30 +106,23 @@ def process_svm(training_data, training_target, test_data, test_target, old_feat
     utils.write("Done Processing SVM '%s'" % (label))
     print('')
     
-    training_result = get_result(training_target, svc_training_prediction)
-    test_result = get_result(test_target, svc_test_prediction)
-        
     label = ' '+label+' '
     limitter_count = int((70-len(label))/2)
     result = ''
     result += '='*limitter_count + label + '='*limitter_count+'\r\n'
-    result += 'TRAINING MSE      : '+str(training_result['mse'])+'\r\n'
-    result += 'TRAINING UNMATCH  : '+str(training_result['unmatch'])+' of '+str(training_result['data_count'])+' ('+str(training_result['error_percentage'])+'%)\r\n'
-    result += 'TRAINING ACCURACY : '+str(training_result['accuracy'])+'%\r\n'
-    result += 'TEST MSE          : '+str(test_result['mse'])+'\r\n'
-    result += 'TEST UNMATCH      : '+str(test_result['unmatch'])+' of '+str(test_result['data_count'])+' ('+str(test_result['error_percentage'])+'%)\r\n'
-    result += 'TEST ACCURACY     : '+str(test_result['accuracy'])+'%\r\n'
-    result += 'FEATURES COUNT    : '+str(get_feature_count(training_data))+'\r\n'
-    result += 'USED FEATURES     : '+", ".join(new_features)+'\r\n'    
-    result += 'KERNEL            : '+svc.kernel+'\r\n'
+    result += 'TRAINING      : '+get_comparison(training_target,svc_training_prediction)+'\r\n'
+    result += 'TEST          : '+get_comparison(test_target,svc_test_prediction)+'\r\n'
+    result += 'FEATURES COUNT: '+str(get_feature_count(training_data))+'\r\n'
+    result += 'USED FEATURES : '+", ".join(new_features)+'\r\n'    
+    result += 'KERNEL        : '+svc.kernel+'\r\n'
     if svc.kernel=='poly':
-        result += 'DEGREE            : '+str(svc.degree)+'\r\n'
+        result += 'DEGREE        : '+str(svc.degree)+'\r\n'
     elif svc.kernel=='rbf':
-        result += 'GAMMA             : '+str(svc.gamma)+'\r\n'
-    result += 'TRAINING PREP     : '+str(training_preprocessing_time)+' second(s)\r\n'
-    result += 'TEST PREP         : '+str(test_preprocessing_time)+' second(s)\r\n'
-    result += 'TRAINING TIME     : '+str(training_time)+' second(s)\r\n'
-    result += 'TEST TIME         : '+str(execution_time)+' second(s)\r\n\r\n'
+        result += 'GAMMA         : '+str(svc.gamma)+'\r\n'
+    result += 'TRAINING PREP : '+str(training_preprocessing_time)+' second(s)\r\n'
+    result += 'TEST PREP     : '+str(test_preprocessing_time)+' second(s)\r\n'
+    result += 'TRAINING TIME : '+str(training_time)+' second(s)\r\n'
+    result += 'TEST TIME     : '+str(execution_time)+' second(s)\r\n\r\n'
     return result
 
 def build_new_data(data, old_features, new_features):
@@ -161,7 +148,7 @@ class GA_SVM(classes.Genetics_Algorithm):
         self.benchmarks=['unmatch_count', 'mse']
         self.individual_length=20
         self.training_data = []
-        self.training_num_target = []
+        self.training_target = []
     
     def process(self):
         if not len(self.training_data) == 0 and not len(self.training_data[0]) == 0:
@@ -178,12 +165,12 @@ class GA_SVM(classes.Genetics_Algorithm):
             new_training_data = gene_to_feature(self.training_data, gene)
             # perform svm
             svc = gene_to_svm(gene)
-            svc.fit(new_training_data, self.training_num_target)
+            svc.fit(new_training_data, self.training_target)
             # predict
             prediction = svc.predict(new_training_data)
             individual['svc'] = svc
-            individual['unmatch_count'] = count_unmatch(self.training_num_target, prediction)
-            individual['mse'] = calculate_mse(self.training_num_target, prediction)
+            individual['unmatch_count'] = count_unmatch(self.training_target, prediction)
+            individual['mse'] = calculate_mse(self.training_target, prediction)
         return individual
            
     def do_calculate_fitness(self, individual):                    
@@ -402,158 +389,99 @@ class GE_Global_Fitness(GE_Base):
 class Feature_Extractor(object):
     def __init__(self):
         self.records = []
-        self.fold = 5
+        self.fold = []
         self.variables = []
         self.measurement = 'unmatch_count' # unmatch_count or mse
         self.max_epoch = 100
-        self._target_dict = {}
-        self.label = ''
-        self.population_size = 100
         
     def process(self):
-        # prepare variables        
-        data = []
-        labels = []
-        label_targets = []
-        num_targets = []
-        label_records = []
-        num_records = []
-        target_dictionary = {}
-        target_indexes = {}
-        training_count_per_fold = {}
-        # fill out the variables
-        class_index = 0
-        i = 0
-        for record in self.records:
-            data.append(record[:-1])
-            label_targets.append(record[-1])
-            if not (record[-1] in target_dictionary):
-                target_dictionary[record[-1]] = class_index
-                target_indexes[record[-1]] = []
-                labels.append(record[-1])
-                class_index += 1            
-            num_targets.append(target_dictionary[record[-1]])
-            label_records.append(record[:-1]+[record[-1]])
-            num_records.append(record[:-1]+[target_dictionary[record[-1]]])
-            # add target indexes
-            target_indexes[record[-1]].append(i)
-            i+=1
-        for label in label_targets:
-            training_count_per_fold[label] = math.floor(len(target_indexes[label])/self.fold)
-        
-        # folding scenario
-        output = ''
+        # get classes
+        training_records = self.training_records
+        test_records = self.test_records
         variables = self.variables
-        for fold_index in xrange(self.fold):            
-            training_indexes = []
-            for label in label_targets:
-                for i in xrange(int(fold_index*training_count_per_fold[label]), int((fold_index+1)*training_count_per_fold[label])):
-                    training_indexes.append(target_indexes[label][i])
-            training_data = []            
-            training_label_targets = []
-            training_num_targets = []
-            test_data = []
-            test_label_targets = []
-            test_num_targets = []
-            for i in(xrange(len(data))):
-                if i in training_indexes:
-                    training_data.append(data[i])
-                    training_label_targets.append(label_targets[i])
-                    training_num_targets.append(num_targets[i])
-                else:
-                    test_data.append(data[i])
-                    test_label_targets.append(label_targets[i])
-                    test_num_targets.append(num_targets[i])
-            
-            print(fold_index+1)
-            
-            
-            # Original SVM
-            output += process_svm(training_data, training_num_targets, test_data, test_num_targets, variables, variables, 'Original SVM Fold '+str(fold_index+1))
-            
-            # GA SVM
-            ga_svm = GA_SVM()
-            ga_svm.training_data = training_data
-            ga_svm.training_num_target = training_num_targets
-            ga_svm.label = 'GA SVM Fold '+str(fold_index+1)
-            ga_svm.stopping_value = 0
-            ga_svm.max_epoch = self.max_epoch
-            ga_svm.population_size = self.population_size
-            ga_svm.process()
-            gene = ga_svm.best_individuals(1, benchmark='unmatch_count', representation='default')
-            new_variables = gene_to_feature(variables, gene)
-            output += process_svm(training_data, training_num_targets, test_data, test_num_targets, variables, new_variables, ga_svm.label, gene_to_svm(gene))
-            ga_svm.show(True, ga_svm.label+'.png')
-            
-            # GE Global-Fitness (My Previous Research)
-            ge_global_fitness = GE_Global_Fitness()
-            ge_global_fitness.classes = labels
-            ge_global_fitness.variables = variables
-            ge_global_fitness.training_data = training_data
-            ge_global_fitness.training_target = training_label_targets
-            ge_global_fitness.label = 'GE Global Fitness '+str(fold_index+1)
-            ge_global_fitness.stopping_value = 0.1
-            ge_global_fitness.max_epoch = self.max_epoch
-            ge_global_fitness.individual_length = 30
-            ge_global_fitness.population_size = self.population_size
-            ge_global_fitness.process()
-            # new features
-            best_phenotypes = ge_global_fitness.best_individuals(len(labels), representation='phenotype')
-            new_features = []
-            for best_phenotype in best_phenotypes:
-                if not (best_phenotype in new_features):
-                    new_features.append(best_phenotype)
-            output += process_svm(training_data, training_num_targets, test_data, test_num_targets, variables, new_features, ge_global_fitness.label)
-            ge_global_fitness.show(True, ge_global_fitness.label+'.png')
-            
-            # GE Multi-Fitness (My Hero :D )
-            ge_multi_fitness = GE_Multi_Fitness()
-            ge_multi_fitness.classes = labels
-            ge_multi_fitness.variables = variables
-            ge_multi_fitness.training_data = training_data
-            ge_multi_fitness.training_target = training_label_targets
-            ge_multi_fitness.label = 'GE Multi Fitness '+str(fold_index+1)
-            ge_multi_fitness.stopping_value = 0.1
-            ge_multi_fitness.max_epoch = self.max_epoch
-            ge_multi_fitness.individual_length = 30
-            ge_multi_fitness.population_size = self.population_size
-            ge_multi_fitness.process()
-            # new features
-            new_features = []
-            for group in labels:
-                best_phenotype = ge_multi_fitness.best_individuals(1, benchmark=group, representation='phenotype')
-                if not (best_phenotype in new_features):
-                    new_features.append(best_phenotype)
-            output += process_svm(training_data, training_num_targets, test_data, test_num_targets, variables, new_features, ge_multi_fitness.label)
-            ge_multi_fitness.show(True, ge_multi_fitness.label+'.png')
-            
+        classes = []
+        training_data = []
+        training_target = []
+        test_data = []
+        test_target = []
+        for record in training_records:
+            training_data.append(record[0:-1])
+            training_target.append(record[-1])
+            if record[-1] not in classes:
+                classes.append(record[-1])
+        for record in test_records:
+            test_data.append(record[0:-1])
+            test_target.append(record[-1])
+        i = 0
+        while len(variables)<(len(training_records[0])-1):
+            variables.append('var_'+str(i))
+            i+=1
+        
+        
+        # define output
+        output = ''
+        
+        # Original SVM
+        output += process_svm(training_data, training_target, test_data, test_target, variables, variables, 'Original SVM')
+        
+        # GA SVM
+        ga_svm = GA_SVM()
+        ga_svm.training_data = training_data
+        ga_svm.training_target = training_target
+        ga_svm.label = 'GA SVM'
+        ga_svm.stopping_value = 0
+        ga_svm.max_epoch = self.max_epoch
+        ga_svm.population_size = 50
+        ga_svm.process()
+        gene = ga_svm.best_individuals(1, benchmark='unmatch_count', representation='default')
+        new_variables = gene_to_feature(variables, gene)
+        output += process_svm(training_data, training_target, test_data, test_target, variables, new_variables, ga_svm.label, gene_to_svm(gene))
+        
+        # GE Global-Fitness (My Previous Research)
+        ge_global_fitness = GE_Global_Fitness()
+        ge_global_fitness.classes = classes
+        ge_global_fitness.variables = variables
+        ge_global_fitness.training_data = training_data
+        ge_global_fitness.training_target = training_target
+        ge_global_fitness.label = 'GE Global Fitness'
+        ge_global_fitness.stopping_value = 0.1
+        ge_global_fitness.max_epoch = self.max_epoch
+        ge_global_fitness.individual_length = 30
+        ge_global_fitness.population_size = 50
+        ge_global_fitness.process()
+        # new features
+        best_phenotypes = ge_global_fitness.best_individuals(len(classes), representation='phenotype')
+        new_features = []
+        for best_phenotype in best_phenotypes:
+            if not (best_phenotype in new_features):
+                new_features.append(best_phenotype)
+        output += process_svm(training_data, training_target, test_data, test_target, variables, new_features, ge_global_fitness.label)
+        
+        
+        
+        # GE Multi-Fitness (My Hero :D )
+        ge_multi_fitness = GE_Multi_Fitness()
+        ge_multi_fitness.classes = classes
+        ge_multi_fitness.variables = variables
+        ge_multi_fitness.training_data = training_data
+        ge_multi_fitness.training_target = training_target
+        ge_multi_fitness.label = 'GE Multi Fitness'
+        ge_multi_fitness.stopping_value = 0.1
+        ge_multi_fitness.max_epoch = self.max_epoch
+        ge_multi_fitness.individual_length = 30
+        ge_multi_fitness.population_size = 50
+        ge_multi_fitness.process()
+        # new features
+        new_features = []
+        for group in classes:
+            best_phenotype = ge_multi_fitness.best_individuals(1, benchmark=group, representation='phenotype')
+            if not (best_phenotype in new_features):
+                new_features.append(best_phenotype)
+        output += process_svm(training_data, training_target, test_data, test_target, variables, new_features, ge_multi_fitness.label)
+                
+        
+        # print up everything
         print output
-            
-
-
-#==========================================================================
-randomizer = utils.randomizer
-records = []
-for i in xrange(300):
-    x = randomizer.randrange(-7,7)
-    y = randomizer.randrange(-7,7)
-    r = (x**2+y**2) ** 0.5
-    if r<3:
-        c = 'kecil'
-    elif r<6:
-        c = 'sedang'
-    else:
-        c = 'besar'
-    records.append([x,y,c])
-
-variables = ['x','y']
-
-
-# make feature extractor
-fe = Feature_Extractor()
-fe.max_epoch = 200
-fe.records = records
-fe.fold = 5
-fe.variables = variables
-fe.measurement = 'error'
-fe.process()       
+        ga_svm.show(True, 'ga_svm.png')
+        ge_global_fitness.show(True, 'ge_global_fitness.png')
+        ge_multi_fitness.show(True, 'ge_multi_fitness.png')
