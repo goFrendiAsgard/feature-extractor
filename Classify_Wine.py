@@ -6,9 +6,10 @@ training_records = records[0:20]+records[59:79]+records[130:150]
 
 # make feature extractor
 fe = Feature_Extractor()
-fe.max_epoch = 120
-fe.training_records = training_records
-fe.test_records = records
+fe.label = 'Wine'
+fe.max_epoch = 200
+fe.records = records
+fe.fold = 5
 fe.variables = variables
 fe.measurement = 'error'
 fe.process()

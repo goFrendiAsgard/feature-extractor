@@ -11,6 +11,7 @@ import numpy, time
 import math
 from gogenpy import classes, utils
 from sklearn import svm
+import matplotlib.pyplot as plt
 
 def count_unmatch(data_1, data_2):
     if len(data_1) == len(data_2) and len(data_1)>0:
@@ -79,7 +80,7 @@ def gene_to_svm(gene):
         svc = svm.SVC(kernel=kernel_option[kernel_gene], degree=degree_value, gamma=gamma_value, class_weight='auto')
     return svc
 
-def process_svm(training_data, training_target, test_data, test_target, old_features=[], new_features=[], label='', svc=None):
+def get_svm_result(training_data, training_target, test_data, test_target, old_features=[], new_features=[], label='', svc=None):
     utils.write("Processing SVM '%s'" % (label))
     
     if svc is None:
@@ -136,7 +137,7 @@ def process_svm(training_data, training_target, test_data, test_target, old_feat
     result += 'TEST PREP         : '+str(test_preprocessing_time)+' second(s)\r\n'
     result += 'TRAINING TIME     : '+str(training_time)+' second(s)\r\n'
     result += 'TEST TIME         : '+str(execution_time)+' second(s)\r\n\r\n'
-    return result
+    return {"str":result, "training_result":training_result, "test_result":test_result}
 
 def build_new_data(data, old_features, new_features):
     '''
@@ -443,6 +444,11 @@ class Feature_Extractor(object):
         
         # folding scenario
         output = ''
+        original_svm_result = []
+        ga_svm_result = []
+        ge_global_fitness_result = []
+        ge_multi_fitness_result = []
+        
         variables = self.variables
         for fold_index in xrange(self.fold):            
             training_indexes = []
@@ -469,20 +475,24 @@ class Feature_Extractor(object):
             
             
             # Original SVM
-            output += process_svm(training_data, training_num_targets, test_data, test_num_targets, variables, variables, 'Original SVM Fold '+str(fold_index+1))
+            svm_result = get_svm_result(training_data, training_num_targets, test_data, test_num_targets, variables, variables, 'Original SVM Fold '+str(fold_index+1))
+            output += svm_result['str']
+            original_svm_result.append(svm_result)
             
             # GA SVM
             ga_svm = GA_SVM()
             ga_svm.training_data = training_data
             ga_svm.training_num_target = training_num_targets
-            ga_svm.label = 'GA SVM Fold '+str(fold_index+1)
+            ga_svm.label = self.label+' GA SVM Fold '+str(fold_index+1)
             ga_svm.stopping_value = 0
             ga_svm.max_epoch = self.max_epoch
             ga_svm.population_size = self.population_size
             ga_svm.process()
             gene = ga_svm.best_individuals(1, benchmark='unmatch_count', representation='default')
             new_variables = gene_to_feature(variables, gene)
-            output += process_svm(training_data, training_num_targets, test_data, test_num_targets, variables, new_variables, ga_svm.label, gene_to_svm(gene))
+            svm_result = get_svm_result(training_data, training_num_targets, test_data, test_num_targets, variables, new_variables, ga_svm.label, gene_to_svm(gene))
+            output += svm_result['str']
+            ga_svm_result.append(svm_result)
             ga_svm.show(True, ga_svm.label+'.png')
             
             # GE Global-Fitness (My Previous Research)
@@ -491,7 +501,7 @@ class Feature_Extractor(object):
             ge_global_fitness.variables = variables
             ge_global_fitness.training_data = training_data
             ge_global_fitness.training_target = training_label_targets
-            ge_global_fitness.label = 'GE Global Fitness '+str(fold_index+1)
+            ge_global_fitness.label = self.label+' GE Global Fitness '+str(fold_index+1)
             ge_global_fitness.stopping_value = 0.1
             ge_global_fitness.max_epoch = self.max_epoch
             ge_global_fitness.individual_length = 30
@@ -503,7 +513,9 @@ class Feature_Extractor(object):
             for best_phenotype in best_phenotypes:
                 if not (best_phenotype in new_features):
                     new_features.append(best_phenotype)
-            output += process_svm(training_data, training_num_targets, test_data, test_num_targets, variables, new_features, ge_global_fitness.label)
+            svm_result = get_svm_result(training_data, training_num_targets, test_data, test_num_targets, variables, new_features, ge_global_fitness.label)
+            output += svm_result['str']
+            ge_global_fitness_result.append(svm_result)
             ge_global_fitness.show(True, ge_global_fitness.label+'.png')
             
             # GE Multi-Fitness (My Hero :D )
@@ -512,7 +524,7 @@ class Feature_Extractor(object):
             ge_multi_fitness.variables = variables
             ge_multi_fitness.training_data = training_data
             ge_multi_fitness.training_target = training_label_targets
-            ge_multi_fitness.label = 'GE Multi Fitness '+str(fold_index+1)
+            ge_multi_fitness.label = self.label+' GE Multi Fitness '+str(fold_index+1)
             ge_multi_fitness.stopping_value = 0.1
             ge_multi_fitness.max_epoch = self.max_epoch
             ge_multi_fitness.individual_length = 30
@@ -524,36 +536,21 @@ class Feature_Extractor(object):
                 best_phenotype = ge_multi_fitness.best_individuals(1, benchmark=group, representation='phenotype')
                 if not (best_phenotype in new_features):
                     new_features.append(best_phenotype)
-            output += process_svm(training_data, training_num_targets, test_data, test_num_targets, variables, new_features, ge_multi_fitness.label)
+            svm_result = get_svm_result(training_data, training_num_targets, test_data, test_num_targets, variables, new_features, ge_multi_fitness.label)
+            output += svm_result['str']
+            ge_multi_fitness_result.append(svm_result)
             ge_multi_fitness.show(True, ge_multi_fitness.label+'.png')
             
         print output
-            
-
-
-#==========================================================================
-randomizer = utils.randomizer
-records = []
-for i in xrange(300):
-    x = randomizer.randrange(-7,7)
-    y = randomizer.randrange(-7,7)
-    r = (x**2+y**2) ** 0.5
-    if r<3:
-        c = 'kecil'
-    elif r<6:
-        c = 'sedang'
-    else:
-        c = 'besar'
-    records.append([x,y,c])
-
-variables = ['x','y']
-
-
-# make feature extractor
-fe = Feature_Extractor()
-fe.max_epoch = 200
-fe.records = records
-fe.fold = 5
-fe.variables = variables
-fe.measurement = 'error'
-fe.process()       
+        
+        fig = plt.figure(figsize=(20.0, 12.0))
+        sp_1 = fig.add_subplot(1, 2, 1)
+        sp_2 = fig.add_subplot(1, 2, 2)
+        original_svm_training_accuracy = []
+        original_svm_test_accuracy = []
+        for i in xrange(self.fold):
+            original_svm_training_accuracy.append(original_svm_result[i]['training_result']['accuracy'])
+            original_svm_test_accuracy.append(original_svm_result[i]['test_result']['accuracy'])
+        sp_1.plot(xrange(self.fold)+1, original_svm_training_accuracy)
+        sp_2.plot(xrange(self.fold)+1, original_svm_test_accuracy)
+        plt.show()

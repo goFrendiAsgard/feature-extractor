@@ -15,11 +15,11 @@ variables = ['petal_length','petal_width','sepal_length','sepal_width']
 
 
 # make feature extractor
-training_records = records[0:20]+records[50:70]+records[130:150]
 fe = Feature_Extractor()
-fe.max_epoch = 100
-fe.training_records = training_records
-fe.test_records = records
+fe.label = 'Iris'
+fe.max_epoch = 200
+fe.records = records
+fe.fold = 5
 fe.variables = variables
 fe.measurement = 'error'
 fe.process()
