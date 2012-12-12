@@ -19,7 +19,7 @@ fe = Feature_Extractor()
 fe.label = 'Iris'
 fe.max_epoch = 200
 fe.records = records
-fe.fold = 5
+fe.fold = 10
 fe.variables = variables
 fe.measurement = 'error'
 fe.process()

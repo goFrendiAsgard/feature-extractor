@@ -475,7 +475,7 @@ class Feature_Extractor(object):
             
             
             # Original SVM
-            svm_result = get_svm_result(training_data, training_num_targets, test_data, test_num_targets, variables, variables, 'Original SVM Fold '+str(fold_index+1))
+            svm_result = get_svm_result(training_data, training_num_targets, test_data, test_num_targets, variables, variables, self.label+' Original SVM Fold '+str(fold_index+1))
             output += svm_result['str']
             original_svm_result.append(svm_result)
             
@@ -543,14 +543,51 @@ class Feature_Extractor(object):
             
         print output
         
+        text_file = open(self.label+' SVM training and test comparison.txt', "w")
+        text_file.write(output)
+        text_file.close()
+        
         fig = plt.figure(figsize=(20.0, 12.0))
         sp_1 = fig.add_subplot(1, 2, 1)
         sp_2 = fig.add_subplot(1, 2, 2)
+        
         original_svm_training_accuracy = []
         original_svm_test_accuracy = []
+        ga_svm_training_accuracy = []
+        ga_svm_test_accuracy = []
+        ge_global_fitness_training_accuracy = []
+        ge_global_fitness_test_accuracy = []
+        ge_multi_fitness_training_accuracy = []
+        ge_multi_fitness_test_accuracy = []
         for i in xrange(self.fold):
             original_svm_training_accuracy.append(original_svm_result[i]['training_result']['accuracy'])
             original_svm_test_accuracy.append(original_svm_result[i]['test_result']['accuracy'])
-        sp_1.plot(xrange(self.fold)+1, original_svm_training_accuracy)
-        sp_2.plot(xrange(self.fold)+1, original_svm_test_accuracy)
-        plt.show()
+            ga_svm_training_accuracy.append(ga_svm_result[i]['training_result']['accuracy'])
+            ga_svm_test_accuracy.append(ga_svm_result[i]['test_result']['accuracy'])
+            ge_global_fitness_training_accuracy.append(ge_global_fitness_result[i]['training_result']['accuracy'])
+            ge_global_fitness_test_accuracy.append(ge_global_fitness_result[i]['test_result']['accuracy'])
+            ge_multi_fitness_training_accuracy.append(ge_multi_fitness_result[i]['training_result']['accuracy'])
+            ge_multi_fitness_test_accuracy.append(ge_multi_fitness_result[i]['test_result']['accuracy'])
+        fold_indexes = list(xrange(self.fold))
+        sp_1.plot(fold_indexes, original_svm_training_accuracy, label="SVM")
+        sp_2.plot(fold_indexes, original_svm_test_accuracy, label="SVM")
+        sp_1.plot(fold_indexes, ga_svm_training_accuracy, label="GA SVM")
+        sp_2.plot(fold_indexes, ga_svm_test_accuracy, label="GA SVM")
+        sp_1.plot(fold_indexes, ge_global_fitness_training_accuracy, label="GE Global")
+        sp_2.plot(fold_indexes, ge_global_fitness_test_accuracy, label="GE Global")
+        sp_1.plot(fold_indexes, ge_multi_fitness_training_accuracy, label="GE Multi")
+        sp_2.plot(fold_indexes, ge_multi_fitness_test_accuracy, label="GE Multi")
+        
+        sp_1.set_title('Training Accuration')
+        sp_1.set_ylabel('Accuration (%)')
+        sp_1.set_xlabel('Fold')
+        sp_1.set_ylim(-0.5,100.5)
+        sp_1.legend(shadow=True, loc=0)
+        
+        sp_2.set_title('Test Accuration')
+        sp_2.set_ylabel('Accuration (%)')
+        sp_2.set_xlabel('Fold')
+        sp_2.set_ylim(-0.5,100.5)
+        sp_2.legend(shadow=True, loc=0)
+
+        plt.savefig(self.label+' SVM training and test comparison.png', dpi=100)
