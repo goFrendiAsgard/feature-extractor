@@ -61,9 +61,6 @@ def gene_to_feature(data, mask):
                 new_data.append(data[i-6])
     return new_data
 
-def get_feature_count(data):
-    return len(data[0])
-
 def gene_to_svm(gene):
     kernel_gene = gene[0:2]
     degree_gene = gene[2:4]
@@ -84,7 +81,7 @@ def get_svm_result(training_data, training_target, test_data, test_target, old_f
     utils.write("Processing SVM '%s'" % (label))
     
     if svc is None:
-        svc = svm.SVC(kernel='linear')
+        svc = svm.SVC()
     
     start_time = time.time()
     new_training_data = build_new_data(training_data, old_features, new_features)
@@ -126,7 +123,7 @@ def get_svm_result(training_data, training_target, test_data, test_target, old_f
     result += 'TEST MSE          : '+str(test_result['mse'])+'\r\n'
     result += 'TEST UNMATCH      : '+str(test_result['unmatch'])+' of '+str(test_result['data_count'])+' ('+str(test_result['error_percentage'])+'%)\r\n'
     result += 'TEST ACCURACY     : '+str(test_result['accuracy'])+'%\r\n'
-    result += 'FEATURES COUNT    : '+str(get_feature_count(training_data))+'\r\n'
+    result += 'FEATURES COUNT    : '+str(len(new_features))+'\r\n'
     result += 'USED FEATURES     : '+", ".join(new_features)+'\r\n'    
     result += 'KERNEL            : '+svc.kernel+'\r\n'
     if svc.kernel=='poly':
@@ -366,7 +363,7 @@ class GE_Multi_Fitness(GE_Base):
         # calculate fitness
         fitness = self._bad_fitness()        
         for group in self.classes:            
-            fitness[group] = local_stdev[group]/global_stdev + 0.1 * phenotype_complexity + 10*between_count[group]/projection_count[group] + 100* collide_count[group]/projection_count[group]            
+            fitness[group] = 0.1 * local_stdev[group]/global_stdev + phenotype_complexity + 10*between_count[group]/projection_count[group] + 100* collide_count[group]/projection_count[group]            
         return fitness
 
 class GE_Global_Fitness(GE_Base):
@@ -393,8 +390,8 @@ class GE_Global_Fitness(GE_Base):
         # calculate fitness
         bad_accumulation = 0
         for group in self.classes:
-            bad_accumulation += local_stdev[group]/global_stdev + 10*between_count[group]/projection_count[group] + 100 * collide_count[group]/projection_count[group] 
-        fitness_value = 0.1 * phenotype_complexity+ bad_accumulation/len(self.classes)
+            bad_accumulation += 0.1 * local_stdev[group]/global_stdev + 10*between_count[group]/projection_count[group] + 100 * collide_count[group]/projection_count[group] 
+        fitness_value = phenotype_complexity+ bad_accumulation/len(self.classes)
         # return fitness value
         fitness = {}
         fitness['default'] = fitness_value
@@ -589,5 +586,7 @@ class Feature_Extractor(object):
         sp_2.set_xlabel('Fold')
         sp_2.set_ylim(-0.5,100.5)
         sp_2.legend(shadow=True, loc=0)
+        
+        plt.suptitle('SVM training and test comparison of '+self.label)
 
         plt.savefig(self.label+' SVM training and test comparison.png', dpi=100)
