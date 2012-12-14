@@ -352,7 +352,7 @@ class GE_Base(classes.Grammatical_Evolution):
         collide_count = {}
         projection_count = {}
         intersection_range = {}
-        projection_range = 0
+        projection_range = 0.0000000001
         
         
         if error:
@@ -362,7 +362,7 @@ class GE_Base(classes.Grammatical_Evolution):
         
         # calculate projection attribute                    
         global_stdev = max(numpy.std(global_projection), 0.0000000001) # avoid division by zero
-        projection_range = max(global_projection) - min(global_projection)
+        projection_range = max(max(global_projection) - min(global_projection), 0.0000000001)
         for current_group in self.classes:
             # stdev
             local_stdev[current_group] = numpy.std(projection[current_group])
@@ -438,9 +438,9 @@ class GE_Multi_Fitness(GE_Base):
         for group in self.classes:            
             fitness[group] = 0.0 * local_stdev[group]/global_stdev + \
                 phenotype_complexity + \
-                (10 * between_count[group]/projection_count) + \
-                (100 * collide_count[group]/projection_count) + \
-                (100 * intersection_range[group]/projection_range)            
+                (10 * between_count[group]/projection_count[group]) + \
+                (100 * collide_count[group]/projection_count[group]) + \
+                (100 * intersection_range[group]/projection_range[group])            
         return fitness
 
 class GE_Global_Fitness(GE_Base):
@@ -471,8 +471,8 @@ class GE_Global_Fitness(GE_Base):
         for group in self.classes:
             bad_accumulation += 0.0 * local_stdev[group]/global_stdev +\
                 phenotype_complexity + \
-                (10 * between_count[group]/projection_count) + \
-                (100 * collide_count[group]/projection_count) + \
+                (10 * between_count[group]/projection_count[group]) + \
+                (100 * collide_count[group]/projection_count[group]) + \
                 (100 * intersection_range[group]/projection_range) 
         fitness_value = phenotype_complexity+ bad_accumulation/len(self.classes)
         # return fitness value
