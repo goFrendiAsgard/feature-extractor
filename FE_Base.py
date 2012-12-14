@@ -82,7 +82,10 @@ def get_svm_result(training_data, training_target, test_data, test_target, old_f
     utils.write("Processing SVM '%s'" % (label))
     
     if svc is None:
-        svc = svm.SVC()
+        try:
+            svc = svm.SVC(max_iter=1000)
+        except:
+            svc = svm.SVC()
     
     start_time = time.time()
     new_training_data = build_new_data(training_data, old_features, new_features)
@@ -597,7 +600,10 @@ class Feature_Extractor(object):
             for best_phenotype in best_phenotypes:
                 if not (best_phenotype in new_features):
                     new_features.append(best_phenotype)
-            svc = svm.SVC()
+            try:
+                svc = svm.SVC(max_iter=1000)
+            except:
+                svc = svm.SVC()
             svm_result = get_svm_result(training_data, training_num_targets, test_data, test_num_targets, variables, new_features, ge_global_fitness.label, svc)
             output += svm_result['str']
             ge_global_fitness_result.append(svm_result)
@@ -623,7 +629,10 @@ class Feature_Extractor(object):
                 best_phenotype = ge_multi_fitness.best_individuals(1, benchmark=group, representation='phenotype')
                 if not (best_phenotype in new_features):
                     new_features.append(best_phenotype)
-            svc = svm.SVC()
+            try:
+                svc = svm.SVC(max_iter=1000)
+            except:
+                svc = svm.SVC()
             svm_result = get_svm_result(training_data, training_num_targets, test_data, test_num_targets, variables, new_features, ge_multi_fitness.label, svc)
             output += svm_result['str']
             ge_multi_fitness_result.append(svm_result)
