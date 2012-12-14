@@ -440,7 +440,7 @@ class GE_Multi_Fitness(GE_Base):
                 phenotype_complexity + \
                 (10 * between_count[group]/projection_count[group]) + \
                 (100 * collide_count[group]/projection_count[group]) + \
-                (100 * intersection_range[group]/projection_range[group])            
+                (100 * intersection_range[group]/projection_range)            
         return fitness
 
 class GE_Global_Fitness(GE_Base):
