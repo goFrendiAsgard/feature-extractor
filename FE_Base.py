@@ -139,7 +139,8 @@ def get_svm_result(training_data, training_target, test_data, test_target, old_f
     result += 'TRAINING TIME     : '+str(training_time)+' second(s)\r\n'
     result += 'TEST TIME         : '+str(execution_time)+' second(s)\r\n\r\n'
     
-    
+    # delete svc after use it
+    del svc  
     
     return {"str":result, "training_result":training_result, "test_result":test_result}
 
@@ -203,6 +204,8 @@ def draw_projection(data, targets, old_features, new_features, label=''):
         sp.yaxis.set_major_formatter(formatter)
     plt.suptitle('Feature Projection '+label)
     plt.savefig('Feature Projection '+label, dpi=100)
+    del formatter
+    del fig
 
 def calculate_projection(data, targets, old_features, new_feature):
     '''
@@ -582,6 +585,8 @@ class Feature_Extractor(object):
             draw_projection(training_data, training_label_targets, variables, new_variables, ga_svm.label+' Training')
             draw_projection(test_data, test_label_targets, variables, new_variables, ga_svm.label+' Test')
             
+            del ga_svm
+            
             # GE Global-Fitness (My Previous Research)
             ge_global_fitness = GE_Global_Fitness()
             ge_global_fitness.classes = labels
@@ -611,6 +616,8 @@ class Feature_Extractor(object):
             draw_projection(training_data, training_label_targets, variables, new_features, ge_global_fitness.label+' Training')
             draw_projection(test_data, test_label_targets, variables, new_features, ge_global_fitness.label+' Test')
             
+            del ge_global_fitness
+            
             # GE Multi-Fitness (My Hero :D )
             ge_multi_fitness = GE_Multi_Fitness()
             ge_multi_fitness.classes = labels
@@ -639,6 +646,8 @@ class Feature_Extractor(object):
             ge_multi_fitness.show(True, ge_multi_fitness.label+'.png')
             draw_projection(training_data, training_label_targets, variables, new_features, ge_multi_fitness.label+' Training')
             draw_projection(test_data, test_label_targets, variables, new_features, ge_multi_fitness.label+' Test')
+            
+            del ge_multi_fitness
             
         print output
         
@@ -692,3 +701,4 @@ class Feature_Extractor(object):
         plt.suptitle('SVM training and test comparison of '+self.label)
 
         plt.savefig('SVM training and test comparison "'+self.label+'".png', dpi=100)
+        del fig
