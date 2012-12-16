@@ -4,7 +4,7 @@ Created on Nov 10, 2012
 @author: gofrendi
 '''
 
-import utils
+import utils, gc
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -201,6 +201,7 @@ class GA_Base(object):
             acc += self._individual_benchmark_rank[benchmark][i]['fitness']
             if acc>= num:
                 return self._individual_benchmark_rank[benchmark][i]['index']
+        return self._individual_benchmark_rank[benchmark][len(self._individual_benchmark_rank[benchmark])-1]['index']
     
     def _get_elite_individual_indexes(self,count,benchmark='default'):
         individuals = []
@@ -505,6 +506,10 @@ class GA_Base(object):
         else:
             plt.show()
             print('show figure')
+        
+        fig.clf()
+        plt.close()
+        gc.collect()
     
     def _generate_new_individual(self):
         new_individual = self.do_generate_new_individual()
