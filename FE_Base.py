@@ -338,6 +338,18 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
         self.training_target = []
         self.classes = []
     
+    def get_num_targets(self):
+        num_targets = []
+        target_dictionary = {}
+        # fill out the variables
+        class_index = 0
+        for target in self.training_target:
+            if not (target in target_dictionary):
+                target_dictionary[target] = class_index
+                class_index += 1            
+            num_targets.append(target_dictionary[target])
+        return num_targets
+    
     def _bad_fitness(self):
         fitness = {}
         for benchmark in self.benchmarks:
@@ -565,10 +577,12 @@ class GE_Multi_Fitness_GA_SVM(GE_Multi_Fitness):
             if not (best_phenotype in new_features):
                 new_features.append(best_phenotype)
         # start GA_SVM
+        self.ga_svm.label = 'GA SVM Part'
         self.ga_svm.classes = self.classes
         self.ga_svm.variables = new_features
         self.ga_svm.training_data = build_new_data(self.training_data, self.variables, new_features)
-        self.ga_svm.training_num_target = self.training_num_targets
+        self.ga_svm.training_num_target = self.get_num_targets()
+        self.ga_svm.process()
     
     def get_new_features(self):
         return self.ga_svm.get_new_features()
@@ -591,10 +605,12 @@ class GE_Global_Fitness_GA_SVM(GE_Global_Fitness):
             if not (best_phenotype in new_features):
                 new_features.append(best_phenotype)
         # start GA_SVM
+        self.ga_svm.label = 'GA SVM Part'
         self.ga_svm.classes = self.classes
         self.ga_svm.variables = new_features
         self.ga_svm.training_data = build_new_data(self.training_data, self.variables, new_features)
-        self.ga_svm.training_num_target = self.training_num_targets
+        self.ga_svm.training_num_target = self.get_num_targets()
+        self.ga_svm.process()
     
     def get_new_features(self):
         return self.ga_svm.get_new_features()
