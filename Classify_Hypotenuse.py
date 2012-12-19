@@ -4,7 +4,7 @@ from gogenpy import utils
 randomizer = utils.randomizer
 records = []
 i = 0
-while i<3:
+while i<5:
     for x in xrange(-10,10):
         for y in xrange(-10,10):
             r = (x**2+y**2) ** 0.5

@@ -420,66 +420,71 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
         end_time = time.time()
         time_complexity = end_time - start_time
         
-        phenotype_complexity = time_complexity
-        other_group_between_count = {}
-        current_group_between_count = {}
-        collide_count = {}
-        separability = {}
+        neighbour_distances = {}
+        intrusion_damages = {}
+        collision_damages = {}
         
         try:
+            
             if error:
                 raise Exception("Error")
+            
+            histogram = {}
+            for group in self.classes:
+                histogram[group] = calculate_histogram(projection[group])
+            
             for current_group in self.classes:
-                current_projection = projection[current_group]
-                other_group_between_count[current_group] = 0.0
-                current_group_between_count[current_group] = 0.0
-                collide_count[current_group] = 0.0
-                separability[current_group] = 0.0
-                sw_divider = 0
-                sb_divider = 0
-                sw = 0.0
-                sb = 0.0
-                # within class variance
-                for i in xrange(len(projection[current_group])):
-                    for j in xrange(len(projection[current_group])):
-                        if i==j:
-                            continue
-                        sw += abs(current_projection[i] - current_projection[j])
-                        sw_divider += 1
+                current_histogram = histogram[current_group]
+                current_projection_count = len(projection[current_group])
+                
+                # neighbour_distance & intruder
+                current_max = max_projection[current_group]
+                current_min = min_projection[current_group]
+                current_range = max(current_max-current_min, 0.0001) # avoid division by zero later
+                neighbour_distance = 1.0 # since it's normalized it's save to assume maximum distance is equal to 1
+                intrusion_damage = 0.0
+                collision_damage = 0.0
                 for compare_group in self.classes:
                     if compare_group == current_group:
                         continue
-                    else:
-                        compare_projection = projection[compare_group]
-                        for i in xrange(len(projection[current_group])):                            
-                            # between max and min range of other projection
-                            if max_projection[compare_group]>current_projection[i] and min_projection[compare_group]<current_projection[i]:
-                                current_group_between_count[current_group] += 1
-                            
-                            for j in xrange(len(projection[compare_group])):
-                                # other projection between max and min of curent projection
-                                if max_projection[current_group]>compare_projection[j] and min_projection[current_group]<compare_projection[j]:
-                                    other_group_between_count[current_group] += 1
-                                
-                                # collide (not-separable)
-                                if projection[compare_group][j] == projection[current_group][i]:
-                                    collide_count[current_group] += 1
-                                # between class variance
-                                sb += abs(current_projection[i] - compare_projection[j])
-                                sb_divider += 1
-                    separability[current_group] = (sw/sw_divider) / (sb/sb_divider) 
+                    # neighbour_distance
+                    compare_max = max_projection[compare_group]
+                    compare_min = min_projection[compare_group]
+                    new_neighbour_distance = min(
+                            abs(current_max - compare_min),
+                            abs(compare_max - current_min)
+                        )
+                    if new_neighbour_distance<neighbour_distance:
+                        neighbour_distance = new_neighbour_distance
+                    # intruder
+                    compare_histogram = histogram[compare_group]
+                    for compare_value in compare_histogram:
+                        if compare_value<=current_max and compare_value>=current_min:
+                            intrusion_distance = min(
+                                            current_max-compare_value,
+                                            compare_value-current_min
+                                    )
+                            intrusion_distance = max(intrusion_distance, 0.0001)
+                            intruder_count = compare_histogram[compare_value]
+                            intrusion_damage += (intrusion_distance * intruder_count) / (current_range * current_projection_count)
+                        for current_value in current_histogram:
+                            if compare_value == current_value:
+                                collision_count = compare_histogram[compare_value] + current_histogram[current_value]
+                                collision_damage = collision_count/current_projection_count
+                        
+                neighbour_distances[current_group] = neighbour_distance
+                intrusion_damages[current_group] = intrusion_damage
+                collision_damages[current_group] = collision_damage
+                    
         except:
             error = True
-        
+
         # return projection attributes
         attributes = {
-           'global_projection' : global_projection,
-           'local_projection' : projection,
-           'phenotype_complexity' : phenotype_complexity,
-           'separability' : separability,
-           'other_group_between_count' : other_group_between_count,
-           'current_group_between_count' : current_group_between_count,
-           'collide_count' : collide_count
+           'neighbour_distance' : neighbour_distances,
+           'intrusion_damage' : intrusion_damages,
+           'collision_damage' : collision_damages,
+           'time_complexity' : time_complexity
         }
         return error, attributes
     
@@ -516,25 +521,20 @@ class GE_Multi_Fitness(GE_Base):
         if error:
             return self._bad_fitness()
         
-        # global_projection = attributes['global_projection']
-        # local_projection = attributes['local_projection']
-        phenotype_complexity = attributes['phenotype_complexity']
-        separability = attributes['separability']
-        current_group_between_count = attributes['current_group_between_count']
-        other_group_between_count = attributes['other_group_between_count']
-        collide_count = attributes['collide_count']
+        neighbour_distances = attributes['neighbour_distance']
+        intrusion_damages = attributes['intrusion_damage']
+        collision_damages = attributes['collision_damage']
+        time_complexity = attributes['time_complexity']
         
         # calculate fitness
         fitness = self._bad_fitness()        
         for group in self.classes:
-            try:                
-                # local_projection_count = len(local_projection[group])
+            try:
                 fitness[group] = \
-                    (100 * phenotype_complexity) + \
-                    (10 * separability[group]) + \
-                    (1 * current_group_between_count[group]) + \
-                    (10 * other_group_between_count[group]) + \
-                    (20 * collide_count[group])
+                    (10 * time_complexity) + \
+                    (1/(100 * neighbour_distances[group])) + \
+                    (10 * intrusion_damages[group]) + \
+                    (1000 * collision_damages[group])
             except:
                 return self._bad_fitness()
         return fitness
@@ -567,11 +567,10 @@ class GE_Global_Fitness(GE_Base):
             return self._bad_fitness()
         
         # local_projection = attributes['local_projection']
-        phenotype_complexity = attributes['phenotype_complexity']
-        separability = attributes['separability']
-        current_group_between_count = attributes['current_group_between_count']
-        other_group_between_count = attributes['other_group_between_count']
-        collide_count = attributes['collide_count']
+        neighbour_distances = attributes['neighbour_distance']
+        intrusion_damages = attributes['intrusion_damage']
+        collision_damages = attributes['collision_damage']
+        time_complexity = attributes['time_complexity']
         
         # calculate fitness
         try:
@@ -579,11 +578,11 @@ class GE_Global_Fitness(GE_Base):
             for group in self.classes:
                 # local_projection_count = len(local_projection[group])
                 bad_accumulation += \
-                    (10 * separability[group]) + \
-                    (1 * current_group_between_count[group]) + \
-                    (10 * other_group_between_count[group]) + \
-                    (20 * collide_count[group]) 
-            fitness_value = phenotype_complexity+ bad_accumulation/len(self.classes)
+                    (10 * time_complexity) + \
+                    (1/(100 * neighbour_distances[group])) + \
+                    (10 * intrusion_damages[group]) + \
+                    (1000 * collision_damages[group]) 
+            fitness_value = bad_accumulation/len(self.classes)
         except:
             return self._bad_fitness()
         # return fitness value
