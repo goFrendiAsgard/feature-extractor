@@ -132,7 +132,15 @@ class Draw_accuracy_x_formatter(Formatter):
         else:
             return ''
 
-def draw_projection(data, targets, old_features, new_features, label='', file_name=''):
+def calculate_histogram(array):
+    histogram = {}
+    for value in array:
+        if not value in histogram:
+            histogram[value] = 0.0
+        histogram[value]+=1
+    return histogram
+
+def draw_projection(data, targets, old_features, new_features, plot_label='', file_name=''):
     
     groups = []
     for target in targets:
@@ -159,7 +167,18 @@ def draw_projection(data, targets, old_features, new_features, label='', file_na
     for feature_index in xrange(new_feature_count):
         sp =fig.add_subplot(window_per_row, window_per_col, feature_index+1)             
         new_feature = new_features[feature_index]         
-        error, global_projection, projection, min_projection, max_projection = calculate_projection(data, targets, old_features, new_feature)
+        error, projection = calculate_projection(data, targets, old_features, new_feature)
+        min_projection = {}
+        max_projection = {}
+        global_projection = []
+        for label in projection:
+            global_projection += projection[label]
+            if len(projection[label])>0:
+                min_projection[label] = min(projection[label])
+                max_projection[label] = max(projection[label])
+            else:
+                min_projection[label] = 0
+                max_projection[label] = 0
         
         if error:
             continue
@@ -169,11 +188,20 @@ def draw_projection(data, targets, old_features, new_features, label='', file_na
             sp.plot([min_projection[group],min_projection[group]], [group_index, group_count], 'b--')
             sp.plot([max_projection[group],max_projection[group]], [group_index, group_count], 'b--')
             local_projection = projection[group]
-            for value in local_projection:
-                sp.plot(value,group_index, 'bo')
+                
+            histogram = calculate_histogram(local_projection)
+            max_histogram_value = 0.01
+            # get maximum histogram value
+            for value in histogram:
+                if histogram[value]>max_histogram_value:
+                    max_histogram_value = histogram[value]
+            for value in histogram:
+                count = histogram[value]
+                normalized_count = 0.8 * count/max_histogram_value
+                sp.plot([value, value], [group_index, group_index+normalized_count], color='k', linewidth=4)
+                sp.plot(value,len(groups), 'bo')
             group_index += 1
-        for value in global_projection:
-            sp.plot(value,group_index, 'bo')        
+                    
         sp.set_title('Feature: '+new_feature)
         sp.set_ylabel('Classes')
         sp.set_xlabel('Projection')
@@ -182,7 +210,8 @@ def draw_projection(data, targets, old_features, new_features, label='', file_na
         x_range = max(global_projection) - min(global_projection)
         sp.set_xlim(min(global_projection)-0.1*x_range, max(global_projection)+0.1*x_range)
         sp.yaxis.set_major_formatter(y_formatter)
-    plt.suptitle('Feature Projection '+label)
+    plt.suptitle('Feature Projection '+plot_label)
+    plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
     plt.savefig(file_name, dpi=100)
     
     fig.clf()
@@ -196,17 +225,13 @@ def calculate_projection(data, targets, old_features, new_feature):
     '''
     error = False
     groups = []
+    global_projection = []
     for target in targets:
         if not (target in groups):
             groups.append(target)
     projection = {}
-    global_projection = []
-    min_projection = {}
-    max_projection = {}
     for group in groups:
         projection[group] = []
-        min_projection[group] = 0
-        max_projection[group] = 0
         
     # calculate projection
     for i in xrange(len(data)):
@@ -215,15 +240,22 @@ def calculate_projection(data, targets, old_features, new_feature):
             if group == targets[i]:
                 result, error = utils.execute(new_feature, record, old_features)
                 if error:
-                    return error, global_projection, projection, min_projection, max_projection
+                    return error, projection
                 else:
                     result = float(result)
                     projection[group].append(result)
                     global_projection.append(result)
+    # normalization
+    max_value = max(global_projection)
+    min_value = min(global_projection)
+    projection_range = max_value - min_value
+    if projection_range == 0:
+        projection_range = 1
     for group in groups:
-        min_projection[group] = min(projection[group])
-        max_projection[group] = max(projection[group])
-    return error, global_projection, projection, min_projection, max_projection
+        for i in xrange(len(projection[group])):
+            projection[group][i] /= projection_range
+    
+    return error, projection
 
 def build_new_data(data, old_features, new_features):
     '''
@@ -331,7 +363,7 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
             '<expr>' : ['<var>','<expr> <op> <expr>','<func>(<expr>)'],
             '<var>'  : self.variables,
             '<op>'   : ['+','-','*','/'],
-            '<func>' : ['sqr','sqrt','abs']
+            '<func>' : ['sqr','sqrt']
         }
         self.start_node = '<expr>'
         self.training_data = []
@@ -353,7 +385,7 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
     def _bad_fitness(self):
         fitness = {}
         for benchmark in self.benchmarks:
-            fitness[benchmark] = 100000
+            fitness[benchmark] = 1000000
         return fitness
     
     def _calculate_projection(self, phenotype):
@@ -368,72 +400,86 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
     
     def _calculate_projection_attribute(self, phenotype):
         '''
-        return a dictionary which contains of global_stdev, 
-        phenotype_complexity, local_stdev, between_count, collide_count and projection_count
+        return a dictionary which contains of important attributes
         '''
-        
-        smallest_number = 0.0000000001
         
         # calculate projection
         start_time = time.time()        
-        error, global_projection, projection, max_projection, min_projection = self._calculate_projection(phenotype)
+        error, projection = self._calculate_projection(phenotype)
+        min_projection = {}
+        max_projection = {}
+        global_projection = []
+        for label in projection:
+            global_projection += projection[label]
+            if(len(projection[label])>0):
+                min_projection[label] = min(projection[label])
+                max_projection[label] = max(projection[label])
+            else:
+                min_projection[label] = 0
+                max_projection[label] = 0
         end_time = time.time()
         time_complexity = end_time - start_time
         
-        global_stdev = smallest_number # avoid division by zero
         phenotype_complexity = time_complexity
-        local_stdev = {}
-        between_count = {}
+        other_group_between_count = {}
+        current_group_between_count = {}
         collide_count = {}
-        projection_count = {}
-        intersection_range = {}
-        global_projection_range = smallest_number
-        local_projection_range = {}
+        separability = {}
         
         try:
             if error:
                 raise Exception("Error")
-            # calculate projection attribute                    
-            global_stdev = max(numpy.std(global_projection), smallest_number) # avoid division by zero
-            global_projection_range = max(max(global_projection) - min(global_projection), smallest_number)
             for current_group in self.classes:
-                # stdev
-                local_stdev[current_group] = numpy.std(projection[current_group])
-                between_count[current_group] = 0.0
+                current_projection = projection[current_group]
+                other_group_between_count[current_group] = 0.0
+                current_group_between_count[current_group] = 0.0
                 collide_count[current_group] = 0.0
-                intersection_range[current_group] = 0.0
-                projection_count[current_group] = float(len(projection[current_group]))
-                local_projection_range[current_group] = max(max(projection[current_group]) - min(projection[current_group]), smallest_number)
+                separability[current_group] = 0.0
+                sw_divider = 0
+                sb_divider = 0
+                sw = 0.0
+                sb = 0.0
+                # within class variance
+                for i in xrange(len(projection[current_group])):
+                    for j in xrange(len(projection[current_group])):
+                        if i==j:
+                            continue
+                        sw += abs(current_projection[i] - current_projection[j])
+                        sw_divider += 1
                 for compare_group in self.classes:
                     if compare_group == current_group:
                         continue
                     else:
-                        max_min = max(min(projection[current_group]),min(projection[compare_group]))
-                        min_max = min(max(projection[current_group]),max(projection[compare_group]))
-                        if (min_max - max_min) > 0:
-                            intersection_range[current_group] += (min_max - max_min)
+                        compare_projection = projection[compare_group]
                         for i in xrange(len(projection[current_group])):                            
                             # between max and min range of other projection
-                            if max_projection[compare_group]>projection[current_group][i] and min_projection[compare_group]<projection[current_group][i]:
-                                between_count[current_group] += 1
-                            # collide (not-separable)
+                            if max_projection[compare_group]>current_projection[i] and min_projection[compare_group]<current_projection[i]:
+                                current_group_between_count[current_group] += 1
+                            
                             for j in xrange(len(projection[compare_group])):
+                                # other projection between max and min of curent projection
+                                if max_projection[current_group]>compare_projection[j] and min_projection[current_group]<compare_projection[j]:
+                                    other_group_between_count[current_group] += 1
+                                
+                                # collide (not-separable)
                                 if projection[compare_group][j] == projection[current_group][i]:
                                     collide_count[current_group] += 1
+                                # between class variance
+                                sb += abs(current_projection[i] - compare_projection[j])
+                                sb_divider += 1
+                    separability[current_group] = (sw/sw_divider) / (sb/sb_divider) 
         except:
             error = True
         
         # return projection attributes
         attributes = {
-           'global_stdev' : global_stdev,
+           'global_projection' : global_projection,
+           'local_projection' : projection,
            'phenotype_complexity' : phenotype_complexity,
-           'local_stdev' : local_stdev,
-           'between_count' : between_count,
-           'collide_count' : collide_count,
-           'projection_count' : projection_count,
-           'intersection_range' : intersection_range,
-           'global_projection_range' : global_projection_range,
-           'local_projection_range' : local_projection_range
+           'separability' : separability,
+           'other_group_between_count' : other_group_between_count,
+           'current_group_between_count' : current_group_between_count,
+           'collide_count' : collide_count
         }
         return error, attributes
     
@@ -470,24 +516,25 @@ class GE_Multi_Fitness(GE_Base):
         if error:
             return self._bad_fitness()
         
-        global_stdev = attributes['global_stdev']
+        # global_projection = attributes['global_projection']
+        # local_projection = attributes['local_projection']
         phenotype_complexity = attributes['phenotype_complexity']
-        local_stdev = attributes['local_stdev']
-        between_count = attributes['between_count']
+        separability = attributes['separability']
+        current_group_between_count = attributes['current_group_between_count']
+        other_group_between_count = attributes['other_group_between_count']
         collide_count = attributes['collide_count']
-        projection_count = attributes['projection_count']
-        intersection_range = attributes['intersection_range']
-        local_projection_range = attributes['local_projection_range']
         
         # calculate fitness
         fitness = self._bad_fitness()        
-        for group in self.classes: 
-            try:           
-                fitness[group] = 1.0 * (local_stdev[group]/global_stdev) + \
+        for group in self.classes:
+            try:                
+                # local_projection_count = len(local_projection[group])
+                fitness[group] = \
                     (100 * phenotype_complexity) + \
-                    (1000 * (between_count[group]/projection_count[group])) + \
-                    (1000 * (collide_count[group]/projection_count[group])) + \
-                    (1000 * (intersection_range[group]/local_projection_range[group]))
+                    (10 * separability[group]) + \
+                    (1 * current_group_between_count[group]) + \
+                    (10 * other_group_between_count[group]) + \
+                    (20 * collide_count[group])
             except:
                 return self._bad_fitness()
         return fitness
@@ -519,24 +566,23 @@ class GE_Global_Fitness(GE_Base):
         if error:
             return self._bad_fitness()
         
-        global_stdev = attributes['global_stdev']
+        # local_projection = attributes['local_projection']
         phenotype_complexity = attributes['phenotype_complexity']
-        local_stdev = attributes['local_stdev']
-        between_count = attributes['between_count']
+        separability = attributes['separability']
+        current_group_between_count = attributes['current_group_between_count']
+        other_group_between_count = attributes['other_group_between_count']
         collide_count = attributes['collide_count']
-        projection_count = attributes['projection_count']
-        intersection_range = attributes['intersection_range']
-        local_projection_range = attributes['local_projection_range']
         
         # calculate fitness
         try:
             bad_accumulation = 0
             for group in self.classes:
-                bad_accumulation += 1.0 * (local_stdev[group]/global_stdev) +\
-                    (100 * phenotype_complexity) + \
-                    (1000 * (between_count[group]/projection_count[group])) + \
-                    (1000 * (collide_count[group]/projection_count[group])) + \
-                    (1000 * (intersection_range[group]/local_projection_range[group])) 
+                # local_projection_count = len(local_projection[group])
+                bad_accumulation += \
+                    (10 * separability[group]) + \
+                    (1 * current_group_between_count[group]) + \
+                    (10 * other_group_between_count[group]) + \
+                    (20 * collide_count[group]) 
             fitness_value = phenotype_complexity+ bad_accumulation/len(self.classes)
         except:
             return self._bad_fitness()
@@ -657,6 +703,7 @@ class Feature_Extractor(object):
             # add target indexes
             target_indexes[record[-1]].append(i)
             i+=1
+        labels.sort()
         for label in label_targets:
             training_count_per_fold[label] = math.floor(len(target_indexes[label])/self.fold)
         
@@ -667,9 +714,7 @@ class Feature_Extractor(object):
             'original_svm' : [],            
             'ge_global_fitness' : [],
             'ge_multi_fitness' : [],
-            'ga_svm' : [],
-            'ge_global_fitness-ga_svm' : [],
-            'ge_multi_fitness-ga_svm' : []
+            'ga_svm' : []
         }
         
         try:
@@ -699,6 +744,11 @@ class Feature_Extractor(object):
                     test_data.append(data[i])
                     test_label_targets.append(label_targets[i])
                     test_num_targets.append(num_targets[i])
+            
+            if self.fold == 1:
+                test_data = training_data
+                test_label_targets = training_label_targets
+                test_num_targets = training_num_targets
             
             print('FOLD : '+str(fold_index+1))
             
@@ -751,7 +801,7 @@ class Feature_Extractor(object):
             all_svm_results['ge_global_fitness'].append(svm_result)
             ge_global_fitness.show(True, self.label+'/'+ge_global_fitness.label+'.png')
             draw_projection(training_data, training_label_targets, variables, new_features, ge_global_fitness.label+' Training', self.label+'/'+ge_global_fitness.label+' Training Feature Projection.png')
-            draw_projection(test_data, test_label_targets, variables, new_features, ge_global_fitness.label+' Training', self.label+'/'+ge_global_fitness.label+' Test Feature Projection.png')
+            draw_projection(test_data, test_label_targets, variables, new_features, ge_global_fitness.label+' Test', self.label+'/'+ge_global_fitness.label+' Test Feature Projection.png')
             
             # GE Multi-Fitness (My Fallen Hero)
             ge_multi_fitness = GE_Multi_Fitness()
@@ -775,55 +825,9 @@ class Feature_Extractor(object):
             draw_projection(training_data, training_label_targets, variables, new_features, ge_multi_fitness.label+' Training', self.label+'/'+ge_multi_fitness.label+' Training Feature Projection.png')
             draw_projection(test_data, test_label_targets, variables, new_features, ge_multi_fitness.label+' Test', self.label+'/'+ge_multi_fitness.label+' Test Feature Projection.png')
             
-            # GE Global Fitness GA-SVM
-            ge_global_fitness_ga_svm = GE_Global_Fitness_GA_SVM()
-            ge_global_fitness_ga_svm.classes = labels
-            ge_global_fitness_ga_svm.variables = variables
-            ge_global_fitness_ga_svm.training_data = training_data
-            ge_global_fitness_ga_svm.training_target = training_label_targets
-            ge_global_fitness_ga_svm.label = 'GE Global Fitness - GA SVM "'+self.label+'" Fold '+str(fold_index+1)
-            ge_global_fitness_ga_svm.stopping_value = 0.1
-            ge_global_fitness_ga_svm.max_epoch = self.max_epoch
-            ge_global_fitness_ga_svm.individual_length = 30
-            ge_global_fitness_ga_svm.population_size = self.population_size
-            ge_global_fitness_ga_svm.process()
-            # new features
-            new_features = ge_global_fitness_ga_svm.get_new_features()
-            svc = ge_global_fitness_ga_svm.get_svm()
-            svm_result = get_svm_result(training_data, training_num_targets, test_data, test_num_targets, variables, new_features, ge_global_fitness_ga_svm.label, svc)
-            output += svm_result['str']
-            all_svm_results['ge_global_fitness-ga_svm'].append(svm_result)
-            ge_global_fitness_ga_svm.show(True, self.label+'/'+ge_global_fitness_ga_svm.label+'.png')
-            draw_projection(training_data, training_label_targets, variables, new_features, ge_global_fitness_ga_svm.label+' Training', self.label+'/'+ge_global_fitness_ga_svm.label+' Training Feature Projection.png')
-            draw_projection(test_data, test_label_targets, variables, new_features, ge_global_fitness_ga_svm.label+' Training', self.label+'/'+ge_global_fitness_ga_svm.label+' Test Feature Projection.png')
-            
-            # GE multi Fitness GA-SVM
-            ge_multi_fitness_ga_svm = GE_Multi_Fitness_GA_SVM()
-            ge_multi_fitness_ga_svm.classes = labels
-            ge_multi_fitness_ga_svm.variables = variables
-            ge_multi_fitness_ga_svm.training_data = training_data
-            ge_multi_fitness_ga_svm.training_target = training_label_targets
-            ge_multi_fitness_ga_svm.label = 'GE Multi Fitness - GA SVM "'+self.label+'" Fold '+str(fold_index+1)
-            ge_multi_fitness_ga_svm.stopping_value = 0.1
-            ge_multi_fitness_ga_svm.max_epoch = self.max_epoch
-            ge_multi_fitness_ga_svm.individual_length = 30
-            ge_multi_fitness_ga_svm.population_size = self.population_size
-            ge_multi_fitness_ga_svm.process()
-            # new features
-            new_features = ge_multi_fitness_ga_svm.get_new_features()
-            svc = ge_multi_fitness_ga_svm.get_svm()
-            svm_result = get_svm_result(training_data, training_num_targets, test_data, test_num_targets, variables, new_features, ge_multi_fitness_ga_svm.label, svc)
-            output += svm_result['str']
-            all_svm_results['ge_multi_fitness-ga_svm'].append(svm_result)
-            ge_multi_fitness_ga_svm.show(True, self.label+'/'+ge_multi_fitness_ga_svm.label+'.png')
-            draw_projection(training_data, training_label_targets, variables, new_features, ge_multi_fitness_ga_svm.label+' Training', self.label+'/'+ge_multi_fitness_ga_svm.label+' Training Feature Projection.png')
-            draw_projection(test_data, test_label_targets, variables, new_features, ge_multi_fitness_ga_svm.label+' Training', self.label+'/'+ge_multi_fitness_ga_svm.label+' Test Feature Projection.png')
-            
             del ga_svm
             del ge_global_fitness
             del ge_multi_fitness
-            del ge_global_fitness_ga_svm
-            del ge_multi_fitness_ga_svm
             del training_data           
             del training_label_targets
             del training_num_targets
@@ -858,8 +862,12 @@ class Feature_Extractor(object):
             
         fold_indexes = list(xrange(self.fold))
         for label in all_svm_results:
-            sp_1.plot(fold_indexes, training_accuracy[label], label=label)
-            sp_2.plot(fold_indexes, test_accuracy[label], label=label)
+            if len(fold_indexes)==1:
+                sp_1.plot(fold_indexes, training_accuracy[label], label=label, marker='o')
+                sp_2.plot(fold_indexes, test_accuracy[label], label=label, marker='o')
+            else:
+                sp_1.plot(fold_indexes, training_accuracy[label], label=label)
+                sp_2.plot(fold_indexes, test_accuracy[label], label=label)
         
         x_range = self.fold
         
@@ -881,6 +889,7 @@ class Feature_Extractor(object):
         sp_1.xaxis.set_major_formatter(x_formatter)
         sp_2.xaxis.set_major_formatter(x_formatter)
         
+        plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
         plt.suptitle('SVM training and test comparison of '+self.label)
 
         plt.savefig(self.label+'/'+'SVM training and test comparison "'+self.label+'".png', dpi=100)

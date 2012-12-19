@@ -4,10 +4,22 @@ Created on Nov 10, 2012
 @author: gofrendi
 '''
 
-import random
+import random, math
 from sys import stdout
 
 randomizer = random.Random(10)
+
+def sin(num):
+    return math.sin(num)
+
+def cos(num):
+    return math.cos(num)
+
+def mod(num):
+    return math.fmod(num)
+
+def factorial(num):
+    return math.factorial(num)
 
 def plus(num_1, num_2):
     return num_1 + num_2
@@ -32,7 +44,7 @@ def sqrt(num):
 
 def write(text):
     # clear the line
-    stdout.write("\r%s" % (' '*70))
+    stdout.write("\r%s" % (' '*80))
     stdout.flush()
     # write new thing
     stdout.write("\r%s" % (text))
