@@ -435,7 +435,7 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
             
             for current_group in self.classes:
                 current_histogram = histogram[current_group]
-                current_projection_count = len(projection[current_group])
+                #current_projection_count = len(projection[current_group])
                 
                 # neighbour_distance & intruder
                 current_max = max_projection[current_group]
@@ -466,11 +466,13 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
                                     )
                             intrusion_distance = max(intrusion_distance, 0.0001)
                             intruder_count = compare_histogram[compare_value]
-                            intrusion_damage += (intrusion_distance * intruder_count) / (current_range * current_projection_count)
+                            # intrusion_damage += (intrusion_distance * intruder_count) / (current_range * current_projection_count)
+                            intrusion_damage += (intrusion_distance * intruder_count) / current_range
                         for current_value in current_histogram:
                             if compare_value == current_value:
                                 collision_count = compare_histogram[compare_value] + current_histogram[current_value]
-                                collision_damage = collision_count/current_projection_count
+                                # collision_damage = collision_count/current_projection_count
+                                collision_damage = collision_count
                         
                 neighbour_distances[current_group] = neighbour_distance
                 intrusion_damages[current_group] = intrusion_damage
@@ -533,7 +535,7 @@ class GE_Multi_Fitness(GE_Base):
                 fitness[group] = \
                     (10 * time_complexity) + \
                     (1/(100 * neighbour_distances[group])) + \
-                    (10 * intrusion_damages[group]) + \
+                    (100 * intrusion_damages[group]) + \
                     (1000 * collision_damages[group])
             except:
                 return self._bad_fitness()
@@ -580,7 +582,7 @@ class GE_Global_Fitness(GE_Base):
                 bad_accumulation += \
                     (10 * time_complexity) + \
                     (1/(100 * neighbour_distances[group])) + \
-                    (10 * intrusion_damages[group]) + \
+                    (100 * intrusion_damages[group]) + \
                     (1000 * collision_damages[group]) 
             fitness_value = bad_accumulation/len(self.classes)
         except:

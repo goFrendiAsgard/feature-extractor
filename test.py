@@ -36,7 +36,7 @@ ge_multi_fitness.training_target = training_target
 def print_fitness(phenotype):
     individual = {'phenotype': phenotype}
     print individual['phenotype']
-    #print ge_multi_fitness._calculate_projection_attribute(phenotype)
+    print ge_multi_fitness._calculate_projection_attribute(phenotype)
     print ge_multi_fitness.do_calculate_fitness(individual)
     print ''
 
@@ -46,5 +46,4 @@ print_fitness('sqrt(sqr(x)+sqr(y))')
 print_fitness('x')
 print_fitness('y')
 print_fitness('sqr(y)*x')
-print_fitness('sqr(sqr(sqrt(sqrt(sqr(sqr(sqrt(sqr(x) + sqr(y))) - y) - sqr(y)))))')
-print_fitness('sqrt(sqr(sqr(sqr(sqr(x))) + y + x + y))')
+print_fitness('sqrt(sqr(y - sqr(y) - x * x) + y)')

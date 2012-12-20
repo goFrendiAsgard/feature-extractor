@@ -10,7 +10,7 @@ fe.label = 'Wine'
 fe.max_epoch = 200
 fe.records = records
 fe.population_size = 100
-fe.fold = 10
+fe.fold = 1
 fe.variables = variables
 fe.measurement = 'error'
 fe.process()
