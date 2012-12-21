@@ -920,7 +920,7 @@ def feature_extracting(data, features, label='data', max_epoch=200, population_s
     return fe
 
 def extract_csv(csv_file_name, delimiter=','):
-    r = csv.reader(open('winequality-red.csv'), delimiter=delimiter)
+    r = csv.reader(open(csv_file_name), delimiter=delimiter)
     r = list(r)
     variables = r[0]
     variables = variables[:-1]
