@@ -1,4 +1,4 @@
-from FE_Base import Feature_Extractor
+from FE_Base import feature_extracting
 from sklearn import datasets
     
 ds = datasets.load_iris()
@@ -15,12 +15,4 @@ variables = ['petal_length','petal_width','sepal_length','sepal_width']
 
 
 # make feature extractor
-fe = Feature_Extractor()
-fe.label = 'Iris'
-fe.max_epoch = 200
-fe.records = records
-fe.population_size = 100
-fe.fold = 1
-fe.variables = variables
-fe.measurement = 'error'
-fe.process()
+feature_extracting(records, variables, label='Iris', fold=1)

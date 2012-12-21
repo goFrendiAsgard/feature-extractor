@@ -1,16 +1,7 @@
-from FE_Base import Feature_Extractor
-from wine_data import records, variables
-    
-training_records = records[0:20]+records[59:79]+records[130:150]
-
+from FE_Base import feature_extracting, extract_csv
 
 # make feature extractor
-fe = Feature_Extractor()
-fe.label = 'Wine'
-fe.max_epoch = 200
-fe.records = records
-fe.population_size = 100
-fe.fold = 1
-fe.variables = variables
-fe.measurement = 'error'
-fe.process()
+attribute = extract_csv('wine.data.csv', delimiter=';')
+variables = attribute['variables']
+records = attribute['data']
+feature_extracting(records, variables, label='Wine Data', fold=10)

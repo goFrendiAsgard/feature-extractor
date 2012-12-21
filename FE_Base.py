@@ -7,7 +7,7 @@ import os, sys, gc, shutil
 lib_path = os.path.abspath('./gogenpy')
 sys.path.insert(0,lib_path)
 
-import numpy, time
+import csv, time
 import math
 from gogenpy import classes, utils
 from sklearn import svm
@@ -423,6 +423,7 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
         neighbour_distances = {}
         intrusion_damages = {}
         collision_damages = {}
+        surrounded_damages = {}
         
         try:
             
@@ -432,6 +433,7 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
             histogram = {}
             for group in self.classes:
                 histogram[group] = calculate_histogram(projection[group])
+                surrounded_damages[group] = 0.0
             
             for current_group in self.classes:
                 current_histogram = histogram[current_group]
@@ -468,6 +470,7 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
                             intruder_count = compare_histogram[compare_value]
                             # intrusion_damage += (intrusion_distance * intruder_count) / (current_range * current_projection_count)
                             intrusion_damage += (intrusion_distance * intruder_count) / current_range
+                            surrounded_damages[compare_group] += (intrusion_distance * intruder_count) /current_range
                         for current_value in current_histogram:
                             if compare_value == current_value:
                                 collision_count = compare_histogram[compare_value] + current_histogram[current_value]
@@ -485,6 +488,7 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
         attributes = {
            'neighbour_distance' : neighbour_distances,
            'intrusion_damage' : intrusion_damages,
+           'surrounded_damage' : surrounded_damages,
            'collision_damage' : collision_damages,
            'time_complexity' : time_complexity
         }
@@ -525,6 +529,7 @@ class GE_Multi_Fitness(GE_Base):
         
         neighbour_distances = attributes['neighbour_distance']
         intrusion_damages = attributes['intrusion_damage']
+        surrounded_damages = attributes['surrounded_damage']
         collision_damages = attributes['collision_damage']
         time_complexity = attributes['time_complexity']
         
@@ -536,6 +541,7 @@ class GE_Multi_Fitness(GE_Base):
                     (10 * time_complexity) + \
                     (1/(100 * neighbour_distances[group])) + \
                     (100 * intrusion_damages[group]) + \
+                    (10 * surrounded_damages[group]) + \
                     (1000 * collision_damages[group])
             except:
                 return self._bad_fitness()
@@ -571,6 +577,7 @@ class GE_Global_Fitness(GE_Base):
         # local_projection = attributes['local_projection']
         neighbour_distances = attributes['neighbour_distance']
         intrusion_damages = attributes['intrusion_damage']
+        surrounded_damages = attributes['surrounded_damage']
         collision_damages = attributes['collision_damage']
         time_complexity = attributes['time_complexity']
         
@@ -583,6 +590,7 @@ class GE_Global_Fitness(GE_Base):
                     (10 * time_complexity) + \
                     (1/(100 * neighbour_distances[group])) + \
                     (100 * intrusion_damages[group]) + \
+                    (10 * surrounded_damages[group]) + \
                     (1000 * collision_damages[group]) 
             fitness_value = bad_accumulation/len(self.classes)
         except:
@@ -789,7 +797,7 @@ class Feature_Extractor(object):
             ge_global_fitness.training_data = training_data
             ge_global_fitness.training_target = training_label_targets
             ge_global_fitness.label = 'GE Global Fitness "'+self.label+'" Fold '+str(fold_index+1)
-            ge_global_fitness.stopping_value = 0.1
+            ge_global_fitness.stopping_value = 1.0
             ge_global_fitness.max_epoch = self.max_epoch
             ge_global_fitness.individual_length = 30
             ge_global_fitness.population_size = self.population_size
@@ -811,7 +819,7 @@ class Feature_Extractor(object):
             ge_multi_fitness.training_data = training_data
             ge_multi_fitness.training_target = training_label_targets
             ge_multi_fitness.label = 'GE Multi Fitness "'+self.label+'" Fold '+str(fold_index+1)
-            ge_multi_fitness.stopping_value = 0.1
+            ge_multi_fitness.stopping_value = 1.0
             ge_multi_fitness.max_epoch = self.max_epoch
             ge_multi_fitness.individual_length = 30
             ge_multi_fitness.population_size = self.population_size
@@ -898,3 +906,23 @@ class Feature_Extractor(object):
         fig.clf()
         plt.close()
         gc.collect()
+
+def feature_extracting(data, features, label='data', max_epoch=200, population_size=100, fold=5):
+    fe = Feature_Extractor()
+    fe.label = label
+    fe.max_epoch = max_epoch
+    fe.records = data
+    fe.population_size = population_size
+    fe.fold = fold
+    fe.variables = features
+    fe.measurement = 'error'
+    fe.process()
+    return fe
+
+def extract_csv(csv_file_name, delimiter=','):
+    r = csv.reader(open('winequality-red.csv'), delimiter=delimiter)
+    r = list(r)
+    variables = r[0]
+    variables = variables[:-1]
+    data = r[1:]
+    return {'variables':variables,'data':data}

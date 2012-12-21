@@ -1,4 +1,4 @@
-from FE_Base import Feature_Extractor
+from FE_Base import feature_extracting
 from gogenpy import utils
     
 randomizer = utils.randomizer
@@ -40,12 +40,4 @@ variables = ['x','y','z','r1','r2','r3','r4']
 
 
 # make feature extractor
-fe = Feature_Extractor()
-fe.label = 'Ideal data'
-fe.max_epoch = 200
-fe.records = records
-fe.population_size = 100
-fe.fold = 10
-fe.variables = variables
-fe.measurement = 'error'
-fe.process()
+feature_extracting(records, variables, label='Ideal data', fold=10)
