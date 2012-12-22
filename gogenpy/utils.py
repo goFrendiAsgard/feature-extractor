@@ -74,20 +74,20 @@ def execute(expr, record, variables):
     execute string as python program, give tuple(result, error) as return value
     '''
     result = 0
-    error = False
+    error = False    
     # get result and error state
     try:
         sandbox={}
         exec ('from utils import *') in sandbox
         # initialize features
         for i in xrange(len(variables)):
-            feature = variables[i]       
+            feature = variables[i]
             exec(feature+' = '+str(record[i])) in sandbox 
-        # execute expr, and get the result         
+        # execute expr, and get the result       
         exec('__result = '+expr) in sandbox                      
         result = float(sandbox['__result'])
     except:
-        error = True    
+        error = True
     return result, error
 
 

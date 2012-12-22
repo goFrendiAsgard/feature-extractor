@@ -748,12 +748,16 @@ class Genetics_Algorithm(GA_Base):
         return individual_1, individual_2
     
     def do_mutation(self, individual):
-        rnd = utils.randomizer.randrange(self._individual_length)
+        mutation_point = utils.randomizer.randrange(1, self._individual_length)       
         lst = list(individual['default'])
-        if lst[rnd] == '0':
-            lst[rnd] = '1'
-        else:
-            lst[rnd] = '0'
+        i = 0
+        while i<mutation_point:
+            rnd = utils.randomizer.randrange(self._individual_length)
+            if lst[rnd] == '0':
+                lst[rnd] = '1'
+            else:
+                lst[rnd] = '0'
+            i+=1
         individual['default'] = ''.join(lst)
         return individual
     

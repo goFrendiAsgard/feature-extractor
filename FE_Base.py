@@ -257,15 +257,6 @@ def calculate_projection(data, targets, old_features, new_feature):
                     result = float(result)
                     projection[group].append(result)
                     global_projection.append(result)
-    # normalization
-    max_value = max(global_projection)
-    min_value = min(global_projection)
-    projection_range = max_value - min_value
-    if projection_range == 0:
-        projection_range = 1
-    for group in groups:
-        for i in xrange(len(projection[group])):
-            projection[group][i] /= projection_range
     
     return error, projection
 
@@ -375,7 +366,7 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
             '<expr>' : ['<var>','<expr> <op> <expr>','<func>(<expr>)'],
             '<var>'  : self.variables,
             '<op>'   : ['+','-','*','/'],
-            '<func>' : ['sqr','sqrt']
+            '<func>' : ['sqr','sqrt','abs','sin','cos']
         }
         self.start_node = '<expr>'
         self.training_data = []
@@ -414,21 +405,31 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
         '''
         return a dictionary which contains of important attributes
         '''
+        LIMIT_ZERO = 0.0001
         
         # calculate projection
-        start_time = time.time()        
+        start_time = time.time()
+                
         error, projection = self._calculate_projection(phenotype)
         min_projection = {}
         max_projection = {}
         global_projection = []
-        for label in projection:
-            global_projection += projection[label]
-            if(len(projection[label])>0):
-                min_projection[label] = min(projection[label])
-                max_projection[label] = max(projection[label])
-            else:
-                min_projection[label] = 0
-                max_projection[label] = 0
+        min_global_projection = 0.0
+        max_global_projection = 0.0
+        global_projection_range = 0.0
+        if not error:
+            for label in projection:
+                global_projection += projection[label]
+                if(len(projection[label])>0):
+                    min_projection[label] = min(projection[label])
+                    max_projection[label] = max(projection[label])
+                else:
+                    min_projection[label] = 0
+                    max_projection[label] = 0
+            min_global_projection = min(global_projection)
+            max_global_projection = max(global_projection)
+            global_projection_range = max(max_global_projection-min_global_projection, LIMIT_ZERO)
+            
         end_time = time.time()
         time_complexity = end_time - start_time
         
@@ -436,6 +437,10 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
         intrusion_damages = {}
         collision_damages = {}
         surrounded_damages = {}
+        ranges = {}
+        
+        right_distance={}
+        left_distance={}
         
         try:
             
@@ -454,44 +459,66 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
                 # neighbour_distance & intruder
                 current_max = max_projection[current_group]
                 current_min = min_projection[current_group]
-                current_range = max(current_max-current_min, 0.0001) # avoid division by zero later
-                neighbour_distance = 1.0 # since it's normalized it's save to assume maximum distance is equal to 1
+                current_range = max(current_max-current_min, LIMIT_ZERO) # avoid division by zero later
+                most_left_neighbour = min_global_projection
+                most_right_neighbour = max_global_projection
+                left_neighbour_found = False
+                right_neighbour_found = False
+                most_left_neighbour_distance = global_projection_range
+                most_right_neighbour_distance = global_projection_range
                 intrusion_damage = 0.0
                 collision_damage = 0.0
                 for compare_group in self.classes:
                     if compare_group == current_group:
                         continue
-                    # neighbour_distance
-                    compare_max = max_projection[compare_group]
-                    compare_min = min_projection[compare_group]
-                    new_neighbour_distance = min(
-                            abs(current_max - compare_min),
-                            abs(compare_max - current_min)
-                        )
-                    if new_neighbour_distance<neighbour_distance:
-                        neighbour_distance = new_neighbour_distance
+                    
+                    # neighbour distance
+                    compare_projection = projection[compare_group]
+                    for value in compare_projection:
+                        if (value>current_max) and (value<=most_right_neighbour):
+                            most_right_neighbour = value
+                            right_neighbour_found = True
+                        if (value<current_min) and (value>=most_left_neighbour):
+                            most_left_neighbour = value
+                            left_neighbour_found = True
+                    
                     # intruder
                     compare_histogram = histogram[compare_group]
                     for compare_value in compare_histogram:
-                        if compare_value<=current_max and compare_value>=current_min:
+                        if compare_value<=current_max+LIMIT_ZERO and compare_value>=current_min-LIMIT_ZERO:
                             intrusion_distance = min(
                                             current_max-compare_value,
                                             compare_value-current_min
                                     )
-                            intrusion_distance = max(intrusion_distance, 0.0001)
+                            intrusion_distance = max(intrusion_distance, LIMIT_ZERO)
                             intruder_count = compare_histogram[compare_value]
                             # intrusion_damage += (intrusion_distance * intruder_count) / (current_range * current_projection_count)
                             intrusion_damage += (intrusion_distance * intruder_count) / current_range
                             surrounded_damages[compare_group] += (intrusion_distance * intruder_count) /current_range
                         for current_value in current_histogram:
-                            if compare_value == current_value:
+                            if (compare_value < current_value+LIMIT_ZERO) and (compare_value > current_value-LIMIT_ZERO):
                                 collision_count = compare_histogram[compare_value] + current_histogram[current_value]
-                                # collision_damage = collision_count/current_projection_count
-                                collision_damage = collision_count
+                                # collision_damage += collision_count/current_projection_count
+                                collision_damage += collision_count
+                
+                # calculate most_left and most_right distance
+                if not left_neighbour_found:
+                    most_left_neighbour_distance = 1.0
+                else:
+                    most_left_neighbour_distance = current_min - most_left_neighbour
+                    
+                if not right_neighbour_found:
+                    most_right_neighbour_distance = 1.0
+                else:
+                    most_right_neighbour_distance = most_right_neighbour - current_max
+                    
+                right_distance[current_group] = most_right_neighbour_distance
+                left_distance[current_group] = most_left_neighbour_distance
                         
-                neighbour_distances[current_group] = neighbour_distance
+                neighbour_distances[current_group] = (most_left_neighbour_distance + most_right_neighbour_distance)/2
                 intrusion_damages[current_group] = intrusion_damage
                 collision_damages[current_group] = collision_damage
+                ranges[current_group] = current_range
                     
         except:
             error = True
@@ -502,7 +529,11 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
            'intrusion_damage' : intrusion_damages,
            'surrounded_damage' : surrounded_damages,
            'collision_damage' : collision_damages,
-           'time_complexity' : time_complexity
+           'time_complexity' : time_complexity,
+           'range' : ranges,
+           'global_range' : global_projection_range,
+           'd_right' : right_distance,
+           'd_left' : left_distance
         }
         return error, attributes
     
@@ -544,6 +575,8 @@ class GE_Multi_Fitness(GE_Base):
         surrounded_damages = attributes['surrounded_damage']
         collision_damages = attributes['collision_damage']
         time_complexity = attributes['time_complexity']
+        ranges = attributes['range']
+        global_range = attributes['global_range']
         
         # calculate fitness
         fitness = self._bad_fitness()        
@@ -551,7 +584,8 @@ class GE_Multi_Fitness(GE_Base):
             try:
                 fitness[group] = \
                     (10 * time_complexity) + \
-                    (1/(100 * neighbour_distances[group])) + \
+                    (10 * ranges[group]/global_range) +\
+                    (1/(10 * (neighbour_distances[group]/global_range))) + \
                     (100 * intrusion_damages[group]) + \
                     (10 * surrounded_damages[group]) + \
                     (1000 * collision_damages[group])
@@ -592,6 +626,8 @@ class GE_Global_Fitness(GE_Base):
         surrounded_damages = attributes['surrounded_damage']
         collision_damages = attributes['collision_damage']
         time_complexity = attributes['time_complexity']
+        ranges = attributes['range']
+        global_range = attributes['global_range']
         
         # calculate fitness
         try:
@@ -600,7 +636,8 @@ class GE_Global_Fitness(GE_Base):
                 # local_projection_count = len(local_projection[group])
                 bad_accumulation += \
                     (10 * time_complexity) + \
-                    (1/(100 * neighbour_distances[group])) + \
+                    (10 * ranges[group]/global_range) +\
+                    (1/(10 * (neighbour_distances[group]/global_range))) + \
                     (100 * intrusion_damages[group]) + \
                     (10 * surrounded_damages[group]) + \
                     (1000 * collision_damages[group]) 
@@ -695,6 +732,10 @@ class Feature_Extractor(object):
         self._target_dict = {}
         self.label = ''
         self.population_size = 100
+        self.elitism_rate = 0.1
+        self.mutation_rate = 0.3
+        self.crossover_rate = 0.4
+        self.new_rate = 0.2
         
     def process(self):
         # prepare variables        
@@ -792,6 +833,10 @@ class Feature_Extractor(object):
             ga_svm.stopping_value = 0
             ga_svm.max_epoch = self.max_epoch
             ga_svm.population_size = self.population_size
+            ga_svm.elitism_rate = self.elitism_rate
+            ga_svm.mutation_rate = self.mutation_rate
+            ga_svm.crossover_rate = self.crossover_rate
+            ga_svm.new_rate = self.new_rate
             ga_svm.process()
             new_features = ga_svm.get_new_features()
             svc = ga_svm.get_svm()
@@ -813,6 +858,10 @@ class Feature_Extractor(object):
             ge_global_fitness.max_epoch = self.max_epoch
             ge_global_fitness.individual_length = 30
             ge_global_fitness.population_size = self.population_size
+            ge_global_fitness.elitism_rate = self.elitism_rate
+            ge_global_fitness.mutation_rate = self.mutation_rate
+            ge_global_fitness.crossover_rate = self.crossover_rate
+            ge_global_fitness.new_rate = self.new_rate
             ge_global_fitness.process()
             # new features
             new_features = ge_global_fitness.get_new_features()
@@ -835,6 +884,10 @@ class Feature_Extractor(object):
             ge_multi_fitness.max_epoch = self.max_epoch
             ge_multi_fitness.individual_length = 30
             ge_multi_fitness.population_size = self.population_size
+            ge_multi_fitness.elitism_rate = self.elitism_rate
+            ge_multi_fitness.mutation_rate = self.mutation_rate
+            ge_multi_fitness.crossover_rate = self.crossover_rate
+            ge_multi_fitness.new_rate = self.new_rate
             ge_multi_fitness.process()
             # new features
             new_features = ge_multi_fitness.get_new_features()
@@ -931,10 +984,51 @@ def feature_extracting(data, features, label='data', max_epoch=200, population_s
     fe.process()
     return fe
 
+def test_phenotype(records, features, phenotype, fold=1):
+    # prepare data
+    data = []
+    targets = []
+    groups = []
+    for record in records:
+        data.append(record[:-1])
+        targets.append(record[-1])
+        if not (record[-1] in groups):
+            groups.append(record[-1])
+    groups.sort()
+    
+    
+    # prepare GE_Multi_Fitness
+    ge_multi_fitness = GE_Multi_Fitness()
+    ge_multi_fitness.classes = groups
+    ge_multi_fitness.variables = features
+    ge_multi_fitness.training_data = data
+    ge_multi_fitness.training_target = targets
+    # prepare individual
+    individual = {'phenotype': phenotype}
+    print individual['phenotype']
+    error, attributes = ge_multi_fitness._calculate_projection_attribute(phenotype)
+    print 'error : ', error
+    for label in attributes:
+        print label+' : ', attributes[label]
+    print 'fitness : ', ge_multi_fitness.do_calculate_fitness(individual)
+    print ''
+
 def extract_csv(csv_file_name, delimiter=','):
     r = csv.reader(open(csv_file_name), delimiter=delimiter)
     r = list(r)
     variables = r[0]
     variables = variables[:-1]
+    for i in xrange(len(variables)):
+        variables[i] = variables[i].replace(' ','')
     data = r[1:]
     return {'variables':variables,'data':data}
+
+def shuffle_record(record):
+    record_length = len(record)
+    i = 0
+    while i<record_length:
+        rnd1 = utils.randomizer.randrange(0,record_length)
+        rnd2 = utils.randomizer.randrange(0,record_length)
+        record[rnd1], record[rnd2] = record[rnd2], record[rnd1]
+        i+=1
+    return record

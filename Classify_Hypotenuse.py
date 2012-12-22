@@ -1,10 +1,10 @@
-from FE_Base import feature_extracting
+from FE_Base import feature_extracting, shuffle_record, test_phenotype
 from gogenpy import utils
     
 randomizer = utils.randomizer
 records = []
 i = 0
-while i<5:
+while i<3:
     for x in xrange(-10,10):
         for y in xrange(-10,10):
             r = (x**2+y**2) ** 0.5
@@ -18,5 +18,19 @@ while i<5:
     i+=1
 
 variables = ['x','y']
+records = shuffle_record(records)
 
-feature_extracting(records, variables, label='Hypotenuse', fold=10)
+'''
+test_phenotype(records, variables, 'sqr(x)+sqr(y)')
+test_phenotype(records, variables, 'x*x+sqr(y)')
+test_phenotype(records, variables, 'sqrt(sqr(x)+sqr(y))')
+test_phenotype(records, variables, 'x')
+test_phenotype(records, variables, 'y')
+test_phenotype(records, variables, 'sqr(sqr(y + sqr(sqr(sqr(sqr(x - x + y + sqr(y))))) + y + sqr(sqr(sqr(x))) - x))')
+test_phenotype(records, variables, 'sqr(sqr(y + sqr(y) + x - x + x * x - y))')
+test_phenotype(records, variables, 'sqr(sqr(y) + sqr(x) - x)')
+'''
+
+feature_extracting(records, variables, label='Hypotenuse-10-Fold', fold=10)
+feature_extracting(records, variables, label='Hypotenuse-5-Fold', fold=5)
+feature_extracting(records, variables, label='Hypotenuse-1-Fold', fold=1)
