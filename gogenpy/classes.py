@@ -431,10 +431,7 @@ class GA_Base(object):
                         
             # maximum benchmark subplot
             sp = fig.add_subplot(benchmark_count+1, 2, subplot_index)
-            subplot_index += 1
-            sp.set_title('Maximum Fitness for '+str(benchmark))
-            sp.set_ylabel('Fitness Value')
-            sp.set_xlabel('Generation Index')
+            subplot_index += 1            
             if len(generation_indexes) == 1:
                 sp.plot(generation_indexes+1, max_fitnesses, 'bo')
             else:
@@ -444,13 +441,13 @@ class GA_Base(object):
             max_y = max_max_fitness + 0.05 * y_range
             sp.set_ylim(min_y, max_y)
             sp.set_xlim(min_x, max_x)
+            sp.set_title('Maximum Fitness for "'+str(benchmark)+'" : '+str(max_max_fitness))
+            sp.set_ylabel('Fitness Value')
+            sp.set_xlabel('Generation Index')
             
             # minimum benchmark subplot
             sp = fig.add_subplot(benchmark_count+1, 2, subplot_index)
-            subplot_index += 1
-            sp.set_title('Minimum Fitness for '+str(benchmark))
-            sp.set_ylabel('Fitness Value')
-            sp.set_xlabel('Generation Index')
+            subplot_index += 1            
             if len(generation_indexes) == 1:
                 sp.plot(generation_indexes+1, min_fitnesses,'bo')
             else:
@@ -460,6 +457,9 @@ class GA_Base(object):
             max_y = max_min_fitness + 0.05 * y_range
             sp.set_ylim(min_y, max_y)
             sp.set_xlim(min_x, max_x)
+            sp.set_title('Minimum Fitness for "'+str(benchmark)+'" : '+str(min_min_fitness))
+            sp.set_ylabel('Fitness Value')
+            sp.set_xlabel('Generation Index')
         
         variations = []
         max_variation = 0

@@ -1,6 +1,0 @@
-from FE_Base import feature_extracting
-from wine_data import records, variables
-
-
-# make feature extractor
-feature_extracting(records, variables, label='Ideal data', fold=10)

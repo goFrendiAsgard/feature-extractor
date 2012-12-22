@@ -155,7 +155,11 @@ def draw_projection(data, targets, old_features, new_features, plot_label='', fi
         window_per_col = new_feature_count
         window_per_row = 1
     else:
-        window_per_col = 2
+        if new_feature_count<6:
+            window_per_col = 2
+        else:
+            window_per_col = 3
+        
         if(new_feature_count%window_per_col)>0:
             window_per_row = new_feature_count/window_per_col + 1
         else:
@@ -182,27 +186,35 @@ def draw_projection(data, targets, old_features, new_features, plot_label='', fi
         
         if error:
             continue
-        group_index = 0
+        
+        
+        # calculate histograms & maximum histogram value
+        max_histogram_value = 0.01
+        histograms = {}
         for group in groups:
-            sp.plot([min_projection[group],max_projection[group]], [group_index, group_index], 'b--')
+            local_projection = projection[group]
+            histograms[group] = calculate_histogram(local_projection)
+            histogram = histograms[group]
+            for value in histogram:
+                if histogram[value]>max_histogram_value:
+                    max_histogram_value = histogram[value]
+                    
+        group_index = 0    
+        for group in groups:
+            sp.plot([min_projection[group],max_projection[group]], [group_index, group_index], 'k')
             sp.plot([min_projection[group],min_projection[group]], [group_index, group_count], 'b--')
             sp.plot([max_projection[group],max_projection[group]], [group_index, group_count], 'b--')
             local_projection = projection[group]
                 
-            histogram = calculate_histogram(local_projection)
-            max_histogram_value = 0.01
-            # get maximum histogram value
-            for value in histogram:
-                if histogram[value]>max_histogram_value:
-                    max_histogram_value = histogram[value]
+            histogram = histograms[group]
             for value in histogram:
                 count = histogram[value]
-                normalized_count = 0.8 * count/max_histogram_value
-                sp.plot([value, value], [group_index, group_index+normalized_count], color='k', linewidth=4)
+                normalized_count = 0.9 * count/max_histogram_value
+                sp.plot([value, value], [group_index, group_index+normalized_count], color='k', linewidth=2)
                 sp.plot(value,len(groups), 'bo')
             group_index += 1
                     
-        sp.set_title('Feature: '+new_feature)
+        sp.set_title('Feature: \n'+new_feature)
         sp.set_ylabel('Classes')
         sp.set_xlabel('Projection')
         y_range = group_count

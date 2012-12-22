@@ -14,5 +14,4 @@ for i in xrange(len(data)):
 variables = ['petal_length','petal_width','sepal_length','sepal_width']
 
 
-# make feature extractor
-feature_extracting(records, variables, label='Iris', fold=1)
+feature_extracting(records, variables, label='Iris', fold=10)
