@@ -464,6 +464,7 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
                 most_right_neighbour = max_global_projection
                 left_neighbour_found = False
                 right_neighbour_found = False
+                unseparable = False
                 most_left_neighbour_distance = global_projection_range
                 most_right_neighbour_distance = global_projection_range
                 intrusion_damage = 0.0
@@ -472,15 +473,23 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
                     if compare_group == current_group:
                         continue
                     
+                    compare_max = max_projection[compare_group]
+                    compare_min = min_projection[compare_group]
+                    
+                    if (current_max+LIMIT_ZERO >= compare_max and current_min <= compare_min+LIMIT_ZERO) and \
+                    (current_max <= compare_max+LIMIT_ZERO and current_min+LIMIT_ZERO >=compare_min):
+                        unseparable = True
+                    
                     # neighbour distance
-                    compare_projection = projection[compare_group]
-                    for value in compare_projection:
-                        if (value>current_max) and (value<=most_right_neighbour):
-                            most_right_neighbour = value
-                            right_neighbour_found = True
-                        if (value<current_min) and (value>=most_left_neighbour):
-                            most_left_neighbour = value
-                            left_neighbour_found = True
+                    if not unseparable:
+                        compare_projection = projection[compare_group]
+                        for value in compare_projection:
+                            if (value>current_max) and (value<=most_right_neighbour):
+                                most_right_neighbour = value
+                                right_neighbour_found = True
+                            if (value<current_min) and (value>=most_left_neighbour):
+                                most_left_neighbour = value
+                                left_neighbour_found = True
                     
                     # intruder
                     compare_histogram = histogram[compare_group]
@@ -502,15 +511,19 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
                                 collision_damage += collision_count
                 
                 # calculate most_left and most_right distance
-                if not left_neighbour_found:
-                    most_left_neighbour_distance = 1.0
+                if unseparable:
+                    most_left_neighbour_distance = LIMIT_ZERO
+                    most_right_neighbour_distance = LIMIT_ZERO
                 else:
-                    most_left_neighbour_distance = current_min - most_left_neighbour
-                    
-                if not right_neighbour_found:
-                    most_right_neighbour_distance = 1.0
-                else:
-                    most_right_neighbour_distance = most_right_neighbour - current_max
+                    if not left_neighbour_found:
+                        most_left_neighbour_distance = global_projection_range
+                    else:
+                        most_left_neighbour_distance = current_min - most_left_neighbour
+                        
+                    if not right_neighbour_found:
+                        most_right_neighbour_distance = global_projection_range
+                    else:
+                        most_right_neighbour_distance = most_right_neighbour - current_max
                     
                 right_distance[current_group] = most_right_neighbour_distance
                 left_distance[current_group] = most_left_neighbour_distance
@@ -532,8 +545,8 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
            'time_complexity' : time_complexity,
            'range' : ranges,
            'global_range' : global_projection_range,
-           'd_right' : right_distance,
-           'd_left' : left_distance
+           'right_neighbour_distance' : right_distance,
+           'left_neighbour_distance' : left_distance
         }
         return error, attributes
     
@@ -584,8 +597,8 @@ class GE_Multi_Fitness(GE_Base):
             try:
                 fitness[group] = \
                     (10 * time_complexity) + \
-                    (10 * ranges[group]/global_range) +\
-                    (1/(10 * (neighbour_distances[group]/global_range))) + \
+                    (1.0 * ranges[group]/global_range) +\
+                    (10/(10 * (neighbour_distances[group]/global_range))) + \
                     (100 * intrusion_damages[group]) + \
                     (10 * surrounded_damages[group]) + \
                     (1000 * collision_damages[group])
@@ -636,8 +649,8 @@ class GE_Global_Fitness(GE_Base):
                 # local_projection_count = len(local_projection[group])
                 bad_accumulation += \
                     (10 * time_complexity) + \
-                    (10 * ranges[group]/global_range) +\
-                    (1/(10 * (neighbour_distances[group]/global_range))) + \
+                    (1.0 * ranges[group]/global_range) +\
+                    (10/(10 * (neighbour_distances[group]/global_range))) + \
                     (100 * intrusion_damages[group]) + \
                     (10 * surrounded_damages[group]) + \
                     (1000 * collision_damages[group]) 
@@ -787,10 +800,10 @@ class Feature_Extractor(object):
         
         variables = self.variables
         for fold_index in xrange(self.fold):            
-            training_indexes = []
+            test_indexes = []
             for label in label_targets:
                 for i in xrange(int(fold_index*training_count_per_fold[label]), int((fold_index+1)*training_count_per_fold[label])):
-                    training_indexes.append(target_indexes[label][i])
+                    test_indexes.append(target_indexes[label][i])
             training_data = []            
             training_label_targets = []
             training_num_targets = []
@@ -798,19 +811,20 @@ class Feature_Extractor(object):
             test_label_targets = []
             test_num_targets = []
             for i in(xrange(len(data))):
-                if i in training_indexes:
-                    training_data.append(data[i])
-                    training_label_targets.append(label_targets[i])
-                    training_num_targets.append(num_targets[i])
-                else:
+                if i in test_indexes:
                     test_data.append(data[i])
                     test_label_targets.append(label_targets[i])
                     test_num_targets.append(num_targets[i])
+                else:                    
+                    training_data.append(data[i])
+                    training_label_targets.append(label_targets[i])
+                    training_num_targets.append(num_targets[i])
+
             
             if self.fold == 1:
-                test_data = training_data
-                test_label_targets = training_label_targets
-                test_num_targets = training_num_targets
+                training_data = test_data
+                training_label_targets = test_label_targets
+                training_num_targets = test_num_targets
             
             print('FOLD : '+str(fold_index+1))
             
@@ -908,7 +922,7 @@ class Feature_Extractor(object):
             del test_data
             del test_label_targets
             del test_num_targets
-            del training_indexes
+            del test_indexes
             gc.collect()
             
         print output

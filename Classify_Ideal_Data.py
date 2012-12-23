@@ -40,14 +40,11 @@ variables = ['x','y','z','r1','r2','r3','r4']
 records = shuffle_record(records)
 
 '''
-test_phenotype(records, variables, 'x-sqr(x+r1*sqr(r2))*x*x*r3+x')
+test_phenotype(records, variables, 'sqr(cos(abs(x)))')
 test_phenotype(records, variables, 'x')
 test_phenotype(records, variables, 'y')
 test_phenotype(records, variables, 'z')
 '''
-
-
-# make feature extractor
 feature_extracting(records, variables, label='Ideal-data-10-Fold', fold=10)
 feature_extracting(records, variables, label='Ideal-data-5-Fold', fold=5)
 feature_extracting(records, variables, label='Ideal-data-1-Fold', fold=1)
