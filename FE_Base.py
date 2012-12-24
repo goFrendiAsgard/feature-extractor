@@ -418,17 +418,25 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
         max_global_projection = 0.0
         global_projection_range = 0.0
         if not error:
+            # get global projection
             for label in projection:
                 global_projection += projection[label]
+            
+            min_global_projection = min(global_projection)
+            max_global_projection = max(global_projection)
+            global_projection_range = max(max_global_projection-min_global_projection, LIMIT_ZERO)
+            
+            for label in projection:
+                # normalization
+                for i in xrange(len(projection[label])):
+                    projection[label][i] = (projection[label][i] - min_global_projection) / (global_projection_range)
+                # max and min projection
                 if(len(projection[label])>0):
                     min_projection[label] = min(projection[label])
                     max_projection[label] = max(projection[label])
                 else:
                     min_projection[label] = 0
                     max_projection[label] = 0
-            min_global_projection = min(global_projection)
-            max_global_projection = max(global_projection)
-            global_projection_range = max(max_global_projection-min_global_projection, LIMIT_ZERO)
             
         end_time = time.time()
         time_complexity = end_time - start_time
@@ -460,13 +468,13 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
                 current_max = max_projection[current_group]
                 current_min = min_projection[current_group]
                 current_range = max(current_max-current_min, LIMIT_ZERO) # avoid division by zero later
-                most_left_neighbour = min_global_projection
-                most_right_neighbour = max_global_projection
+                most_left_neighbour = min_global_projection-LIMIT_ZERO
+                most_right_neighbour = max_global_projection+LIMIT_ZERO
                 left_neighbour_found = False
                 right_neighbour_found = False
                 unseparable = False
-                most_left_neighbour_distance = global_projection_range
-                most_right_neighbour_distance = global_projection_range
+                most_left_neighbour_distance = 1.0
+                most_right_neighbour_distance = 1.0
                 intrusion_damage = 0.0
                 collision_damage = 0.0
                 for compare_group in self.classes:
@@ -516,12 +524,12 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
                     most_right_neighbour_distance = LIMIT_ZERO
                 else:
                     if not left_neighbour_found:
-                        most_left_neighbour_distance = global_projection_range
+                        most_left_neighbour_distance = 1.0
                     else:
                         most_left_neighbour_distance = current_min - most_left_neighbour
                         
                     if not right_neighbour_found:
-                        most_right_neighbour_distance = global_projection_range
+                        most_right_neighbour_distance = 1.0
                     else:
                         most_right_neighbour_distance = most_right_neighbour - current_max
                     
@@ -544,7 +552,7 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
            'collision_damage' : collision_damages,
            'time_complexity' : time_complexity,
            'range' : ranges,
-           'global_range' : global_projection_range,
+           'global_range' : 1.0,
            'right_neighbour_distance' : right_distance,
            'left_neighbour_distance' : left_distance
         }
