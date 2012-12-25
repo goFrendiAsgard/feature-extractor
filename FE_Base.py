@@ -85,6 +85,7 @@ def get_svm_result(training_data, training_target, test_data, test_target, old_f
     
     training_result = get_result(training_target, svc_training_prediction)
     test_result = get_result(test_target, svc_test_prediction)
+    total_result = get_result(list(training_target)+list(test_target), list(svc_training_prediction)+list(svc_test_prediction))
         
     label = ' '+label+' '
     limitter_count = int((70-len(label))/2)
@@ -96,6 +97,9 @@ def get_svm_result(training_data, training_target, test_data, test_target, old_f
     result += 'TEST MSE          : '+str(test_result['mse'])+'\r\n'
     result += 'TEST UNMATCH      : '+str(test_result['unmatch'])+' of '+str(test_result['data_count'])+' ('+str(test_result['error_percentage'])+'%)\r\n'
     result += 'TEST ACCURACY     : '+str(test_result['accuracy'])+'%\r\n'
+    result += 'TOTAL MSE         : '+str(total_result['mse'])+'\r\n'
+    result += 'TOTAL UNMATCH     : '+str(total_result['unmatch'])+' of '+str(total_result['data_count'])+' ('+str(total_result['error_percentage'])+'%)\r\n'
+    result += 'TOTAL ACCURACY    : '+str(total_result['accuracy'])+'%\r\n'
     result += 'FEATURES COUNT    : '+str(len(new_features))+'\r\n'
     result += 'USED FEATURES     : '+", ".join(new_features)+'\r\n'    
     result += 'KERNEL            : '+svc.kernel+'\r\n'
@@ -108,7 +112,10 @@ def get_svm_result(training_data, training_target, test_data, test_target, old_f
     result += 'TRAINING TIME     : '+str(training_time)+' second(s)\r\n'
     result += 'TEST TIME         : '+str(execution_time)+' second(s)\r\n\r\n'
     
-    return {"str":result, "training_result":training_result, "test_result":test_result}
+    return {"str":result, 
+            "training_result":training_result, 
+            "test_result":test_result,
+            "total_result":total_result}
 
 class Draw_projection_y_formatter(Formatter):
     def __init__(self, groups):
@@ -509,17 +516,15 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
                                     )
                             intrusion_distance = max(intrusion_distance, LIMIT_ZERO)
                             intruder_count = compare_histogram[compare_value]
-                            # intrusion_damage += (intrusion_distance * intruder_count) / (current_range * current_projection_count)
                             intrusion_damage += (intrusion_distance * intruder_count) / current_range
                             surrounded_damages[compare_group] += (intrusion_distance * intruder_count) /current_range
                         for current_value in current_histogram:
-                            if (compare_value < current_value+LIMIT_ZERO) and (compare_value > current_value-LIMIT_ZERO):
+                            if (compare_value <= current_value+LIMIT_ZERO) and (compare_value+LIMIT_ZERO >= current_value):
                                 collision_count = compare_histogram[compare_value] + current_histogram[current_value]
-                                # collision_damage += collision_count/current_projection_count
-                                collision_damage += collision_count
-                
+                                collision_damage += collision_count                
+                    
                 # calculate most_left and most_right distance
-                if unseparable:
+                if unseparable or (global_projection_range+LIMIT_ZERO>=1.0 and global_projection_range<=1.0+LIMIT_ZERO):
                     most_left_neighbour_distance = LIMIT_ZERO
                     most_right_neighbour_distance = LIMIT_ZERO
                 else:
@@ -753,8 +758,8 @@ class Feature_Extractor(object):
         self._target_dict = {}
         self.label = ''
         self.population_size = 100
-        self.elitism_rate = 0.1
-        self.mutation_rate = 0.3
+        self.elitism_rate = 0.05
+        self.mutation_rate = 0.35
         self.crossover_rate = 0.4
         self.new_rate = 0.2
         
@@ -895,7 +900,7 @@ class Feature_Extractor(object):
             draw_projection(training_data, training_label_targets, variables, new_features, ge_global_fitness.label+' Training', self.label+'/'+ge_global_fitness.label+' Training Feature Projection.png')
             draw_projection(test_data, test_label_targets, variables, new_features, ge_global_fitness.label+' Test', self.label+'/'+ge_global_fitness.label+' Test Feature Projection.png')
             
-            # GE Multi-Fitness (My Fallen Hero)
+            # GE Multi-Fitness (My Kibou)
             ge_multi_fitness = GE_Multi_Fitness()
             ge_multi_fitness.classes = labels
             ge_multi_fitness.variables = variables
@@ -939,31 +944,38 @@ class Feature_Extractor(object):
         text_file.write(output)
         text_file.close()
         
-        fig = plt.figure(figsize=(20.0, 12.0))
-        sp_1 = fig.add_subplot(1, 2, 1)
-        sp_2 = fig.add_subplot(1, 2, 2)
+        fig = plt.figure(figsize=(25.0, 12.0))
+        sp_1 = fig.add_subplot(1, 3, 1)
+        sp_2 = fig.add_subplot(1, 3, 2)
+        sp_3 = fig.add_subplot(1, 3, 3)
         
         training_accuracy = {}
         test_accuracy = {}
+        total_accuracy = {}
         for label in all_svm_results:
             training_accuracy[label] = []
             test_accuracy[label] = []
+            total_accuracy[label] = []
         
         for i in xrange(self.fold):
             sp_1.plot([i,i], [0, 100], 'k--')
-            sp_2.plot([i,i], [0, 100], 'k--')            
+            sp_2.plot([i,i], [0, 100], 'k--')
+            sp_3.plot([i,i], [0, 100], 'k--')
             for label in all_svm_results:
                 training_accuracy[label].append(all_svm_results[label][i]['training_result']['accuracy'])
                 test_accuracy[label].append(all_svm_results[label][i]['test_result']['accuracy'])
+                total_accuracy[label].append(all_svm_results[label][i]['total_result']['accuracy'])
             
         fold_indexes = list(xrange(self.fold))
         for label in all_svm_results:
             if len(fold_indexes)==1:
                 sp_1.plot(fold_indexes, training_accuracy[label], label=label, marker='o')
                 sp_2.plot(fold_indexes, test_accuracy[label], label=label, marker='o')
+                sp_3.plot(fold_indexes, total_accuracy[label], label=label, marker='o')
             else:
                 sp_1.plot(fold_indexes, training_accuracy[label], label=label)
                 sp_2.plot(fold_indexes, test_accuracy[label], label=label)
+                sp_3.plot(fold_indexes, total_accuracy[label], label=label)
         
         x_range = self.fold
         
@@ -981,9 +993,17 @@ class Feature_Extractor(object):
         sp_2.set_xlim(0-0.1*x_range, (self.fold-1)+0.1*x_range)
         sp_2.legend(shadow=True, loc=0)
         
+        sp_3.set_title('Total Accuration')
+        sp_3.set_ylabel('Accuration (%)')
+        sp_3.set_xlabel('Fold')
+        sp_3.set_ylim(-1,101)
+        sp_3.set_xlim(0-0.1*x_range, (self.fold-1)+0.1*x_range)
+        sp_3.legend(shadow=True, loc=0)
+        
         x_formatter = Draw_accuracy_x_formatter(self.fold)
         sp_1.xaxis.set_major_formatter(x_formatter)
         sp_2.xaxis.set_major_formatter(x_formatter)
+        sp_3.xaxis.set_major_formatter(x_formatter)
         
         plt.subplots_adjust(hspace = 0.5, wspace = 0.5)
         plt.suptitle('SVM training and test comparison of '+self.label)
