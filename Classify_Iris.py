@@ -17,4 +17,5 @@ test_phenotype(records, variables,'sepal_length - sepal_length * sepal_length + 
 test_phenotype(records, variables,'sqr(abs(sqr(petal_width * sqr(sepal_length * sin(sepal_width / sepal_length)) - sepal_width - sqrt(sqr(sqr(cos(sepal_length)) + petal_length - abs(sqrt(cos(petal_width) + sepal_length)) * sepal_width * abs(sqr(sepal_length)) - petal_width / sepal_length)))) - sqr(sin(sepal_width) / petal_length / petal_length) - sin(petal_length + petal_length - abs(sqr(petal_width))))')
 '''
 feature_extracting(records, variables, label='Iris-5-Fold', fold=5)
+feature_extracting(records, variables, label='Iris-3-Fold', fold=3)
 feature_extracting(records, variables, label='Iris-1-Fold', fold=1)

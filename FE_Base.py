@@ -220,8 +220,11 @@ def draw_projection(data, targets, old_features, new_features, plot_label='', fi
                 sp.plot([value, value], [group_index, group_index+normalized_count], color='k', linewidth=2)
                 sp.plot(value,len(groups), 'bo')
             group_index += 1
-                    
-        sp.set_title('Feature: \n'+new_feature)
+        
+        new_feature_str = new_feature
+        if len(new_feature)>20:
+            new_feature_str = new_feature[:20]+' ...'
+        sp.set_title('Feature: \n'+new_feature_str)
         sp.set_ylabel('Classes')
         sp.set_xlabel('Projection')
         y_range = group_count
@@ -373,7 +376,7 @@ class GE_Base(classes.Grammatical_Evolution, SVM_Preprocessor):
             '<expr>' : ['<var>','<expr> <op> <expr>','<func>(<expr>)'],
             '<var>'  : self.variables,
             '<op>'   : ['+','-','*','/'],
-            '<func>' : ['sqr','sqrt','abs','sin','cos']
+            '<func>' : ['sqr','sqrt','abs','sin','cos','sigmoid']
         }
         self.start_node = '<expr>'
         self.training_data = []
@@ -620,11 +623,16 @@ class GE_Multi_Fitness(GE_Base):
         return fitness
     
     def get_new_features(self):
+        use_original_features = False
         new_features = []
         for group in self.classes:
             best_phenotype = self.best_individuals(1, benchmark=group, representation='phenotype')
+            if self.best_fitnesses(1, benchmark=group)>50 and len(self.variables)>len(group):
+                use_original_features = True
             if not (best_phenotype in new_features):
                 new_features.append(best_phenotype)
+        if use_original_features:
+            new_features += self.variables
         return new_features
     
     def get_svm(self):
@@ -676,11 +684,16 @@ class GE_Global_Fitness(GE_Base):
         return fitness
     
     def get_new_features(self):
+        use_original_features = False
         best_phenotypes = self.best_individuals(len(self.classes), benchmark='default', representation='phenotype')
         new_features = []
         for best_phenotype in best_phenotypes:
             if not (best_phenotype in new_features):
                 new_features.append(best_phenotype)
+            if self.best_fitnesses(1, benchmark='default')>50 and len(self.variables)>len(self.classes):
+                use_original_features = True
+        if use_original_features:
+            new_features += self.variables
         return new_features
     
     def get_svm(self):
@@ -691,62 +704,6 @@ class GE_Global_Fitness(GE_Base):
             svc = svm.SVC()
         return svc 
 
-
-class GE_Multi_Fitness_GA_SVM(GE_Multi_Fitness):
-    def __init__(self):
-        super(GE_Multi_Fitness_GA_SVM, self).__init__()
-        self.ga_svm = GA_SVM()
-        
-    def process(self):
-        GE_Multi_Fitness.process(self)
-        
-        # define new features
-        new_features = []
-        for group in self.classes:
-            best_phenotype = self.best_individuals(1, benchmark=group, representation='phenotype')
-            if not (best_phenotype in new_features):
-                new_features.append(best_phenotype)
-        # start GA_SVM
-        self.ga_svm.label = 'GA SVM Part'
-        self.ga_svm.classes = self.classes
-        self.ga_svm.variables = new_features
-        self.ga_svm.training_data = build_new_data(self.training_data, self.variables, new_features)
-        self.ga_svm.training_num_target = self.get_num_targets()
-        self.ga_svm.process()
-    
-    def get_new_features(self):
-        return self.ga_svm.get_new_features()
-    
-    def get_svm(self):
-        return self.ga_svm.get_svm()
-
-class GE_Global_Fitness_GA_SVM(GE_Global_Fitness):
-    def __init__(self):
-        super(GE_Global_Fitness_GA_SVM, self).__init__()
-        self.ga_svm = GA_SVM()
-        
-    def process(self):
-        GE_Global_Fitness.process(self)
-        
-        # define new features
-        new_features = []
-        best_phenotypes = self.best_individuals(len(self.classes), benchmark='default', representation='phenotype')
-        for best_phenotype in best_phenotypes:
-            if not (best_phenotype in new_features):
-                new_features.append(best_phenotype)
-        # start GA_SVM
-        self.ga_svm.label = 'GA SVM Part'
-        self.ga_svm.classes = self.classes
-        self.ga_svm.variables = new_features
-        self.ga_svm.training_data = build_new_data(self.training_data, self.variables, new_features)
-        self.ga_svm.training_num_target = self.get_num_targets()
-        self.ga_svm.process()
-    
-    def get_new_features(self):
-        return self.ga_svm.get_new_features()
-    
-    def get_svm(self):
-        return self.ga_svm.get_svm()
     
 class Feature_Extractor(object):
     def __init__(self):
@@ -754,10 +711,10 @@ class Feature_Extractor(object):
         self.fold = 5
         self.variables = []
         self.measurement = 'unmatch_count' # unmatch_count or mse
-        self.max_epoch = 100
+        self.max_epoch = 200
         self._target_dict = {}
         self.label = ''
-        self.population_size = 100
+        self.population_size = 200
         self.elitism_rate = 0.05
         self.mutation_rate = 0.35
         self.crossover_rate = 0.4
@@ -857,7 +814,7 @@ class Feature_Extractor(object):
             ga_svm.training_data = training_data
             ga_svm.training_num_target = training_num_targets
             ga_svm.label = 'GA SVM "'+self.label+'" Fold '+str(fold_index+1)
-            ga_svm.stopping_value = 0
+            ga_svm.stopping_value = {'unmatch_count' : 0.01 * len(training_data), 'mse':2}
             ga_svm.max_epoch = self.max_epoch
             ga_svm.population_size = self.population_size
             ga_svm.elitism_rate = self.elitism_rate
@@ -881,7 +838,7 @@ class Feature_Extractor(object):
             ge_global_fitness.training_data = training_data
             ge_global_fitness.training_target = training_label_targets
             ge_global_fitness.label = 'GE Global Fitness "'+self.label+'" Fold '+str(fold_index+1)
-            ge_global_fitness.stopping_value = 1.0
+            ge_global_fitness.stopping_value = 10.0
             ge_global_fitness.max_epoch = self.max_epoch
             ge_global_fitness.individual_length = 30
             ge_global_fitness.population_size = self.population_size
@@ -907,7 +864,7 @@ class Feature_Extractor(object):
             ge_multi_fitness.training_data = training_data
             ge_multi_fitness.training_target = training_label_targets
             ge_multi_fitness.label = 'GE Multi Fitness "'+self.label+'" Fold '+str(fold_index+1)
-            ge_multi_fitness.stopping_value = 1.0
+            ge_multi_fitness.stopping_value = 10.0
             ge_multi_fitness.max_epoch = self.max_epoch
             ge_multi_fitness.individual_length = 30
             ge_multi_fitness.population_size = self.population_size
@@ -1014,7 +971,7 @@ class Feature_Extractor(object):
         plt.close()
         gc.collect()
 
-def feature_extracting(data, features, label='data', max_epoch=200, population_size=100, fold=5):
+def feature_extracting(data, features, label='data', max_epoch=200, population_size=200, fold=5):
     fe = Feature_Extractor()
     fe.label = label
     fe.max_epoch = max_epoch

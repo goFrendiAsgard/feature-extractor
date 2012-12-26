@@ -4,7 +4,7 @@ Created on Nov 9, 2012
 @author: gofrendi
 '''
 import os, sys
-lib_path = os.path.abspath('../')
+lib_path = os.path.abspath('../../')
 sys.path.insert(0,lib_path)
 
 from gogenpy.utils import execute

@@ -69,6 +69,9 @@ def bin_digit_needed(decimal):
     '''
     return len(dec_to_bin(decimal))
 
+def sigmoid(x):
+    return 1 / (1 + math.exp(-x))
+
 def execute(expr, record, variables):
     '''
     execute string as python program, give tuple(result, error) as return value
@@ -78,7 +81,7 @@ def execute(expr, record, variables):
     # get result and error state
     try:
         sandbox={}
-        exec ('from utils import *') in sandbox
+        exec ('from gogenpy.utils import *') in sandbox
         # initialize features
         for i in xrange(len(variables)):
             feature = variables[i]

@@ -32,4 +32,5 @@ test_phenotype(records, variables, 'sqr(sqr(y) + sqr(x) - x)')
 test_phenotype(records, variables, 'sqr(sqr(sqr(y + sqr(cos(y) / cos(x) * sqr(abs(x) - x + y)) - x)))')
 '''
 feature_extracting(records, variables, label='Hypotenuse-5-Fold', fold=5)
+feature_extracting(records, variables, label='Hypotenuse-5-Fold', fold=3)
 feature_extracting(records, variables, label='Hypotenuse-1-Fold', fold=1)

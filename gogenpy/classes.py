@@ -250,9 +250,6 @@ class GA_Base(object):
             for benchmark in self.benchmarks:                
                 if not benchmark in self.stopping_value:
                     self.stopping_value[benchmark] = None
-            for benchmark in self.stopping_value:
-                if not benchmark in self.benchmarks:
-                    del(self.stopping_value[benchmark])
         elif not self.stopping_value is None:
             stopping_value = float(self.stopping_value)
             self.stopping_value = {}
@@ -781,8 +778,22 @@ class Grammatical_Evolution(Genetics_Algorithm):
             'op'  :['+','-','*','/']
         }
         self._start_node = 'expr'
+        self.genotype_dictionary = {}
+        self.fitness_dictionary = {}
+    
+    def _calculate_fitness(self, individual):
+        phenotype = individual['phenotype']
+        if phenotype in self.fitness_dictionary:
+            return self.fitness_dictionary[phenotype]
+        
+        fitness = Genetics_Algorithm._calculate_fitness(self, individual)
+        self.fitness_dictionary[phenotype] = fitness
+        return fitness
     
     def _transform(self, gene):
+        if gene in self.genotype_dictionary:
+            return self.genotype_dictionary[gene]
+        
         depth = 20
         gene_index = 0
         expr = self._start_node
@@ -818,6 +829,7 @@ class Grammatical_Evolution(Genetics_Algorithm):
                 i += 1
             expr = new_expr
             level = level+1
+        self.genotype_dictionary[gene] = expr
         return expr
     
     def do_process_individual(self, individual):
