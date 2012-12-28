@@ -1,8 +1,8 @@
-from FE_Base import feature_extracting, shuffle_record, test_phenotype
+from Feature_Extractor import *
 from gogenpy import utils
     
 randomizer = utils.randomizer
-records = []
+records = ['x','y','class']
 i = 0
 while i<3:
     for x in xrange(-10,10):
@@ -17,20 +17,16 @@ while i<3:
             records.append([x,y,c])
     i+=1
 
-variables = ['x','y']
 records = shuffle_record(records)
-
-'''
-test_phenotype(records, variables, 'sqr(x)+sqr(y)')
-test_phenotype(records, variables, 'x*x+sqr(y)')
-test_phenotype(records, variables, 'sqrt(sqr(x)+sqr(y))')
-test_phenotype(records, variables, 'x')
-test_phenotype(records, variables, 'y')
-test_phenotype(records, variables, 'sqr(sqr(y + sqr(sqr(sqr(sqr(x - x + y + sqr(y))))) + y + sqr(sqr(sqr(x))) - x))')
-test_phenotype(records, variables, 'sqr(sqr(y + sqr(y) + x - x + x * x - y))')
-test_phenotype(records, variables, 'sqr(sqr(y) + sqr(x) - x)')
-test_phenotype(records, variables, 'sqr(sqr(sqr(y + sqr(cos(y) / cos(x) * sqr(abs(x) - x + y)) - x)))')
-'''
-feature_extracting(records, variables, label='Hypotenuse-5-Fold', fold=5)
-feature_extracting(records, variables, label='Hypotenuse-5-Fold', fold=3)
-feature_extracting(records, variables, label='Hypotenuse-1-Fold', fold=1)
+fold_count = 3
+data_label = 'Hypotenuse'
+extractors = [
+    {'class': GA_Select_Feature, 'label':'GA', 'color':'red'},
+    {'class': GP_Select_Feature, 'label':'GP', 'color':'orange'},
+    {'class': GP_Global_Separability_Fitness, 'label':'GP Global', 'color':'green'},
+    {'class': GP_Local_Separability_Fitness, 'label':'GP Local', 'color':'blue'},
+    {'class': GE_Select_Feature, 'label':'GE', 'color':'cyan'},
+    {'class': GE_Global_Separability_Fitness, 'label':'GE Global', 'color':'magenta'},
+    {'class': GE_Local_Separability_Fitness, 'label':'GE Local', 'color':'black'}
+]
+extract_feature(records, data_label, fold_count, extractors)

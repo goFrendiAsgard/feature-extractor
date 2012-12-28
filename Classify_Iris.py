@@ -1,21 +1,16 @@
-from FE_Base import feature_extracting, extract_csv, shuffle_record, test_phenotype
+from Feature_Extractor import *
 
-# make feature extractor
-attribute = extract_csv('iris.data.csv', delimiter=',')
-variables = attribute['variables']
-records = attribute['data']
+records = extract_csv('iris.data.csv', delimiter=',')
 records = shuffle_record(records)
-
-'''
-test_phenotype(records, variables,'sepal_width')
-test_phenotype(records, variables,'sepal_length')
-test_phenotype(records, variables,'petal_width')
-test_phenotype(records, variables,'petal_length')
-test_phenotype(records, variables,'sqr(abs(sqrt(sepal_width)) / petal_length)')
-test_phenotype(records, variables,'sqrt(petal_length * sqr(sepal_width)) - abs(petal_length) / sepal_length * abs(petal_width)')
-test_phenotype(records, variables,'sepal_length - sepal_length * sepal_length + sepal_length * petal_width / sepal_width + cos(petal_width / sepal_length) - cos(sepal_width) * sin(petal_width) + petal_length')
-test_phenotype(records, variables,'sqr(abs(sqr(petal_width * sqr(sepal_length * sin(sepal_width / sepal_length)) - sepal_width - sqrt(sqr(sqr(cos(sepal_length)) + petal_length - abs(sqrt(cos(petal_width) + sepal_length)) * sepal_width * abs(sqr(sepal_length)) - petal_width / sepal_length)))) - sqr(sin(sepal_width) / petal_length / petal_length) - sin(petal_length + petal_length - abs(sqr(petal_width))))')
-'''
-feature_extracting(records, variables, label='Iris-5-Fold', fold=5)
-feature_extracting(records, variables, label='Iris-3-Fold', fold=3)
-feature_extracting(records, variables, label='Iris-1-Fold', fold=1)
+fold_count = 3
+data_label = 'Iris'
+extractors = [
+    {'class': GA_Select_Feature, 'label':'GA', 'color':'red'},
+    {'class': GP_Select_Feature, 'label':'GP', 'color':'orange'},
+    {'class': GP_Global_Separability_Fitness, 'label':'GP Global', 'color':'green'},
+    {'class': GP_Local_Separability_Fitness, 'label':'GP Local', 'color':'blue'},
+    {'class': GE_Select_Feature, 'label':'GE', 'color':'cyan'},
+    {'class': GE_Global_Separability_Fitness, 'label':'GE Global', 'color':'magenta'},
+    {'class': GE_Local_Separability_Fitness, 'label':'GE Local', 'color':'black'}
+]
+extract_feature(records, data_label, fold_count, extractors)

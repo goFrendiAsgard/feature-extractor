@@ -10,7 +10,7 @@ sys.path.insert(0,lib_path)
 from gogenpy.utils import execute
 from gogenpy.classes import Genetics_Programming
 
-class GE(Genetics_Programming):
+class GP(Genetics_Programming):
     def do_calculate_fitness(self, individual):
         fitness = {}
         record = [5,4]
@@ -23,7 +23,7 @@ class GE(Genetics_Programming):
         return fitness
 
 if __name__ == '__main__':
-    gp = GE()
+    gp = GP()
     gp.individual_length = 50
     gp.population_size = 5
     gp.fitness_measurement = 'min'

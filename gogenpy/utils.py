@@ -9,6 +9,8 @@ from sys import stdout
 
 randomizer = random.Random(10)
 
+LIMIT_ZERO = 0.0001
+
 def sin(num):
     return math.sin(num)
 
@@ -71,6 +73,9 @@ def bin_digit_needed(decimal):
 
 def sigmoid(x):
     return 1 / (1 + math.exp(-x))
+
+def exp(x):
+    return math.exp(x)
 
 def execute(expr, record, variables):
     '''

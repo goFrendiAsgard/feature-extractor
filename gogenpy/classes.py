@@ -63,21 +63,21 @@ class Tree(object):
         children_count = 0
         if max_level > 0:
             children_count = utils.randomizer.randrange(0,len(nodes))
-        # anticipate if there is an empty array among nodes
-        while len(nodes[children_count])==0:
-            if children_count<len(nodes)-1:
-                children_count += 1
-            else:
-                children_count = 0
-        # generate node_index
-        node_index = utils.randomizer.randrange(0,len(nodes[children_count]))
-        self.data = nodes[children_count][node_index]
-        self.children = []
-        if children_count>0:
-            for i in xrange(children_count):
-                self.add_child()
-                child = self.get_child(i)
-                child.generate(nodes, max_level-1)
+            # anticipate if there is an empty array among nodes
+            while len(nodes[children_count])==0:
+                if children_count<len(nodes)-1:
+                    children_count += 1
+                else:
+                    children_count = 0
+            # generate node_index
+            node_index = utils.randomizer.randrange(0,len(nodes[children_count]))
+            self.data = nodes[children_count][node_index]
+            self.children = []
+            if children_count>0:
+                for i in xrange(children_count):
+                    self.add_child()
+                    child = self.get_child(i)
+                    child.generate(nodes, max_level-1)
     
     def __repr__(self, *args, **kwargs):
         return self.as_program()
@@ -131,7 +131,7 @@ class GA_Base(object):
         '''
         self._individuals = [] # array of dictionary
         self._fitness = [] # array of dictionary
-        self._assumpted_individuals = []
+        self._special_individuals = []
         self._generations = []
         self._max_epoch = 50
         self._population_size = 100
@@ -265,9 +265,9 @@ class GA_Base(object):
         self._generations.append([])
         
         # add individuals based on assumptions
-        if self.assumpted_individuals is None:
-            self.assumpted_individuals=[]
-        if len(self.assumpted_individuals)>0:
+        if self.special_individuals is None:
+            self.special_individuals=[]
+        if len(self.special_individuals)>0:
             for i in xrange(min(len(self.assumpted_individuals), self.population_size)):
                 new_individual =  self._process_individual(self.assumpted_individuals[i])
                 self._register_individual(new_individual, 0)        
@@ -700,11 +700,11 @@ class GA_Base(object):
         self._label = value
     
     @property
-    def assumpted_individuals(self):
-        return self._assumpted_individuals
-    @assumpted_individuals.setter
-    def assumpted_individuals(self,value):
-        self._assumpted_individuals = value
+    def special_individuals(self):
+        return self._special_individuals
+    @special_individuals.setter
+    def special_individuals(self,value):
+        self._special_individuals = value
     
     @property
     def convergance_rate(self):

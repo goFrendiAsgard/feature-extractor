@@ -1,11 +1,16 @@
-from FE_Base import feature_extracting, extract_csv, shuffle_record, test_phenotype
+from Feature_Extractor import *
 
-# make feature extractor
-attribute = extract_csv('glass.data.csv', delimiter=',')
-variables = attribute['variables']
-records = attribute['data']
+records = extract_csv('glass.data.csv', delimiter=',')
 records = shuffle_record(records)
-
-feature_extracting(records, variables, label='Glass-5-Fold', fold=5)
-feature_extracting(records, variables, label='Glass-3-Fold', fold=3)
-feature_extracting(records, variables, label='Glass-1-Fold', fold=1)
+fold_count = 3
+data_label = 'Glass'
+extractors = [
+    {'class': GA_Select_Feature, 'label':'GA', 'color':'red'},
+    {'class': GP_Select_Feature, 'label':'GP', 'color':'orange'},
+    {'class': GP_Global_Separability_Fitness, 'label':'GP Global', 'color':'green'},
+    {'class': GP_Local_Separability_Fitness, 'label':'GP Local', 'color':'blue'},
+    {'class': GE_Select_Feature, 'label':'GE', 'color':'cyan'},
+    {'class': GE_Global_Separability_Fitness, 'label':'GE Global', 'color':'magenta'},
+    {'class': GE_Local_Separability_Fitness, 'label':'GE Local', 'color':'black'}
+]
+extract_feature(records, data_label, fold_count, extractors)
