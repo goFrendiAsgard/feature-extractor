@@ -95,7 +95,10 @@ def get_projection(new_feature, old_features, all_data, used_data = None, used_t
     else:
         min_result = min(x for x in all_result if x is not None)
         max_result = max(x for x in all_result if x is not None)
-    result_range = max(max_result-min_result, LIMIT_ZERO)
+    if max_result-min_result>0:
+        result_range = max_result-min_result
+    else:
+        result_range = LIMIT_ZERO
     if used_data is None: # include all data
         for i in xrange(len(all_result)):
             if all_error[i]:
@@ -290,7 +293,7 @@ def calculate_separability_index(group_projection):
     total_hist = merge_histogram(group_hist)
     separability_index = {}
     for current_group in group_hist:
-        current_count = projection_group_count[current_group]
+        current_count = projection_group_count[current_group] -1 # not including self
         current_separability_index = 0.0
         count = 0.0
         good_neighbour_count = 0.0
@@ -314,12 +317,16 @@ def calculate_separability_index(group_projection):
                     count += total_hist[value]
                     if value in group_hist[current_group]:
                         good_neighbour_count += group_hist[current_group][value]
-                # - distance
-                value = current_value - distance
-                if value in total_hist:
-                    count += total_hist[value]
-                    if value in group_hist[current_group]:
-                        good_neighbour_count += group_hist[current_group][value]
+                    if distance == 0: # one of the zero distance neighbour is actually itself, so just ignore it
+                        count -= 1
+                        good_neighbour_count -= 1
+                if distance>0: # if distance == 0, current_value+distance == current_value-distance
+                    # - distance
+                    value = current_value - distance
+                    if value in total_hist:
+                        count += total_hist[value]
+                        if value in group_hist[current_group]:
+                            good_neighbour_count += group_hist[current_group][value]
         # current_separability
         current_separability_index += good_neighbour_count/max(count,LIMIT_ZERO)
         separability_index[current_group] = current_separability_index
@@ -365,20 +372,20 @@ def calculate_max_accuration_prediction(group_projection):
     data_count = len(total_projection)
     group_hist = projection_to_histogram(group_projection)
     total_hist = merge_histogram(group_hist)
+    all_values = get_group(total_hist)
     accuration = {}
     for group in group_hist:
         min_miss_count = 0.0
-        values = []
-        for value in group_hist[group]:
-            values.append(value)
-        values.sort()
-        for i in xrange(len(values)): # min_val loop
-            min_val = values[i]            
-            for j in xrange(i,len(values)): # max_val loop
-                max_val = values[j]
+        group_values = get_group(group_hist[group])
+        group_values.sort()
+        for i in xrange(len(group_values)): # min_val loop
+            min_val = group_values[i]            
+            for j in xrange(i,len(group_values)): # max_val loop
+                max_val = group_values[j]
                 miss_count = 0.0
-                for k in xrange(len(values)): # all value loop.
-                    current_val = values[k]
+                # group values
+                for k in xrange(len(group_values)): # all value loop.
+                    current_val = group_values[k]
                     all_count = total_hist[current_val]
                     current_count = group_hist[group][current_val]
                     if current_val<min_val: # less than min_val
@@ -387,6 +394,11 @@ def calculate_max_accuration_prediction(group_projection):
                         miss_count += all_count - current_count
                     else: # more than max_val
                         miss_count += current_count
+                # all other values which is not in group values but located between min_val and max_val
+                for value in all_values:
+                    if (not value in group_values) and (value>=min_val) and (value<=max_val):
+                        count = total_hist[value]
+                        miss_count += count
                 if (i==0 and j==0) or (min_miss_count>miss_count):
                     min_miss_count = miss_count
         accuration[group] = (data_count-min_miss_count)/float(data_count)
@@ -507,9 +519,7 @@ class Genetics_Feature_Extractor(Feature_Extractor, classes.GA_Base):
             'stdev':stdev            
         }
         return metric                    
-                
         
-    
     def get_accuracy(self, new_features=None):
         if (new_features is None):
             new_features = self.get_new_features()
@@ -968,6 +978,7 @@ def extract_feature(records, data_label='Test', fold_count=5, extractors=[], cla
     
     for i in xrange(metric_count):
         metric_label = accuracy_metrics[i]
+        helper_value_drawn = []
         sp = fig.add_subplot(3,1,i+1)
         # fold margin line
         for fold_index in xrange(fold_count):
@@ -988,11 +999,13 @@ def extract_feature(records, data_label='Test', fold_count=5, extractors=[], cla
             for fold_index in xrange(fold_count):
                 label = extractors[extractor_index]['label']
                 value = all_accuracy[label][metric_label][fold_index]
-                sp.plot([min_x, max_x],[value*100,value*100],'k--')
+                if not value in helper_value_drawn:
+                    helper_value_drawn.append(value)
+                    sp.plot([min_x, max_x],[value*100,value*100],'k--')
                 
         sp.set_ylim(minimum_accuracy*100,maximum_accuracy*100)
         sp.set_xlim(min_x, max_x)
-        sp.set_title(metric_label)
+        sp.set_title(metric_label.capitilize())
         if i<metric_count-1:
             pos = list(range(extractor_count*fold_count))
             extractor_names = list(['']*extractor_count*fold_count)
@@ -1008,13 +1021,37 @@ def extract_feature(records, data_label='Test', fold_count=5, extractors=[], cla
     plt.close()
     gc.collect()
 
+
+records = extract_csv('iris.data.csv', delimiter=',')
+records = shuffle_record(records)
+new_feature = 'exp(sepal_length - sqrt(abs(sqr(petal_width))) - petal_width - petal_width - sepal_length - sepal_length * abs(sqr(petal_width)) * exp(abs(sqrt(sqrt(abs(sqrt(sqr(sepal_length)))))) / sqr(petal_width) / petal_width * sqrt(sqr(sepal_length)) * sqr(petal_width)) - sepal_width)'
+fe = Feature_Extractor(records, fold_count=1, fold_index=0)
+projection_group = get_projection(new_feature, fe.features, fe.data, fe.training_data, fe.training_label_target)
 '''
 projection_group = {
-    'kecil' : [0,1,2,3,4,5,6],
-    'sedang': [7,8,9,9,9,10,10,10],
-    'besar': [9,10,11,12,13]
+    'varden':[0,1,2,3,6],
+    'ingeitum':[4,5]
 }
-print calculate_max_accuration_prediction(projection_group)
-print calculate_collision_proportion(projection_group)
-print calculate_separability_index(projection_group)
+
+
+hist = projection_to_histogram(projection_group)
+
+groups = get_group(hist)
+for i in xrange(len(groups)):
+    group = groups[i]
+    group_hist = hist[group]
+    values = get_group(group_hist)
+    min_val = min(values)
+    max_val = max(values)
+    print 'histogram of '+group+' : ', group_hist
+    print 'range :',min_val,'-',max_val
+all_hist = merge_histogram(hist)
+all_value = get_group(all_hist)
+all_value.sort()
+print 'total values :',all_value
+
+
+print 'max accuration       : ', calculate_max_accuration_prediction(projection_group)
+print 'collision_proportion : ', calculate_collision_proportion(projection_group)
+print 'separability_index   : ', calculate_separability_index(projection_group)
 '''
