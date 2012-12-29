@@ -11,11 +11,29 @@ import matplotlib.pyplot as plt
 LIMIT_ZERO = utils.LIMIT_ZERO
 
 def extract_csv(csv_file_name, delimiter=','):
+    '''
+    Extract csv file into records.
+    
+    Usage:
+    >>> records = extract_csv('iris-data.csv')
+    >>> print records
+    [['petal_width', 'petal_length', 'sepal_width', 'sepal_length', 'class'],
+     [5.1,3.5,1.4,0.2,'Iris-setosa'],
+     ...
+    ]
+    '''
     r = csv.reader(open(csv_file_name), delimiter=delimiter)
     r = list(r)
     return r
 
 def shuffle_record(record):
+    '''
+    Shuffle records, assuming the first row is header and therefore untouched
+    
+    Usage:
+    >>> records = extract_csv('iris-data.csv')
+    >>> records = shuffle_record(records)
+    '''
     record_length = len(record)
     i = 0
     while i<record_length:
@@ -24,6 +42,356 @@ def shuffle_record(record):
         record[rnd1], record[rnd2] = record[rnd2], record[rnd1]
         i+=1
     return record
+
+def get_projection(new_feature, old_features, all_data, used_data = None, used_target = None):
+    '''
+    Get projection of used_data (with old_features) in new_feature.
+    If used_data is None, then all-data will be used as used_data
+    If used_target is None, a list of projection will be returned. 
+    if used_target is not None, then a dictionary with every class in target as key, 
+    and projection of corresponding class as value will be returned
+    
+    Usage:
+    >>> new_feature = 'x+y'
+    >>> old_features = [x,y]
+    >>> all_data = [[1,2],[1,3],[2,4],[1,5]]
+    >>>
+    >>> # without used_data and used_target
+    >>> projection = get_projection(new_feature, old_features, all_data)
+    >>> print projection
+    [3,4,6,6]
+    >>>
+    >>> # with used_data, without used_target
+    >>> used_data = [[1,2],[1,5]]
+    >>> projection = get_projection(new_feature, old_features, all_data, used_data)
+    >>> print projection
+    [3,6]
+    >>>
+    >>> # with used_target
+    >>> target = ['small','small','big','big']
+    >>> projection = get_projection(new_feature, old_features, all_data, used_target=target)
+    >>> print projection
+    {'small':[3,4],'big':[6,6]}
+    '''
+    used_projection = []
+    all_result = []
+    all_error = []
+    # get all result
+    for data in all_data:
+        result, error = utils.execute(new_feature, data, old_features)            
+        all_error.append(error)
+        if error:
+            all_result.append(None)
+        else:
+            all_result.append(result)
+    all_is_none = True
+    for i in all_result:
+        if i is not None:
+            all_is_none = False
+            break
+    if all_is_none:
+        min_result = 0
+        max_result = 1
+    else:
+        min_result = min(x for x in all_result if x is not None)
+        max_result = max(x for x in all_result if x is not None)
+    result_range = max(max_result-min_result, LIMIT_ZERO)
+    if used_data is None: # include all data
+        for i in xrange(len(all_result)):
+            if all_error[i]:
+                all_result[i] = -1
+            else:
+                all_result[i] = (all_result[i]-min_result)/result_range
+        used_projection = all_result
+    else:
+        used_result = []
+        for i in xrange(len(used_data)):
+            result, error = utils.execute(new_feature, used_data[i], old_features)
+            if error:
+                used_result.append(-1)
+            else:
+                used_result.append((result-min_result)/result_range)
+        used_projection = used_result
+    
+    if used_target is None:
+        return used_projection
+    
+    group_projection = {}
+    for i in xrange(len(used_projection)):
+        group = used_target[i]
+        if not group in group_projection:
+            group_projection[group]=[]
+        group_projection[group].append(used_projection[i])
+    return group_projection
+
+def projection_to_histogram(projection):
+    '''
+    Return histogram of the projection in dictionary form.
+    If the projection is list, then key of the dictionary will be every value in the projection, and dictionary's value
+    
+    Usage:
+    >>> projection = [3,4,6,6]
+    >>> hist = projection_to_histogram(projection)
+    {3:1, 4:1, 6:2}
+    >>>
+    >>> projection = {'small':[3,4],'big':[6,6]}
+    >>> hist = projection_to_histogram(projection)
+    { 'small':{3:1, 4:1}, 'big':{6:2} }
+    '''
+    if isinstance(projection, dict):
+        group_histogram = {}
+        for group in projection:
+            group_histogram[group] = projection_to_histogram(projection[group])
+        return group_histogram
+    else:
+        histogram = {}
+        for value in projection:
+            if not value in histogram:
+                histogram[value] = 0.0
+            histogram[value]+=1
+        return histogram
+
+def get_group(per_group_dict):
+    '''
+    return keys of the dictionary
+    
+    Usage:
+    >>> projection = {'small':[3,4],'big':[6,6]}
+    >>> groups = get_group(projection)
+    >>> print groups
+    ['small', 'big']
+    >>>
+    >>> hist = { 'small':{3:1, 4:1}, 'big':{6:2} }
+    >>> groups = get_group(hist)
+    >>> print hist
+    ['small', 'big']
+    '''
+    keys = []
+    for key in per_group_dict:
+        keys.append(key)
+    return keys
+
+def merge_projection(per_group_projection):
+    '''
+    Merge per_group_projection into total projection
+    
+    Usage:
+    >>> projection = {'small':[3,4],'big':[6,6]}
+    >>> total_projection = merge_projection(projection)
+    >>> print total_projection
+    [3,4,6,6]
+    '''
+    total_projection = []
+    for group in get_group(per_group_projection):
+        projection = per_group_projection[group]
+        total_projection += projection
+    return total_projection
+
+def merge_histogram(per_group_hist):
+    '''
+    Merge per_group_hist into total histogram
+    
+    Usage:
+    >>> hist = { 'small':{3:1, 4:1}, 'big':{6:2} }
+    >>> total_hist = merge_hist(hist)
+    >>> print total_hist
+    {3:1, 4:1, 6:2}
+    '''
+    total_hist = {}
+    for group in get_group(per_group_hist):
+        hist = per_group_hist[group]
+        for value in hist:
+            if not value in total_hist:
+                total_hist[value] = hist[value]
+            else:
+                total_hist[value] += hist[value]
+    return total_hist
+
+def calculate_mean(projection):
+    '''
+    Return mean of the projection.
+    If the projection is list, then a scalar float value will be returned
+    If the projection is dictionary, then a dictionary with the same key, and scalar float value will be returned
+    
+    Usage:
+    >>> projection = [3,4,6,6]
+    >>> mean = calculate_mean(projection)
+    4.75
+    >>>
+    >>> projection = {'small':[3,4],'big':[6,6]}
+    >>> mean = calculate_mean(projection)
+    { 'small':3.5}, 'big':6 }
+    '''
+    if isinstance(projection, dict):
+        group_mean = {}
+        for group in projection:
+            group_mean[group] = calculate_mean(projection[group])
+        return group_mean
+    else:
+        mean = numpy.mean(projection)
+        return mean
+
+def calculate_std(projection):
+    '''
+    Return standard deviation of the projection.
+    If the projection is list, then a scalar float value will be returned
+    If the projection is dictionary, then a dictionary with the same key, and scalar float value will be returned
+    
+    Usage:
+    >>> projection = [3,4,6,6]
+    >>> mean = calculate_std(projection)
+    1.299038105676658
+    >>>
+    >>> projection = {'small':[3,4],'big':[6,6]}
+    >>> mean = calculate_std(projection)
+    { 'small':0.5}, 'big':0.0 }
+    '''
+    if isinstance(projection, dict):
+        group_std = {}
+        for group in projection:
+            group_std[group] = calculate_std(projection[group])
+        return group_std
+    else:
+        std = numpy.std(projection)
+        return std
+    
+def calculate_count(projection):
+    '''
+    Return data count in the projection.
+    If the projection is list, then a scalar int value will be returned
+    If the projection is dictionary, then a dictionary with the same key, and scalar int value will be returned
+    
+    Usage:
+    >>> projection = [3,4,6,6]
+    >>> count = calculate_count(projection)
+    4
+    >>>
+    >>> projection = {'small':[3,4],'big':[6,6]}
+    >>> mean = calculate_count(projection)
+    { 'small':2}, 'big':2 }
+    '''
+    if isinstance(projection, dict):
+        group_count = {}
+        for group in projection:
+            group_count[group] = calculate_count(projection[group])
+        return group_count
+    else:
+        count = len(projection)
+        return count
+
+def calculate_separability_index(group_projection):
+    '''
+    This will return a dictionary contains costumized separability index of every group in group_projection
+    
+    The customized separability index 
+    '''
+    projection_group_count = calculate_count(group_projection)
+    group_hist = projection_to_histogram(group_projection)
+    total_hist = merge_histogram(group_hist)
+    separability_index = {}
+    for current_group in group_hist:
+        current_count = projection_group_count[current_group]
+        current_separability_index = 0.0
+        count = 0.0
+        good_neighbour_count = 0.0
+        
+        for current_value in group_hist[current_group]:
+            # get distance rank to current value
+            distances = []
+            for all_value in total_hist:
+                distance = abs(current_value - all_value)
+                distances.append(distance)
+            distances.sort()
+            
+            # calculate good neighbour_count and total count                
+            for i in xrange(len(distances)):
+                if count >= current_count:
+                    break
+                distance = distances[i]
+                # + distance
+                value = current_value + distance
+                if value in total_hist:
+                    count += total_hist[value]
+                    if value in group_hist[current_group]:
+                        good_neighbour_count += group_hist[current_group][value]
+                # - distance
+                value = current_value - distance
+                if value in total_hist:
+                    count += total_hist[value]
+                    if value in group_hist[current_group]:
+                        good_neighbour_count += group_hist[current_group][value]
+        # current_separability
+        current_separability_index += good_neighbour_count/max(count,LIMIT_ZERO)
+        separability_index[current_group] = current_separability_index
+    return separability_index
+
+def calculate_collision_proportion(group_projection):
+    '''
+    This will return a dictionary contains collision proportion of every group in group_projection
+    
+    The calculation is as follows:
+    Calculate summary_of_all_data in collision point/data_count
+    '''
+    total_projection = merge_projection(group_projection)
+    data_count = len(total_projection)
+    group_hist = projection_to_histogram(group_projection)
+    total_hist = merge_histogram(group_hist)
+    collision_proportion = {}
+    for group in group_hist:
+        collision_count = 0
+        for value in group_hist[group]:
+            if total_hist[value]>group_hist[group][value]:
+                collision_count += total_hist[value]
+        collision_proportion[group] = collision_count/data_count
+    return collision_proportion
+
+def calculate_max_accuration_prediction(group_projection):
+    '''
+    This will return a dictionary contains max_accuration of every group in group_projection
+    
+    The calculation is as follows:
+    For a range in minimum margin to maximum margin of each group_projection
+    Choose all possibility of min_val and max_val where max_val>=min_val
+    For every possibility, calculate the miss-classification_count, and choose the most minimum miss-classification_count
+    Where:
+    
+    miss-classification_count = data count of current group below min_val + data count of current_group above max_val +
+        data count of other group between min_val and max_val
+    
+    max_accuration = minimum_miss-classification_count / data_count
+    
+    '''
+    total_projection = merge_projection(group_projection)
+    data_count = len(total_projection)
+    group_hist = projection_to_histogram(group_projection)
+    total_hist = merge_histogram(group_hist)
+    accuration = {}
+    for group in group_hist:
+        min_miss_count = 0.0
+        values = []
+        for value in group_hist[group]:
+            values.append(value)
+        values.sort()
+        for i in xrange(len(values)): # min_val loop
+            min_val = values[i]            
+            for j in xrange(i,len(values)): # max_val loop
+                max_val = values[j]
+                miss_count = 0.0
+                for k in xrange(len(values)): # all value loop.
+                    current_val = values[k]
+                    all_count = total_hist[current_val]
+                    current_count = group_hist[group][current_val]
+                    if current_val<min_val: # less than min_val
+                        miss_count += current_count
+                    elif current_val<=max_val: # between min_val and max_val
+                        miss_count += all_count - current_count
+                    else: # more than max_val
+                        miss_count += current_count
+                if (i==0 and j==0) or (min_miss_count>miss_count):
+                    min_miss_count = miss_count
+        accuration[group] = (data_count-min_miss_count)/float(data_count)
+    return accuration
+
 
 class Feature_Extractor(object):   
     def __init__(self, records, fold_count=1, fold_index=0):
@@ -102,53 +470,6 @@ class Feature_Extractor(object):
                         self.training_data.append(self.data[i])
                         self.training_label_target.append(self.label_target[i])
                         self.training_num_target.append(self.num_target[i])
-    
-    def _get_projection(self, new_feature, used_data = None):
-        all_result = []
-        all_error = []
-        for data in self.data:
-            result, error = utils.execute(new_feature, data, self.features)            
-            all_error.append(error)
-            if error:
-                all_result.append(None)
-            else:
-                all_result.append(result)
-        all_is_none = True
-        for i in all_result:
-            if i is not None:
-                all_is_none = False
-                break
-        if all_is_none:
-            min_result = 0
-            max_result = 1
-        else:
-            min_result = min(x for x in all_result if x is not None)
-            max_result = max(x for x in all_result if x is not None)
-        result_range = max(max_result-min_result, LIMIT_ZERO)
-        if used_data is None: # include all data
-            for i in xrange(len(all_result)):
-                if all_error[i]:
-                    all_result[i] = -1
-                else:
-                    all_result[i] = (all_result[i]-min_result)/result_range
-            return all_result
-        else:
-            used_result = []
-            for i in xrange(len(used_data)):
-                result, error = utils.execute(new_feature, used_data[i], self.features)
-                if error:
-                    used_result.append(-1)
-                else:
-                    used_result.append((result-min_result)/result_range)
-            return used_result
-        
-    def _calculate_histogram(self, data):
-        histogram = {}
-        for value in data:
-            if not value in histogram:
-                histogram[value] = 0.0
-            histogram[value]+=1
-        return histogram
         
 class Genetics_Feature_Extractor(Feature_Extractor, classes.GA_Base):
     def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
@@ -166,67 +487,24 @@ class Genetics_Feature_Extractor(Feature_Extractor, classes.GA_Base):
         return self.features
     
     def get_metrics(self, new_feature):
-        target = self.label_target
-        projection = self._get_projection(new_feature, self.training_data)
-        hist_group = {}
-        mean_group = {}
-        stdev_group = {}
-        projection_group_count = {}
-        separability_index = {}
-        total_hist = self._calculate_histogram(projection)
-        for group in self.group_label:
-            group_projection = []
-            for i in xrange(len(projection)):
-                if group == target[i]:
-                    group_projection.append(projection[i])
-            projection_group_count[group] = len(group_projection)
-            hist_group[group] = self._calculate_histogram(group_projection)
-            mean_group[group] = numpy.mean(group_projection)
-            stdev_group [group]= numpy.std(group_projection)
+        group_projection = get_projection(new_feature, self.features, self.data, self.training_data, self.training_label_target)        
+        group_hist = projection_to_histogram(group_projection)
+        total_hist = merge_histogram(group_hist)
+        max_accuration_prediction = calculate_max_accuration_prediction(group_projection)
+        collision_proportion = calculate_collision_proportion(group_projection)
+        separability_index = calculate_separability_index(group_projection)
+        mean = calculate_mean(group_projection)
+        stdev = calculate_std(group_projection)
         
-        # separability index (0 for not separable, 1 for greatly separable)
-        for current_group in self.group_label:
-            current_count = projection_group_count[current_group]
-            current_separability_index = 0.0
-            count = 0.0
-            good_neighbour_count = 0.0
-            
-            for current_value in hist_group[current_group]:
-                # get distance rank to current value
-                distances = []
-                for all_value in total_hist:
-                    distance = abs(current_value - all_value)
-                    distances.append(distance)
-                distances.sort()
-                
-                # calculate good neighbour_count and total count                
-                for i in xrange(len(distances)):
-                    if count >= current_count:
-                        break
-                    distance = distances[i]
-                    # + distance
-                    value = current_value + distance
-                    if value in total_hist:
-                        count += total_hist[value]
-                        if value in hist_group[current_group]:
-                            good_neighbour_count += hist_group[current_group][value]
-                    # - distance
-                    value = current_value - distance
-                    if value in total_hist:
-                        count += total_hist[value]
-                        if value in hist_group[current_group]:
-                            good_neighbour_count += hist_group[current_group][value]
-            # current_separability
-            current_separability_index += good_neighbour_count/max(count,LIMIT_ZERO)
-            separability_index[current_group] = current_separability_index
-            
-        # get metric
+        # return metric
         metric = {
-            'group_histogram':hist_group,
-            'total_histogram':total_hist,
+            'total_histogram': total_hist,
+            'group_histogram': group_hist,
+            'max_accuration_prediction' : max_accuration_prediction,
+            'collision_proportion' : collision_proportion,
             'separability_index':separability_index,
-            'mean':mean_group,
-            'stdev':stdev_group
+            'mean':mean,
+            'stdev':stdev            
         }
         return metric                    
                 
@@ -251,8 +529,8 @@ class Genetics_Feature_Extractor(Feature_Extractor, classes.GA_Base):
             new_test_data.append([0]*new_feature_count)
         for i in xrange(new_feature_count):
             feature = new_features[i]
-            training_projection = self._get_projection(feature,training_data)
-            test_projection = self._get_projection(feature,test_data)
+            training_projection = get_projection(feature, self.features, self.data, training_data)
+            test_projection = get_projection(feature, self.features, self.data, test_data)
             for j in xrange(len(training_data)):
                 new_training_data[j][i] = training_projection[j]
             for j in xrange(len(test_data)):
@@ -358,9 +636,13 @@ class Global_Separability_Fitness(Genetics_Feature_Extractor):
         separability_index = metrics['separability_index']
         stdev = metrics['stdev']
         mean = metrics['mean']
+        collision_proportion = metrics['collision_proportion']
+        max_accuration_prediction = metrics['max_accuration_prediction']
         average_minimum_mean_distance = 0.0
         average_stdev = 0.0
         average_separability_index = 0.0
+        average_collision_proportion = 0.0
+        average_max_accuration_prediction = 0.0
         for current_group in self.group_label:
             minimum_mean_distance = 10
             for compare_group in self.group_label:
@@ -372,17 +654,23 @@ class Global_Separability_Fitness(Genetics_Feature_Extractor):
             average_minimum_mean_distance += minimum_mean_distance
             average_stdev += stdev[current_group]
             average_separability_index += separability_index[current_group]
+            average_collision_proportion += collision_proportion[current_group]
+            average_max_accuration_prediction += max_accuration_prediction[current_group]
         average_minimum_mean_distance /= len(self.group_label)
         average_stdev /= len(self.group_label)
         average_separability_index /= len(self.group_label)
+        average_collision_proportion /= len(self.group_label)
+        average_max_accuration_prediction /= len(self.group_label)
         
         # stdev cannot surpass range. Since the range has been normalized between 0-1 (and -1) for error,
         # I think it is save to use 2.0-average_stdev
         fitness = {}
         fitness['separability'] =\
-            5 * (average_minimum_mean_distance) +\
-            10 * (average_separability_index) +\
-            (2.0-average_stdev)
+            0.0 * (average_minimum_mean_distance) +\
+            1.0 * (average_separability_index) +\
+            1.0 * (average_max_accuration_prediction) +\
+            0.0 * (average_collision_proportion)+\
+            0.0 * (2.0-average_stdev)
         return fitness
 
 class Local_Separability_Fitness(Genetics_Feature_Extractor):
@@ -402,6 +690,8 @@ class Local_Separability_Fitness(Genetics_Feature_Extractor):
         separability_index = metrics['separability_index']
         stdev = metrics['stdev']
         mean = metrics['mean']
+        collision_proportion = metrics['collision_proportion']
+        max_accuration_prediction = metrics['max_accuration_prediction']
         fitness = {}
         for current_group in self.group_label:
             # minimum mean
@@ -415,10 +705,14 @@ class Local_Separability_Fitness(Genetics_Feature_Extractor):
             # separability
             local_separability_index = separability_index[current_group]
             local_stdev = stdev[current_group]
+            local_collision_proportion = collision_proportion[current_group]
+            local_max_accuration_prediction = max_accuration_prediction[current_group]
             local_fitness =\
-                5 * (local_minimum_mean_distance) +\
-                10 * (local_separability_index) +\
-                (2.0-local_stdev)
+                0.0 * (local_minimum_mean_distance) +\
+                1.0 * (local_separability_index) +\
+                1.0 * (local_max_accuration_prediction) +\
+                0.0 * (local_collision_proportion)+\
+                0.0 * (2.0-local_stdev)
             fitness[current_group] = local_fitness
         return fitness
 
@@ -477,6 +771,14 @@ def extract_feature(records, data_label='Test', fold_count=5, extractors=[], cla
             {'class': GE_Global_Separability_Fitness, 'label':'GE Global', 'color':'magenta'},
             {'class': GE_Local_Separability_Fitness, 'label':'GE Local', 'color':'black'}
         ]
+    
+    shown_metrics = {
+        'max_accuration_prediction' : 'Maximum Accuration Prediction',
+        'collision_proportion' : 'Collision Proportion',
+        'separability_index': 'Separability Index',
+        'mean': 'Means',
+        'stdev': 'Standard Deviation'
+    }
         
     # prepare directory
     try:
@@ -538,29 +840,18 @@ def extract_feature(records, data_label='Test', fold_count=5, extractors=[], cla
             for feature in new_features:
                 output += '  '+feature+'\r\n'
                 metrics = fe.get_metrics(feature)
-                separability_index = metrics['separability_index']
-                stdev = metrics['stdev']
-                mean = metrics['mean']
                 total_histogram[feature] = metrics['total_histogram']
                 group_histogram[feature] = metrics['group_histogram']
-                output += '    Separability Index Per Class :\r\n'
-                for group in groups:
-                    label_group = group
-                    while len(label_group)<max_group_label_length:
-                        label_group += ' '
-                    output += '      '+label_group+' : '+str(separability_index[group])+'\r\n'
-                output += '    Standard Deviation Per Class :\r\n'
-                for group in groups:
-                    label_group = group
-                    while len(label_group)<max_group_label_length:
-                        label_group += ' '
-                    output += '      '+label_group+' : '+str(stdev[group])+'\r\n'
-                output += '    Mean Per Class :\r\n'
-                for group in groups:
-                    label_group = group
-                    while len(label_group)<max_group_label_length:
-                        label_group += ' '
-                    output += '      '+label_group+' : '+str(mean[group])+'\r\n'
+                # show shown metrics
+                for key in shown_metrics:
+                    label_metric = shown_metrics[key]                
+                    output += '    '+label_metric+' :\r\n'
+                    for group in groups:
+                        label_group = group
+                        while len(label_group)<max_group_label_length:
+                            label_group += ' '
+                        output += '      '+label_group+' : '+str(metrics[key][group])+'\r\n'
+                                        
                 output += '\r\n'
             print output
             fe.show(True,data_label+'/'+extractor_label+' Fold '+str(fold_index+1)+'.png')
@@ -695,6 +986,7 @@ def extract_feature(records, data_label='Test', fold_count=5, extractors=[], cla
         # helper line
         for extractor_index in xrange(extractor_count):
             for fold_index in xrange(fold_count):
+                label = extractors[extractor_index]['label']
                 value = all_accuracy[label][metric_label][fold_index]
                 sp.plot([min_x, max_x],[value*100,value*100],'k--')
                 
@@ -715,3 +1007,14 @@ def extract_feature(records, data_label='Test', fold_count=5, extractors=[], cla
     fig.clf()
     plt.close()
     gc.collect()
+
+'''
+projection_group = {
+    'kecil' : [0,1,2,3,4,5,6],
+    'sedang': [7,8,9,9,9,10,10,10],
+    'besar': [9,10,11,12,13]
+}
+print calculate_max_accuration_prediction(projection_group)
+print calculate_collision_proportion(projection_group)
+print calculate_separability_index(projection_group)
+'''

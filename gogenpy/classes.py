@@ -885,8 +885,9 @@ class Genetics_Programming(GA_Base):
     def do_mutation(self, individual):
         node = individual['default'].get_random_node()
         children_count = node.children_count
-        rnd = utils.randomizer.randrange(0,len(self._nodes[children_count]))
-        node.data = self._nodes[children_count][rnd]
+        if len(self._nodes[children_count])>0:
+            rnd = utils.randomizer.randrange(0,len(self._nodes[children_count]))
+            node.data = self._nodes[children_count][rnd]
         return individual
     
     @property

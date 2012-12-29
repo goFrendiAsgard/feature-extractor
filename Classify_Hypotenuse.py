@@ -2,7 +2,7 @@ from Feature_Extractor import *
 from gogenpy import utils
     
 randomizer = utils.randomizer
-records = ['x','y','class']
+records = [['x','y','class']]
 i = 0
 while i<3:
     for x in xrange(-10,10):

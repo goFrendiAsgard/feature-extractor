@@ -2,7 +2,7 @@ from Feature_Extractor import *
 from gogenpy import utils
     
 randomizer = utils.randomizer
-records = ['x','y','z','r1','r2','r3','r4','class']
+records = [['x','y','z','r1','r2','r3','r4','class']]
 for i in xrange(100):
     c = 'class 1';
     x = 0

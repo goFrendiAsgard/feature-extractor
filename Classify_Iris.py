@@ -1,9 +1,9 @@
 from Feature_Extractor import *
+from sklearn import svm
 
 records = extract_csv('iris.data.csv', delimiter=',')
 records = shuffle_record(records)
 fold_count = 3
-data_label = 'Iris'
 extractors = [
     {'class': GA_Select_Feature, 'label':'GA', 'color':'red'},
     {'class': GP_Select_Feature, 'label':'GP', 'color':'orange'},
@@ -13,4 +13,5 @@ extractors = [
     {'class': GE_Global_Separability_Fitness, 'label':'GE Global', 'color':'magenta'},
     {'class': GE_Local_Separability_Fitness, 'label':'GE Local', 'color':'black'}
 ]
-extract_feature(records, data_label, fold_count, extractors)
+extract_feature(records, 'Iris - Normal SVM', fold_count, extractors)
+extract_feature(records, 'Iris - Linear SVM', fold_count, extractors, svm.SVC(kernel='linear'))
