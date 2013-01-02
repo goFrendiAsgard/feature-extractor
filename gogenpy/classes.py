@@ -777,6 +777,7 @@ class Grammatical_Evolution(Genetics_Algorithm):
             'var' :['x','y'],
             'op'  :['+','-','*','/']
         }
+        self.individual_length = 100
         self._start_node = 'expr'
         self.genotype_dictionary = {}
         self.fitness_dictionary = {}

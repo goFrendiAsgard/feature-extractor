@@ -2,7 +2,7 @@ from Feature_Extractor import *
 
 records = extract_csv('wine.data.csv', delimiter=',')
 records = shuffle_record(records)
-fold_count = 3
+fold_count = 5
 data_label = 'Wine Data'
 extractors = [
     {'class': GA_Select_Feature, 'label':'GA', 'color':'red'},
