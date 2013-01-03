@@ -375,6 +375,7 @@ def calculate_separability_index(group_projection):
         other_separability_index = other_separability_accumulation/other_total_data_count
         #separability_index[current_group] = (current_separability_index + other_separability_index)/2
         separability_index[current_group] = min(current_separability_index,other_separability_index)
+        #separability_index[current_group] = (2*current_separability_index + other_separability_index)/3
     return separability_index
 
 def calculate_collision_proportion(group_projection):
@@ -387,7 +388,9 @@ def calculate_collision_proportion(group_projection):
     #total_projection = merge_projection(group_projection)
     #data_count = len(total_projection)
     group_hist = projection_to_histogram(group_projection)
-    total_hist = merge_histogram(group_hist)
+    total_hist = merge_histogram(group_hist)    
+    total_projection = merge_projection(group_projection)
+    data_count = len(total_projection)
     collision_proportion = {}
     for group in group_hist:        
         collision_count = 0.0
@@ -395,25 +398,20 @@ def calculate_collision_proportion(group_projection):
         del other_hist[group]
         other_hist = merge_histogram(other_hist)
         current_hist = group_hist[group]
-        data_count = 0.0
         for value in current_hist:            
             for compare_value in other_hist:
                 if compare_value==value:
                     collision_count += total_hist[compare_value]
-        current_projection = group_projection[group]
-        min_current = min(current_projection)
-        max_current = max(current_projection)
-        for value in total_hist:
-            if value>=min_current and value<=max_current:
-                data_count += total_hist[value]
-        collision_proportion[group] = collision_count/(data_count+collision_count)
+        collision_proportion[group] = collision_count/data_count
     return collision_proportion
 
 def calculate_intrusion_proportion(group_projection):
     total_projection = merge_projection(group_projection)
     #data_count = len(total_projection)
     group_hist = projection_to_histogram(group_projection)
-    total_hist = projection_to_histogram(total_projection)    
+    total_hist = projection_to_histogram(total_projection)
+    total_projection = merge_projection(group_projection)
+    data_count = len(total_projection)    
     intrusion_proportion = {}
     for group in group_projection:
         current_projection = group_projection[group]
@@ -434,11 +432,7 @@ def calculate_intrusion_proportion(group_projection):
         for value in total_hist:
             if value>=maximum_min and value>=min_current and value<=minimum_max and value<=max_current:
                 intrussion_count += total_hist[value]
-        data_count = 0.0
-        for value in total_hist:
-            if value>=min_current and value<=max_current:
-                data_count += total_hist[value]
-        intrusion_proportion[group] = intrussion_count/(data_count)
+        intrusion_proportion[group] = intrussion_count/data_count
     return intrusion_proportion
 
 def calculate_distance(group_projection):  
@@ -597,10 +591,11 @@ def my_metric(group_projection):
         separability_index = separability_indexes[group]
         intrusion_proportion = intrusion_proportions[group]
         collision_proportion = collision_proportions[group]
-        value = (9*separability_index) + (0.5*distance) -\
-            (3 * separability_index * intrusion_proportion) -\
-            (4 * separability_index * collision_proportion)
-        value /=10
+        distance = min(distance,1)
+        value = ( 3*separability_index + 2*(1-intrusion_proportion)*separability_index )/5
+        if collision_proportion>0:
+            value = (value + 7*(1-collision_proportion)*separability_index)/8
+        value = (3*value + 2*distance)/5
         result[group] = max(0, value)
     return result
 
@@ -839,6 +834,53 @@ class GE_Select_Feature(Genetics_Feature_Extractor, classes.Grammatical_Evolutio
         best_phenotype = self.best_individuals(1, 'accuration', 'phenotype')
         return [best_phenotype]
 
+class Multi_Accuration_Fitness(Genetics_Feature_Extractor):
+    def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
+        # Genetics_Feature_Extractor.__init__(self, records, fold_count, fold_index, classifier)
+        self.benchmarks = self.features
+    
+    def get_new_features(self):
+        new_features = []
+        for benchmark in self.benchmarks:
+            best_phenotype = self.best_individuals(1, benchmark, 'phenotype')
+            if best_phenotype not in new_features:
+                new_features.append(best_phenotype)
+        return new_features
+    
+    def do_calculate_fitness(self, individual):
+        feature = individual['phenotype']
+        total_projection = get_projection(feature, self.features, self.data, self.training_data)
+        new_training_data = []
+        for i in xrange(len(total_projection)):
+            new_training_data.append([total_projection[i]])
+        self.classifier.fit(new_training_data, self.training_num_target)
+        prediction = self.classifier.predict(new_training_data)
+        fitness = {}
+        for group in self.group_label:
+            group_index = self.target_dictionary[group]
+            true_count = 0.0
+            false_count = 0.0
+            for i in xrange(len(prediction)):
+                if prediction[i] == group_index or self.training_num_target[i] == group_index:
+                    if prediction[i] == self.training_num_target[i]:
+                        true_count += 1
+                    else:
+                        false_count += 1
+            accuration = true_count/(true_count+false_count)
+            fitness[group] = accuration        
+        return fitness
+
+class GE_Multi_Accuration_Fitness(GE_Select_Feature, Multi_Accuration_Fitness):
+    def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
+        GE_Select_Feature.__init__(self, records, fold_count, fold_index, classifier)
+        Multi_Accuration_Fitness.__init__(self, records, fold_count, fold_index, self.classifier)
+
+class GP_Multi_Accuration_Fitness(GP_Select_Feature, Multi_Accuration_Fitness):
+    def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
+        GP_Select_Feature.__init__(self, records, fold_count, fold_index, classifier)
+        Multi_Accuration_Fitness.__init__(self, records, fold_count, fold_index, self.classifier)
+    
+
 class Global_Separability_Fitness(Genetics_Feature_Extractor):
     def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
         self.benchmarks = ['separability']
@@ -923,15 +965,17 @@ class GE_Local_Separability_Fitness(GE_Select_Feature, Local_Separability_Fitnes
         return Local_Separability_Fitness.get_new_features(self)
         
 def extract_feature(records, data_label='Test', fold_count=5, extractors=[], classifier=None):
-    if len(extractors) == 0:
+    if extractors is None or len(extractors) == 0:
         extractors = [
             {'class': GA_Select_Feature, 'label':'GA', 'color':'red', 'params':{}},
             {'class': GP_Select_Feature, 'label':'GP', 'color':'orange', 'params':{'max_epoch':100,'population_size':200}},
-            {'class': GP_Global_Separability_Fitness, 'label':'GP Global', 'color':'green', 'params':{'max_epoch':100,'population_size':200}},
-            {'class': GP_Local_Separability_Fitness, 'label':'GP Local', 'color':'blue', 'params':{'max_epoch':100,'population_size':200}},
+            #{'class': GP_Global_Separability_Fitness, 'label':'GP Global', 'color':'green', 'params':{'max_epoch':100,'population_size':200}},
+            #{'class': GP_Local_Separability_Fitness, 'label':'GP Local', 'color':'blue', 'params':{'max_epoch':100,'population_size':200}},
             {'class': GE_Select_Feature, 'label':'GE', 'color':'cyan', 'params':{'max_epoch':100,'population_size':200}},
-            {'class': GE_Global_Separability_Fitness, 'label':'GE Global', 'color':'magenta', 'params':{'max_epoch':100,'population_size':200}},
-            {'class': GE_Local_Separability_Fitness, 'label':'GE Local', 'color':'black', 'params':{'max_epoch':100,'population_size':200}}
+            #{'class': GE_Global_Separability_Fitness, 'label':'GE Global', 'color':'magenta', 'params':{'max_epoch':100,'population_size':200}},
+            #{'class': GE_Local_Separability_Fitness, 'label':'GE Local', 'color':'black', 'params':{'max_epoch':100,'population_size':200}}
+            {'class': GP_Multi_Accuration_Fitness, 'label':'GP Multi', 'color':'magenta', 'params':{'max_epoch':100,'population_size':200}},
+            {'class': GE_Multi_Accuration_Fitness, 'label':'GE Multi', 'color':'magenta', 'params':{'max_epoch':100,'population_size':200}}
         ]
     
     # delete invalid extractors

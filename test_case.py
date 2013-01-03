@@ -1,6 +1,6 @@
 from Feature_Extractor import *
 
-fold_count = 5
+fold_count = 1
 fold_index = 0
 records = extract_csv('iris.data.csv', delimiter=',')
 records = shuffle_record(records)
@@ -25,8 +25,7 @@ class GE_Madness(GE_Select_Feature):
         mean_fitness /= len(fitness)
         
         accuracy = self.get_accuracy([new_feature])
-        madness = 2*mean_fitness + (mean_fitness-float(accuracy['training']))
-        madness /= 3
+        madness = mean_fitness /max(float(accuracy['training']), LIMIT_ZERO)
         return {'madness':madness}
     def get_new_features(self):
         best_phenotype = self.best_individuals(1, 'madness', 'phenotype')
@@ -35,7 +34,7 @@ class GE_Madness(GE_Select_Feature):
 
 extractors = [
     {'class': GE_Madness, 'label':'GE Madness', 'color':'black', 
-     'params':{'max_epoch':50,'population_size':50, 'new_rate':0.55, 
+     'params':{'max_epoch':5,'population_size':500, 'new_rate':0.55, 
                'mutation_rate':0.25, 'crossover_rate':0.15, 'elitism_rate':0.05}
     }
 ]
