@@ -836,8 +836,8 @@ class GE_Select_Feature(Genetics_Feature_Extractor, classes.Grammatical_Evolutio
 
 class Multi_Accuration_Fitness(Genetics_Feature_Extractor):
     def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
-        # Genetics_Feature_Extractor.__init__(self, records, fold_count, fold_index, classifier)
-        self.benchmarks = self.features
+        Genetics_Feature_Extractor.__init__(self, records, fold_count, fold_index, classifier)
+        self.benchmarks = self.group_label
     
     def get_new_features(self):
         new_features = []
@@ -874,12 +874,23 @@ class GE_Multi_Accuration_Fitness(GE_Select_Feature, Multi_Accuration_Fitness):
     def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
         GE_Select_Feature.__init__(self, records, fold_count, fold_index, classifier)
         Multi_Accuration_Fitness.__init__(self, records, fold_count, fold_index, self.classifier)
-
+    
+    def do_calculate_fitness(self, individual):
+        return Multi_Accuration_Fitness.do_calculate_fitness(self, individual)
+    
+    def get_new_features(self):
+        return Multi_Accuration_Fitness.get_new_features(self)    
+    
 class GP_Multi_Accuration_Fitness(GP_Select_Feature, Multi_Accuration_Fitness):
     def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
         GP_Select_Feature.__init__(self, records, fold_count, fold_index, classifier)
         Multi_Accuration_Fitness.__init__(self, records, fold_count, fold_index, self.classifier)
     
+    def do_calculate_fitness(self, individual):
+        return Multi_Accuration_Fitness.do_calculate_fitness(self, individual)
+    
+    def get_new_features(self):
+        return Multi_Accuration_Fitness.get_new_features(self)
 
 class Global_Separability_Fitness(Genetics_Feature_Extractor):
     def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
@@ -969,11 +980,11 @@ def extract_feature(records, data_label='Test', fold_count=5, extractors=[], cla
         extractors = [
             {'class': GA_Select_Feature, 'label':'GA', 'color':'red', 'params':{}},
             {'class': GP_Select_Feature, 'label':'GP', 'color':'orange', 'params':{'max_epoch':100,'population_size':200}},
-            #{'class': GP_Global_Separability_Fitness, 'label':'GP Global', 'color':'green', 'params':{'max_epoch':100,'population_size':200}},
-            #{'class': GP_Local_Separability_Fitness, 'label':'GP Local', 'color':'blue', 'params':{'max_epoch':100,'population_size':200}},
+            {'class': GP_Global_Separability_Fitness, 'label':'GP Global', 'color':'green', 'params':{'max_epoch':100,'population_size':200}},
+            {'class': GP_Local_Separability_Fitness, 'label':'GP Local', 'color':'blue', 'params':{'max_epoch':100,'population_size':200}},
             {'class': GE_Select_Feature, 'label':'GE', 'color':'cyan', 'params':{'max_epoch':100,'population_size':200}},
-            #{'class': GE_Global_Separability_Fitness, 'label':'GE Global', 'color':'magenta', 'params':{'max_epoch':100,'population_size':200}},
-            #{'class': GE_Local_Separability_Fitness, 'label':'GE Local', 'color':'black', 'params':{'max_epoch':100,'population_size':200}}
+            {'class': GE_Global_Separability_Fitness, 'label':'GE Global', 'color':'magenta', 'params':{'max_epoch':100,'population_size':200}},
+            {'class': GE_Local_Separability_Fitness, 'label':'GE Local', 'color':'black', 'params':{'max_epoch':100,'population_size':200}},
             {'class': GP_Multi_Accuration_Fitness, 'label':'GP Multi', 'color':'magenta', 'params':{'max_epoch':100,'population_size':200}},
             {'class': GE_Multi_Accuration_Fitness, 'label':'GE Multi', 'color':'magenta', 'params':{'max_epoch':100,'population_size':200}}
         ]
