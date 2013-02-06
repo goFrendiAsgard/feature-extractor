@@ -34,8 +34,8 @@ class GE_Madness(GE_Select_Feature):
 
 extractors = [
     {'class': GE_Madness, 'label':'GE Madness', 'color':'black', 
-     'params':{'max_epoch':5,'population_size':500, 'new_rate':0.55, 
-               'mutation_rate':0.25, 'crossover_rate':0.15, 'elitism_rate':0.05}
+     'params':{'max_epoch':5,'population_size':500, 'new_rate':0.6, 
+               'mutation_rate':0.3, 'crossover_rate':0.29, 'elitism_rate':0.01}
     }
 ]
 extract_feature(records, 'test', fold_count, extractors)

@@ -6,6 +6,7 @@ import csv
 import math, numpy
 from gogenpy import classes, utils
 from sklearn import svm
+from sklearn.naive_bayes import GaussianNB
 from scipy.stats import pearsonr
 import matplotlib.pyplot as plt
 import pickle
@@ -304,7 +305,6 @@ def calculate_separability_index(group_projection):
     total_hist = merge_histogram(group_hist)
     total_projection = merge_projection(group_projection)
     separability_index = {}
-    total_std = numpy.std(total_projection)
     for current_group in group_hist:
         # get current_hist and other_hist
         current_hist = group_hist[current_group]
@@ -337,10 +337,6 @@ def calculate_separability_index(group_projection):
                 total_count += count_on_distance[distance]['all']
                 if good_count >= current_total_data_count:
                     break
-                #if total_count >= current_total_data_count:
-                #    break
-                #if distance>= total_std:
-                #    break
             point_separability = current_hist[current_value]*(good_count-1)/max(total_count-1, LIMIT_ZERO)
             current_separability_accumulation += point_separability
         
@@ -364,18 +360,16 @@ def calculate_separability_index(group_projection):
                 total_count += count_on_distance[distance]['all']
                 if good_count >= other_total_data_count:
                     break
-                #if total_count >= other_total_data_count:
-                #    break
-                #if distance>= total_std:
-                #    break
             point_separability = other_hist[other_value]*(good_count-1)/max(total_count-1, LIMIT_ZERO)
             other_separability_accumulation += point_separability 
             
         current_separability_index = current_separability_accumulation/current_total_data_count
         other_separability_index = other_separability_accumulation/other_total_data_count
-        #separability_index[current_group] = (current_separability_index + other_separability_index)/2
-        separability_index[current_group] = min(current_separability_index,other_separability_index)
-        #separability_index[current_group] = (2*current_separability_index + other_separability_index)/3
+        min_current_separability_index = (current_total_data_count-1.0)/max((current_total_data_count+other_total_data_count-1.0),LIMIT_ZERO)
+        min_other_separability_index = (other_total_data_count-1.0)/max((current_total_data_count+other_total_data_count-1.0),LIMIT_ZERO)
+        normalized_current_separability_index = (current_separability_index-min_current_separability_index)/(1-min_current_separability_index)
+        normalized_other_separability_index = (other_separability_index-min_other_separability_index)/(1-min_other_separability_index)
+        separability_index[current_group] = min(normalized_current_separability_index,normalized_other_separability_index)
     return separability_index
 
 def calculate_collision_proportion(group_projection):
@@ -582,20 +576,23 @@ def calculate_class_purity(group_projection):
 
 def my_metric(group_projection):
     separability_indexes = calculate_separability_index(group_projection)
-    collision_proportions = calculate_collision_proportion(group_projection)
-    intrusion_proportions = calculate_intrusion_proportion(group_projection)
-    distances = calculate_distance(group_projection)
+    #collision_proportions = calculate_collision_proportion(group_projection)
+    #intrusion_proportions = calculate_intrusion_proportion(group_projection)
+    #distances = calculate_distance(group_projection)
     result = {}
     for group in group_projection:
-        distance = distances[group]
+        #distance = distances[group]
         separability_index = separability_indexes[group]
-        intrusion_proportion = intrusion_proportions[group]
-        collision_proportion = collision_proportions[group]
-        distance = min(distance,1)
+        #intrusion_proportion = intrusion_proportions[group]
+        #collision_proportion = collision_proportions[group]
+        #distance = min(distance,1)
+        '''
         value = ( 3*separability_index + 2*(1-intrusion_proportion)*separability_index )/5
         if collision_proportion>0:
             value = (value + 7*(1-collision_proportion)*separability_index)/8
         value = (3*value + 2*distance)/5
+        '''
+        value = separability_index
         result[group] = max(0, value)
     return result
 
@@ -683,9 +680,11 @@ class Genetics_Feature_Extractor(Feature_Extractor, classes.GA_Base):
         classes.GA_Base.__init__(self)
         if classifier is None:
             try:
-                self.classifier = svm.SVC(max_iter=2000, class_weight='auto')
+                #self.classifier = svm.SVC(max_iter=2000, class_weight='auto')
+                self.classifier = GaussianNB()
             except:
-                self.classifier = svm.SVC(class_weight='auto')
+                #self.classifier = svm.SVC(class_weight='auto')
+                self.classifier = GaussianNB()
         else:
             self.classifier = classifier
         
@@ -853,16 +852,23 @@ class Multi_Accuration_Fitness(Genetics_Feature_Extractor):
         new_training_data = []
         for i in xrange(len(total_projection)):
             new_training_data.append([total_projection[i]])
-        self.classifier.fit(new_training_data, self.training_num_target)
-        prediction = self.classifier.predict(new_training_data)
+        
         fitness = {}
         for group in self.group_label:
             group_index = self.target_dictionary[group]
+            new_target = list(self.training_num_target)
+            '''
+            for i in xrange(len(new_target)):
+                if not new_target[i] == group_index:
+                    new_target[i] = -1
+            '''
+            self.classifier.fit(new_training_data, new_target)
+            prediction = self.classifier.predict(new_training_data)
             true_count = 0.0
             false_count = 0.0
             for i in xrange(len(prediction)):
-                if prediction[i] == group_index or self.training_num_target[i] == group_index:
-                    if prediction[i] == self.training_num_target[i]:
+                if prediction[i] == group_index or new_target[i] == group_index:
+                    if prediction[i] == new_target[i]:
                         true_count += 1
                     else:
                         false_count += 1
@@ -901,8 +907,8 @@ class Global_Separability_Fitness(Genetics_Feature_Extractor):
         return [best_phenotype]
     
     def do_calculate_fitness(self, individual):
-        feature = individual['phenotype']
-        group_projection = get_projection(feature, self.features, self.data, self.training_data, self.label_target)
+        new_feature = individual['phenotype']
+        group_projection = get_projection(new_feature, self.features, self.data, self.training_data, self.training_label_target)
         local_fitness = my_metric(group_projection)
         global_fitness = 0.0
         for benchmark in local_fitness:
@@ -919,15 +925,15 @@ class Local_Separability_Fitness(Genetics_Feature_Extractor):
     
     def get_new_features(self):
         new_features = []
-        for benchmark in self.benchmarks:
+        for benchmark in self.benchmarks:            
             best_phenotype = self.best_individuals(1, benchmark, 'phenotype')
             if best_phenotype not in new_features:
                 new_features.append(best_phenotype)
         return new_features
     
     def do_calculate_fitness(self, individual):
-        feature = individual['phenotype']
-        group_projection = get_projection(feature, self.features, self.data, self.training_data, self.label_target)
+        new_feature = individual['phenotype']
+        group_projection = get_projection(new_feature, self.features, self.data, self.training_data, self.training_label_target)
         fitness = my_metric(group_projection)
         return fitness
 
@@ -974,6 +980,12 @@ class GE_Local_Separability_Fitness(GE_Select_Feature, Local_Separability_Fitnes
     
     def get_new_features(self):
         return Local_Separability_Fitness.get_new_features(self)
+
+class new_GE(GA_Select_Feature):
+    def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
+        GA_Select_Feature.__init__(self, records, fold_count=1, fold_index=0, classifier=None)
+    def process(self):
+        pass
         
 def extract_feature(records, data_label='Test', fold_count=5, extractors=[], classifier=None):
     if extractors is None or len(extractors) == 0:
@@ -1269,7 +1281,8 @@ def measure_metrics(records, metric_measurement=None, classifier = None, measure
         }
     
     if classifier is None:
-        classifier = svm.SVC()
+        #classifier = svm.SVC()
+        classifier = GaussianNB()
     
     # prepare feature extractor
     fe = GE_Select_Feature(records, fold_count=1, fold_index=0)
