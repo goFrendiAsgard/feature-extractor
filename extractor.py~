@@ -1,5 +1,5 @@
 import os, sys, gc, shutil
-lib_path = os.path.abspath('./gogenpy')
+lib_path = os.path.abspath('.')
 sys.path.insert(0,lib_path)
 
 import csv
@@ -981,6 +981,12 @@ class GE_Local_Separability_Fitness(GE_Select_Feature, Local_Separability_Fitnes
     
     def get_new_features(self):
         return Local_Separability_Fitness.get_new_features(self)
+
+class new_GE(GA_Select_Feature):
+    def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
+        GA_Select_Feature.__init__(self, records, fold_count=1, fold_index=0, classifier=None)
+    def process(self):
+        pass
         
 def extract_feature(records, data_label='Test', fold_count=5, extractors=[], classifier=None):
     if extractors is None or len(extractors) == 0:
