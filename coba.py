@@ -27,10 +27,21 @@ while(len(records)>1):
     best_phenotypes.append(best_phenotype)
     ommited_classes.append(best_benchmark)
     # remove the class from the record
-    new_records = [record for record in records if not (record[len(record)-1] == best_benchmark) ]
+    new_records = [record for record in records if not (record[len(record)-1] == best_benchmark) or record==records[0] ]
     records = new_records
 
-print best_phenotypes
+old_features = old_records[0][0:len(old_records[0])-1]
 old_data = old_records[1:len(old_records)]
-# get_projection(new_feature, old_features, all_data, used_data = None, used_target = None):
+new_data = []
+# zero matrix
+for i in xrange(len(old_data)):
+    new_data.append([0]*(len(best_phenotypes)+1))
+for i in xrange(len(best_phenotypes)):
+    new_feature = best_phenotypes[i]    
+    projection = get_projection(new_feature, old_features, old_data)
+    print ''
+    print new_feature, old_features, projection
+    for j in xrange(len(projection)):
+        new_data[j][i] = projection[j]
+print new_data
 print len(old_data)
