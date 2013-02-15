@@ -47,7 +47,24 @@ class GE_Tatami(GE_Multi_Accuration_Fitness):
         return self.tatami_best_phenotypes
 
 records = extract_csv('car.csv', delimiter=',')
-records = shuffle_record(records)
+new_records = []
+new_records.append(records[0])
+labels = {}
+for i in xrange(len(records)):
+    if i==0:
+        continue
+    record = records[i]
+    label = record[len(record)-1]
+    if not label in labels:
+        labels[label] = 0
+    if labels[label]>=60:
+        continue
+    else:
+        labels[label] += 1
+        new_records.append(record)
+        
+#records = shuffle_record(records)
+records = new_records
 extractors = [{'class': GE_Tatami, 'label':'GE_Tatami', 'color':'red', 'params':{}}]
 
 fold_count = 1
