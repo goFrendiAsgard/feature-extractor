@@ -681,11 +681,11 @@ class Genetics_Feature_Extractor(Feature_Extractor, classes.GA_Base):
         classes.GA_Base.__init__(self)
         if classifier is None:
             try:
-                #self.classifier = svm.SVC(max_iter=2000, class_weight='auto')
-                self.classifier = GaussianNB()
+                self.classifier = svm.SVC(max_iter=2000, class_weight='auto')
+                #self.classifier = GaussianNB()
             except:
-                #self.classifier = svm.SVC(class_weight='auto')
-                self.classifier = GaussianNB()
+                self.classifier = svm.SVC(class_weight='auto')
+                #self.classifier = GaussianNB()
         else:
             self.classifier = classifier
         
@@ -1276,8 +1276,8 @@ def measure_metrics(records, metric_measurement=None, classifier = None, measure
         }
     
     if classifier is None:
-        #classifier = svm.SVC()
-        classifier = GaussianNB()
+        classifier = svm.SVC()
+        #classifier = GaussianNB()
     
     # prepare feature extractor
     fe = GE_Select_Feature(records, fold_count=1, fold_index=0)
