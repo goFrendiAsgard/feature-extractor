@@ -1001,7 +1001,7 @@ class GE_Tatami(GE_Multi_Accuration_Fitness):
         best_phenotypes = []
         ommited_classes = []
         while(len(ommited_classes) < len(self.benchmarks)-1):
-            fe = GE_Multi_Accuration_Fitness(records, 1, 0)
+            fe = GE_Local_Separability_Fitness(records, 1, 0)
             fe.max_epoch = self.max_epoch
             fe.process()
             # look for best benchmark in this iteration
