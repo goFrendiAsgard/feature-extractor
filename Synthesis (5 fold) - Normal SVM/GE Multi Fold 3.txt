@@ -1,0 +1,77 @@
+Accuracy :
+
+  training : 0.89701897019
+  test     : 0.857142857143
+  total    : 0.889130434783
+
+
+2 Feature(s) Used :
+
+  sqrt((defense) - (attack))
+    Distance :
+      defender     : 1.51468571429
+      demon hunter : 0.974522058824
+      wizard       : 0.974522058824
+    Separability Index :
+      defender     : 0.988571428571
+      demon hunter : -8.42396026932e-16
+      wizard       : -8.42396026932e-16
+    Intrusion Proportion :
+      defender     : 0.0
+      demon hunter : 0.525745257453
+      wizard       : 0.525745257453
+    Maximum Accuration Prediction :
+      defender     : 1.0
+      demon hunter : 0.737127371274
+      wizard       : 0.737127371274
+    Standard Deviation :
+      defender     : 0.24240176466
+      demon hunter : 0.0
+      wizard       : 0.0
+    Collision Proportion :
+      defender     : 0.0
+      demon hunter : 0.525745257453
+      wizard       : 0.525745257453
+    Linear Maximum Accuration Prediction :
+      defender     : 1.0
+      demon hunter : 0.737127371274
+      wizard       : 0.737127371274
+    Means :
+      defender     : 0.514685714286
+      demon hunter : -1.0
+      wizard       : -1.0
+
+  (((sqrt((attack) - (defense))) - (agility)) / (agility)) * (agility)
+    Distance :
+      defender     : 1.47567010309
+      demon hunter : 0.728305412371
+      wizard       : 1.17053479381
+    Separability Index :
+      defender     : 0.994845360825
+      demon hunter : -4.21198013466e-16
+      wizard       : 0.0147738978376
+    Intrusion Proportion :
+      defender     : 0.0
+      demon hunter : 0.517615176152
+      wizard       : 0.485094850949
+    Maximum Accuration Prediction :
+      defender     : 1.0
+      demon hunter : 0.89701897019
+      wizard       : 0.89701897019
+    Standard Deviation :
+      defender     : 0.0
+      demon hunter : 0.209272256272
+      wizard       : 0.19016340703
+    Collision Proportion :
+      defender     : 0.0
+      demon hunter : 0.233062330623
+      wizard       : 0.233062330623
+    Linear Maximum Accuration Prediction :
+      defender     : 1.0
+      demon hunter : 0.737127371274
+      wizard       : 0.89701897019
+    Means :
+      defender     : -1.0
+      demon hunter : 0.312680412371
+      wizard       : 0.638659793814
+

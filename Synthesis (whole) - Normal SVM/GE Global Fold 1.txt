@@ -1,0 +1,43 @@
+Accuracy :
+
+  training : 0.713043478261
+  test     : 0.713043478261
+  total    : 0.713043478261
+
+
+1 Feature(s) Used :
+
+  abs(sigmoid((attack) - ((defense) * ((defense) / (sqrt(sqr(attack)))))))
+    Distance :
+      defender     : 0.751312457351
+      demon hunter : 0.480902021015
+      wizard       : 0.485387747142
+    Separability Index :
+      defender     : 0.899927069823
+      demon hunter : 4.21150717606e-16
+      wizard       : 4.21150717606e-16
+    Intrusion Proportion :
+      defender     : 0.00869565217391
+      demon hunter : 0.523913043478
+      wizard       : 0.532608695652
+    Maximum Accuration Prediction :
+      defender     : 0.997826086957
+      demon hunter : 0.780434782609
+      wizard       : 0.767391304348
+    Standard Deviation :
+      defender     : 0.1553817815
+      demon hunter : 0.13258274605
+      wizard       : 0.143828913537
+    Collision Proportion :
+      defender     : 0.00869565217391
+      demon hunter : 0.436956521739
+      wizard       : 0.445652173913
+    Linear Maximum Accuration Prediction :
+      defender     : 0.997826086957
+      demon hunter : 0.754347826087
+      wizard       : 0.763043478261
+    Means :
+      defender     : 0.109266055046
+      demon hunter : 0.858925619835
+      wizard       : 0.862231404959
+
