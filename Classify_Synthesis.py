@@ -1,5 +1,4 @@
 from Feature_Extractor import *
-from sklearn import svm
 
 records = extract_csv('synthesis.csv', delimiter=',')
 records = shuffle_record(records)
