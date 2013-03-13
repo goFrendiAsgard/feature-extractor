@@ -6,7 +6,7 @@ import csv
 import math, numpy
 from gogenpy import utils
 from gogenpy import classes
-from sklearn import svm
+#from sklearn import svm
 from sklearn.naive_bayes import GaussianNB
 from scipy.stats import pearsonr
 import matplotlib.pyplot as plt
@@ -987,6 +987,7 @@ class GE_Tatami(GE_Multi_Accuration_Fitness):
     def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
         GE_Multi_Accuration_Fitness.__init__(self, records, fold_count, fold_index, classifier)
         self.tatami_best_phenotypes = []
+        self.extractors = []
         
     def process(self):
         training_data = self.training_data
@@ -1004,6 +1005,7 @@ class GE_Tatami(GE_Multi_Accuration_Fitness):
             fe = GE_Local_Separability_Fitness(records, 1, 0)
             fe.max_epoch = self.max_epoch
             fe.process()
+            self.extractors.append(fe)
             # look for best benchmark in this iteration
             best_fitness = 0
             best_benchmark = ''
@@ -1026,7 +1028,21 @@ class GE_Tatami(GE_Multi_Accuration_Fitness):
         self.tatami_best_phenotypes = best_phenotypes
 
     def get_new_features(self):
-        return self.tatami_best_phenotypes        
+        return self.tatami_best_phenotypes
+    
+    def show(self, silent=False, file_name='figure.png'):
+        file_name_parts = file_name.split('/') 
+        for i in xrange(len(self.extractors)):
+            extractor = self.extractors[i]
+            # make new file name
+            new_file_name_parts = list(file_name_parts)
+            actual_file_name = new_file_name_parts[-1]
+            actual_file_name_parts = actual_file_name.split('.')
+            actual_file_name_parts[0] = actual_file_name_parts[0]+'_'+str(i)
+            actual_file_name = '.'.join(actual_file_name_parts)
+            new_file_name_parts[-1] = actual_file_name          
+            extractor_file_name = '/'.join(new_file_name_parts)
+            classes.GA_Base.show(extractor, silent, extractor_file_name)     
 
 def extract_feature(records, data_label='Test', fold_count=5, extractors=[], classifier=None):
     if extractors is None or len(extractors) == 0:
