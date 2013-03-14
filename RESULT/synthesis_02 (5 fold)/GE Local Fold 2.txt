@@ -1,0 +1,259 @@
+Accuracy :
+
+  training : 0.857142857143
+  test     : 0.831460674157
+  total    : 0.852173913043
+
+
+5 Feature(s) Used :
+
+  sqrt((exp(attack)) * (stamina))
+    Distance :
+                   : 0.0428648648649
+      defender     : 0.232663627863
+      demon hunter : 0.0371691176471
+      monk         : 0.238701382887
+      priest       : 0.0148099099099
+    Separability Index :
+                   : 0.0
+      defender     : -4.46502738164e-16
+      demon hunter : 0.0
+      monk         : 0.0188214954407
+      priest       : -2.19084010193e-15
+    Intrusion Proportion :
+                   : 0.0188679245283
+      defender     : 0.617250673854
+      demon hunter : 0.978436657682
+      monk         : 0.865229110512
+      priest       : 0.981132075472
+    Maximum Accuration Prediction :
+                   : 0.983827493261
+      defender     : 0.843665768194
+      demon hunter : 0.749326145553
+      monk         : 0.787061994609
+      priest       : 0.805929919137
+    Standard Deviation :
+                   : 0.0
+      defender     : 0.0509923962974
+      demon hunter : 0.166721203199
+      monk         : 0.250827550439
+      priest       : 0.201581568822
+    Collision Proportion :
+                   : 0.0188679245283
+      defender     : 0.547169811321
+      demon hunter : 0.754716981132
+      monk         : 0.574123989218
+      priest       : 0.757412398922
+    Linear Maximum Accuration Prediction :
+                   : 0.99730458221
+      defender     : 0.843665768194
+      demon hunter : 0.733153638814
+      monk         : 0.787061994609
+      priest       : 0.797843665768
+    Means :
+                   : 0.28
+      defender     : 0.0622826086957
+      demon hunter : 0.21
+      monk         : 0.409038461538
+      priest       : 0.249066666667
+
+  sigmoid(sqrt((defense) - ((sqrt(exp(attack))) - (abs(sigmoid((sigmoid(sin(agility))) / (agility)))))))
+    Distance :
+                   : 0.546594594595
+      defender     : 1.59626032414
+      demon hunter : 0.48657939691
+      monk         : 0.643753601268
+      priest       : 0.441090540541
+    Separability Index :
+                   : -1.23234755733e-13
+      defender     : 0.801084837698
+      demon hunter : 4.14931837486e-16
+      monk         : -3.94983191453e-16
+      priest       : -5.47710025482e-16
+    Intrusion Proportion :
+                   : 0.66846361186
+      defender     : 0.0431266846361
+      demon hunter : 0.741239892183
+      monk         : 0.770889487871
+      priest       : 0.762803234501
+    Maximum Accuration Prediction :
+                   : 0.33423180593
+      defender     : 0.989218328841
+      demon hunter : 0.749326145553
+      monk         : 0.725067385445
+      priest       : 0.803234501348
+    Standard Deviation :
+                   : 0.0
+      defender     : 0.130428758919
+      demon hunter : 0.465220067553
+      monk         : 0.332397365372
+      priest       : 0.470325164115
+    Collision Proportion :
+                   : 0.66846361186
+      defender     : 0.0161725067385
+      demon hunter : 0.690026954178
+      monk         : 0.681940700809
+      priest       : 0.692722371968
+    Linear Maximum Accuration Prediction :
+                   : 0.99730458221
+      defender     : 0.989218328841
+      demon hunter : 0.733153638814
+      monk         : 0.719676549865
+      priest       : 0.797843665768
+    Means :
+                   : -1.0
+      defender     : 0.745543478261
+      demon hunter : -0.811616161616
+      monk         : -0.918173076923
+      priest       : -0.8068
+
+  (attack) * (sqrt((agility) - (stamina)))
+    Distance :
+                   : 0.66227027027
+      defender     : 0.0969074333801
+      demon hunter : 1.07783942365
+      monk         : 0.754351411697
+      priest       : 0.240755405405
+    Separability Index :
+                   : 0.0
+      defender     : 0.0
+      demon hunter : 0.328593474427
+      monk         : -3.94983191453e-16
+      priest       : -1.09542005096e-15
+    Intrusion Proportion :
+                   : 0.504043126685
+      defender     : 0.851752021563
+      demon hunter : 0.285714285714
+      monk         : 0.803234501348
+      priest       : 0.822102425876
+    Maximum Accuration Prediction :
+                   : 0.498652291105
+      defender     : 0.760107816712
+      demon hunter : 0.924528301887
+      monk         : 0.722371967655
+      priest       : 0.808625336927
+    Standard Deviation :
+                   : 0.0
+      defender     : 0.604282487866
+      demon hunter : 0.172862136493
+      monk         : 0.361661484286
+      priest       : 0.577844361975
+    Collision Proportion :
+                   : 0.504043126685
+      defender     : 0.738544474394
+      demon hunter : 0.199460916442
+      monk         : 0.614555256065
+      priest       : 0.708894878706
+    Linear Maximum Accuration Prediction :
+                   : 0.99730458221
+      defender     : 0.752021563342
+      demon hunter : 0.924528301887
+      monk         : 0.722371967655
+      priest       : 0.797843665768
+    Means :
+                   : -1.0
+      defender     : -0.412391304348
+      demon hunter : 0.450707070707
+      monk         : -0.882403846154
+      priest       : -0.5316
+
+  ((attack) - (agility)) + (sqrt(stamina))
+    Distance :
+                   : 0.205459459459
+      defender     : 0.189614695341
+      demon hunter : 0.137696821153
+      monk         : 0.349919331605
+      priest       : 0.0548490990991
+    Separability Index :
+                   : 0.0
+      defender     : 0.00478425152025
+      demon hunter : 0.0
+      monk         : 0.179473085711
+      priest       : -5.47710025482e-16
+    Intrusion Proportion :
+                   : 0.010781671159
+      defender     : 0.854447439353
+      demon hunter : 0.878706199461
+      monk         : 0.33153638814
+      priest       : 0.77358490566
+    Maximum Accuration Prediction :
+                   : 0.991913746631
+      defender     : 0.77628032345
+      demon hunter : 0.762803234501
+      monk         : 0.919137466307
+      priest       : 0.805929919137
+    Standard Deviation :
+                   : 0.0
+      defender     : 0.187440570292
+      demon hunter : 0.16479561937
+      monk         : 0.110332338197
+      priest       : 0.130755072134
+    Collision Proportion :
+                   : 0.010781671159
+      defender     : 0.681940700809
+      demon hunter : 0.628032345013
+      monk         : 0.293800539084
+      priest       : 0.514824797844
+    Linear Maximum Accuration Prediction :
+                   : 0.99730458221
+      defender     : 0.77628032345
+      demon hunter : 0.733153638814
+      monk         : 0.919137466307
+      priest       : 0.797843665768
+    Means :
+                   : 0.69
+      defender     : 0.3425
+      demon hunter : 0.384141414141
+      monk         : 0.736923076923
+      priest       : 0.441333333333
+
+  (stamina) - (sqrt((defense) + (sin(agility))))
+    Distance :
+                   : 0.0336486486486
+      defender     : 0.0835043634097
+      demon hunter : 0.211928475936
+      monk         : 0.0836376404494
+      priest       : 0.249558558559
+    Separability Index :
+                   : 0.0
+      defender     : -4.46502738164e-16
+      demon hunter : 0.0
+      monk         : -2.36989914872e-15
+      priest       : 0.0453904519449
+    Intrusion Proportion :
+                   : 0.010781671159
+      defender     : 0.929919137466
+      demon hunter : 0.714285714286
+      monk         : 0.951482479784
+      priest       : 0.77897574124
+    Maximum Accuration Prediction :
+                   : 0.991913746631
+      defender     : 0.760107816712
+      demon hunter : 0.746630727763
+      monk         : 0.741239892183
+      priest       : 0.827493261456
+    Standard Deviation :
+                   : 0.0
+      defender     : 0.213654707697
+      demon hunter : 0.150140430132
+      monk         : 0.207814578503
+      priest       : 0.178342990393
+    Collision Proportion :
+                   : 0.010781671159
+      defender     : 0.722371967655
+      demon hunter : 0.606469002695
+      monk         : 0.719676549865
+      priest       : 0.536388140162
+    Linear Maximum Accuration Prediction :
+                   : 0.99730458221
+      defender     : 0.757412398922
+      demon hunter : 0.735849056604
+      monk         : 0.719676549865
+      priest       : 0.827493261456
+    Means :
+                   : 0.43
+      defender     : 0.400760869565
+      demon hunter : 0.308181818182
+      monk         : 0.52375
+      priest       : 0.662666666667
+
