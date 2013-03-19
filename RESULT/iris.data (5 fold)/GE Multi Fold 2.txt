@@ -1,77 +1,77 @@
 Accuracy :
 
   training : 0.991666666667
-  test     : 0.966666666667
-  total    : 0.986666666667
+  test     : 0.933333333333
+  total    : 0.98
 
 
 2 Feature(s) Used :
 
-  exp((sigmoid(petal_length)) / (sepal_length))
+  sepal_width
     Distance :
-      Iris-setosa     : 0.501375
-      Iris-versicolor : 0.215625
-      Iris-virginica  : 0.28575
+      Iris-setosa     : 0.598625
+      Iris-versicolor : 0.074875
+      Iris-virginica  : 0.52375
     Separability Index :
-      Iris-setosa     : 0.452224662162
-      Iris-versicolor : 0.0
-      Iris-virginica  : 0.14380594304
+      Iris-setosa     : 0.677655069041
+      Iris-versicolor : 3.30291349826e-16
+      Iris-virginica  : 0.328392737293
     Intrusion Proportion :
       Iris-setosa     : 0.0
       Iris-versicolor : 0.45
-      Iris-virginica  : 0.275
+      Iris-virginica  : 0.25
     Maximum Accuration Prediction :
       Iris-setosa     : 1.0
-      Iris-versicolor : 0.941666666667
-      Iris-virginica  : 0.941666666667
+      Iris-versicolor : 0.958333333333
+      Iris-virginica  : 0.958333333333
     Standard Deviation :
-      Iris-setosa     : 0.123120875565
-      Iris-versicolor : 0.024894778569
-      Iris-virginica  : 0.015570404619
+      Iris-setosa     : 0.0448267498264
+      Iris-versicolor : 0.0818836827457
+      Iris-virginica  : 0.115256236274
     Collision Proportion :
       Iris-setosa     : 0.0
-      Iris-versicolor : 0.275
-      Iris-virginica  : 0.275
+      Iris-versicolor : 0.25
+      Iris-virginica  : 0.25
     Linear Maximum Accuration Prediction :
       Iris-setosa     : 1.0
       Iris-versicolor : 0.666666666667
-      Iris-virginica  : 0.941666666667
+      Iris-virginica  : 0.958333333333
     Means :
-      Iris-setosa     : 0.5525
-      Iris-versicolor : 0.0745
-      Iris-virginica  : 0.02775
+      Iris-setosa     : 0.05575
+      Iris-versicolor : 0.50475
+      Iris-virginica  : 0.804
 
-  ((petal_length) - ((abs((((sepal_width) - (sqrt(petal_width))) + ((cos(petal_length)) / (petal_width))) + (sepal_length))) + (sepal_width))) - (sepal_length)
+  ((((sepal_length) - ((sepal_length) - (((petal_width) / (sepal_length)) + (((petal_length) + (sepal_length)) / (((sepal_length) / (petal_width)) * (petal_width)))))) - ((sepal_length) + ((((petal_width) / (petal_width)) * (sepal_width)) * (sepal_length)))) + ((petal_width) + (petal_width))) / (petal_length)
     Distance :
-      Iris-setosa     : 0.64875
-      Iris-versicolor : 0.13275
-      Iris-virginica  : 0.516
+      Iris-setosa     : 0.588625
+      Iris-versicolor : 0.1445
+      Iris-virginica  : 0.444125
     Separability Index :
-      Iris-setosa     : 0.879752502149
+      Iris-setosa     : 0.946247612803
       Iris-versicolor : 6.60582699652e-16
-      Iris-virginica  : 0.469696205511
+      Iris-virginica  : 0.5
     Intrusion Proportion :
       Iris-setosa     : 0.0
-      Iris-versicolor : 0.35
-      Iris-virginica  : 0.025
+      Iris-versicolor : 0.333333333333
+      Iris-virginica  : 0.0
     Maximum Accuration Prediction :
       Iris-setosa     : 1.0
-      Iris-versicolor : 0.991666666667
-      Iris-virginica  : 0.991666666667
+      Iris-versicolor : 1.0
+      Iris-virginica  : 1.0
     Standard Deviation :
-      Iris-setosa     : 0.0312159814838
-      Iris-versicolor : 0.0715886687961
-      Iris-virginica  : 0.0679664439264
+      Iris-setosa     : 0.0473491024202
+      Iris-versicolor : 0.0505445348183
+      Iris-virginica  : 0.0559458443497
     Collision Proportion :
       Iris-setosa     : 0.0
-      Iris-versicolor : 0.0166666666667
-      Iris-virginica  : 0.0166666666667
+      Iris-versicolor : 0.0
+      Iris-virginica  : 0.0
     Linear Maximum Accuration Prediction :
       Iris-setosa     : 1.0
       Iris-versicolor : 0.666666666667
-      Iris-virginica  : 0.991666666667
+      Iris-virginica  : 1.0
     Means :
-      Iris-setosa     : 0.92825
-      Iris-versicolor : 0.40725
-      Iris-virginica  : 0.15175
+      Iris-setosa     : 0.82325
+      Iris-versicolor : 0.3345
+      Iris-virginica  : 0.13475
 

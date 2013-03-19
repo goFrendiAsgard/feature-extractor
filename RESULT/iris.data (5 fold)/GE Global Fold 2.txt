@@ -1,43 +1,43 @@
 Accuracy :
 
-  training : 0.975
-  test     : 0.933333333333
-  total    : 0.966666666667
+  training : 0.983333333333
+  test     : 0.966666666667
+  total    : 0.98
 
 
 1 Feature(s) Used :
 
-  sqr(abs(sqrt((((sepal_length) * (sepal_width)) + ((abs(sepal_length)) / (petal_width))) - (sepal_length))))
+  (((sepal_width) + (sepal_length)) + ((petal_length) + (petal_width))) / ((petal_length) + (petal_width))
     Distance :
-      Iris-setosa     : 1.385625
-      Iris-versicolor : 0.34275
-      Iris-virginica  : 1.042875
+      Iris-setosa     : 0.686125
+      Iris-versicolor : 0.182375
+      Iris-virginica  : 0.50375
     Separability Index :
-      Iris-setosa     : 0.975
-      Iris-versicolor : 0.0
-      Iris-virginica  : 0.445579268293
+      Iris-setosa     : 0.981055424528
+      Iris-versicolor : 3.30291349826e-16
+      Iris-virginica  : 0.48140625
     Intrusion Proportion :
       Iris-setosa     : 0.0
-      Iris-versicolor : 0.358333333333
-      Iris-virginica  : 0.05
+      Iris-versicolor : 0.341666666667
+      Iris-virginica  : 0.025
     Maximum Accuration Prediction :
       Iris-setosa     : 1.0
-      Iris-versicolor : 0.983333333333
-      Iris-virginica  : 0.983333333333
+      Iris-versicolor : 0.991666666667
+      Iris-virginica  : 0.991666666667
     Standard Deviation :
-      Iris-setosa     : 0.0
-      Iris-versicolor : 0.0952230933125
-      Iris-virginica  : 0.179343246318
+      Iris-setosa     : 0.0351701222631
+      Iris-versicolor : 0.0602697063208
+      Iris-virginica  : 0.0556237359407
     Collision Proportion :
       Iris-setosa     : 0.0
-      Iris-versicolor : 0.0166666666667
-      Iris-virginica  : 0.0166666666667
+      Iris-versicolor : 0.025
+      Iris-virginica  : 0.025
     Linear Maximum Accuration Prediction :
       Iris-setosa     : 1.0
       Iris-versicolor : 0.666666666667
-      Iris-virginica  : 0.983333333333
+      Iris-virginica  : 0.991666666667
     Means :
-      Iris-setosa     : -1.0
-      Iris-versicolor : 0.15225
-      Iris-virginica  : 0.619
+      Iris-setosa     : 0.08075
+      Iris-versicolor : 0.65975
+      Iris-virginica  : 0.874
 

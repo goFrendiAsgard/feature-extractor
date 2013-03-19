@@ -1,111 +1,111 @@
 Accuracy :
 
-  training : 0.95
-  test     : 0.966666666667
-  total    : 0.953333333333
+  training : 0.966666666667
+  test     : 1.0
+  total    : 0.973333333333
 
 
 3 Feature(s) Used :
 
-  sigmoid(exp(sepal_width))
+  (((((petal_length) / (sepal_width)) / (petal_width)) + (petal_width)) * (sepal_length)) / ((((((sepal_width) - (((petal_width) * (sepal_length)) + ((sepal_length) / (sepal_length)))) / (petal_length)) * (petal_length)) + (petal_width)) - ((((petal_length) / ((sepal_width) * (sepal_length))) * (((petal_width) / (sepal_length)) * (petal_width))) + (petal_length)))
     Distance :
-      Iris-setosa     : 0.8395
-      Iris-versicolor : 0.35675
-      Iris-virginica  : 0.48275
+      Iris-setosa     : 0.7245
+      Iris-versicolor : 0.35925
+      Iris-virginica  : 0.36525
     Separability Index :
       Iris-setosa     : 1.0
       Iris-versicolor : 3.30291349826e-16
-      Iris-virginica  : 0.303846153846
+      Iris-virginica  : 0.0168803418803
     Intrusion Proportion :
       Iris-setosa     : 0.0
-      Iris-versicolor : 0.433333333333
-      Iris-virginica  : 0.266666666667
+      Iris-versicolor : 0.65
+      Iris-virginica  : 0.625
     Maximum Accuration Prediction :
       Iris-setosa     : 1.0
-      Iris-versicolor : 0.966666666667
-      Iris-virginica  : 0.966666666667
+      Iris-versicolor : 0.716666666667
+      Iris-virginica  : 0.733333333333
     Standard Deviation :
-      Iris-setosa     : 0.0778700841145
-      Iris-versicolor : 0.0594558659848
-      Iris-virginica  : 0.0137477270849
+      Iris-setosa     : 0.0316662280671
+      Iris-versicolor : 0.0466797600679
+      Iris-virginica  : 0.0408044115262
     Collision Proportion :
       Iris-setosa     : 0.0
-      Iris-versicolor : 0.233333333333
-      Iris-virginica  : 0.233333333333
+      Iris-versicolor : 0.566666666667
+      Iris-virginica  : 0.566666666667
     Linear Maximum Accuration Prediction :
       Iris-setosa     : 1.0
-      Iris-versicolor : 0.666666666667
-      Iris-virginica  : 0.966666666667
+      Iris-versicolor : 0.7
+      Iris-virginica  : 0.7
     Means :
-      Iris-setosa     : 0.1125
-      Iris-versicolor : 0.91
-      Iris-virginica  : 0.994
+      Iris-setosa     : 0.9365
+      Iris-versicolor : 0.214
+      Iris-virginica  : 0.21
 
-  sin((sepal_length) + (sepal_width))
+  (petal_length) * (((sepal_length) + (((sepal_length) * (((petal_length) + (((sepal_width) / (sepal_width)) + (sepal_width))) / (sepal_width))) / ((petal_width) - (sepal_length)))) / (petal_width))
     Distance :
-      Iris-setosa     : 0.40825
-      Iris-versicolor : 0.668
-      Iris-virginica  : 0.25975
+      Iris-setosa     : 0.351125
+      Iris-versicolor : 0.2635
+      Iris-virginica  : 0.087625
     Separability Index :
-      Iris-setosa     : 3.30291349826e-16
-      Iris-versicolor : 0.664107769424
+      Iris-setosa     : 0.369610579941
+      Iris-versicolor : 0.233334294323
       Iris-virginica  : 9.90874049478e-16
     Intrusion Proportion :
-      Iris-setosa     : 0.55
-      Iris-versicolor : 0.075
-      Iris-virginica  : 0.691666666667
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.0916666666667
+      Iris-virginica  : 0.358333333333
     Maximum Accuration Prediction :
-      Iris-setosa     : 0.85
-      Iris-versicolor : 0.975
-      Iris-virginica  : 0.825
+      Iris-setosa     : 1.0
+      Iris-versicolor : 0.983333333333
+      Iris-virginica  : 0.983333333333
     Standard Deviation :
-      Iris-setosa     : 0.0218503432467
-      Iris-versicolor : 0.200642561537
-      Iris-virginica  : 0.119083741544
+      Iris-setosa     : 0.11033924959
+      Iris-versicolor : 0.062409434383
+      Iris-virginica  : 0.0196468827044
     Collision Proportion :
-      Iris-setosa     : 0.525
-      Iris-versicolor : 0.0583333333333
-      Iris-virginica  : 0.583333333333
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.0666666666667
+      Iris-virginica  : 0.0666666666667
     Linear Maximum Accuration Prediction :
-      Iris-setosa     : 0.85
-      Iris-versicolor : 0.975
+      Iris-setosa     : 1.0
+      Iris-versicolor : 0.983333333333
       Iris-virginica  : 0.666666666667
     Means :
-      Iris-setosa     : 0.98775
-      Iris-versicolor : 0.27025
-      Iris-virginica  : 0.88875
+      Iris-setosa     : 0.6745
+      Iris-versicolor : 0.26475
+      Iris-virginica  : 0.382
 
-  abs((sin((cos(sepal_length)) * (abs(sigmoid(exp(sepal_length)))))) + (sepal_width))
+  ((sepal_width) * (sepal_length)) + (((sepal_length) / ((petal_width) + (petal_width))) * (sepal_width))
     Distance :
-      Iris-setosa     : 0.457375
-      Iris-versicolor : 0.13525
-      Iris-virginica  : 0.592625
+      Iris-setosa     : 0.51875
+      Iris-versicolor : 0.00775
+      Iris-virginica  : 0.511
     Separability Index :
-      Iris-setosa     : 0.0181463675214
-      Iris-versicolor : 1.65145674913e-15
-      Iris-virginica  : 0.707821311918
+      Iris-setosa     : 0.481780400815
+      Iris-versicolor : 3.30291349826e-16
+      Iris-virginica  : 0.596974432163
     Intrusion Proportion :
-      Iris-setosa     : 0.408333333333
-      Iris-versicolor : 0.691666666667
-      Iris-virginica  : 0.0666666666667
-    Maximum Accuration Prediction :
-      Iris-setosa     : 0.933333333333
-      Iris-versicolor : 0.908333333333
-      Iris-virginica  : 0.975
-    Standard Deviation :
-      Iris-setosa     : 0.0440340777126
-      Iris-versicolor : 0.145089412088
-      Iris-virginica  : 0.126881834791
-    Collision Proportion :
-      Iris-setosa     : 0.2
-      Iris-versicolor : 0.241666666667
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.358333333333
       Iris-virginica  : 0.0416666666667
+    Maximum Accuration Prediction :
+      Iris-setosa     : 1.0
+      Iris-versicolor : 0.983333333333
+      Iris-virginica  : 0.983333333333
+    Standard Deviation :
+      Iris-setosa     : 0.00969535971483
+      Iris-versicolor : 0.0745318723769
+      Iris-virginica  : 0.125657271974
+    Collision Proportion :
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.0
+      Iris-virginica  : 0.0
     Linear Maximum Accuration Prediction :
-      Iris-setosa     : 0.933333333333
+      Iris-setosa     : 1.0
       Iris-versicolor : 0.666666666667
-      Iris-virginica  : 0.975
+      Iris-virginica  : 0.983333333333
     Means :
-      Iris-setosa     : 0.084
-      Iris-versicolor : 0.29875
-      Iris-virginica  : 0.784
+      Iris-setosa     : 0.014
+      Iris-versicolor : 0.365
+      Iris-virginica  : 0.7005
 

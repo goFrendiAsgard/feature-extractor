@@ -577,23 +577,17 @@ def calculate_class_purity(group_projection):
 
 def my_metric(group_projection):
     separability_indexes = calculate_separability_index(group_projection)
-    #collision_proportions = calculate_collision_proportion(group_projection)
-    #intrusion_proportions = calculate_intrusion_proportion(group_projection)
+    collision_proportions = calculate_collision_proportion(group_projection)
+    intrusion_proportions = calculate_intrusion_proportion(group_projection)
     #distances = calculate_distance(group_projection)
     result = {}
     for group in group_projection:
         #distance = distances[group]
         separability_index = separability_indexes[group]
-        #intrusion_proportion = intrusion_proportions[group]
-        #collision_proportion = collision_proportions[group]
+        intrusion_proportion = intrusion_proportions[group]
+        collision_proportion = collision_proportions[group]
         #distance = min(distance,1)
-        '''
-        value = ( 3*separability_index + 2*(1-intrusion_proportion)*separability_index )/5
-        if collision_proportion>0:
-            value = (value + 7*(1-collision_proportion)*separability_index)/8
-        value = (3*value + 2*distance)/5
-        '''
-        value = separability_index
+        value = (separability_index + 2*(1-intrusion_proportion) + 3*(1-collision_proportion))/6
         result[group] = max(0, value)
     return result
 
@@ -818,7 +812,7 @@ class GE_Select_Feature(Genetics_Feature_Extractor, classes.Grammatical_Evolutio
         self.benchmarks = ['accuration']
         self.variables = self.features
         self.grammar = {
-            '<expr>' : ['<var>','(<expr>) <op> (<expr>)','<func>(<expr>)'],
+            '<expr>' : ['<var>','(<expr>) <op> (<expr>)'],#,'<func>(<expr>)'],
             '<var>'  : self.variables,
             '<op>'   : ['+','-','*','/'],
             '<func>' : ['exp','sigmoid','abs','sin','cos','sqr','sqrt']
@@ -858,11 +852,13 @@ class Multi_Accuration_Fitness(Genetics_Feature_Extractor):
         for group in self.group_label:
             group_index = self.target_dictionary[group]
             new_target = list(self.training_num_target)
+            # TODO: COMMENT THESE LINES IF SOMETHING GOES WRONG
             '''
             for i in xrange(len(new_target)):
                 if not new_target[i] == group_index:
                     new_target[i] = -1
             '''
+            
             self.classifier.fit(new_training_data, new_target)
             prediction = self.classifier.predict(new_training_data)
             true_count = 0.0
@@ -1003,6 +999,7 @@ class GE_Tatami(GE_Multi_Accuration_Fitness):
         ommited_classes = []
         while(len(ommited_classes) < len(self.benchmarks)-1):
             fe = GE_Local_Separability_Fitness(records, 1, 0)
+            #fe = GE_Multi_Accuration_Fitness(records, 1, 0)
             fe.max_epoch = self.max_epoch
             fe.process()
             self.extractors.append(fe)
