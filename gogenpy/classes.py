@@ -794,7 +794,7 @@ class Grammatical_Evolution(Genetics_Algorithm):
     def _transform(self, gene):
         if gene in self.genotype_dictionary:
             return self.genotype_dictionary[gene]
-        
+        # maximum depth
         depth = 20
         gene_index = 0
         expr = self._start_node
@@ -818,10 +818,8 @@ class Grammatical_Evolution(Genetics_Algorithm):
                         if(gene_index+digit_needed)>len(gene):
                             gene_index = 0
                         # get part of gene that will be used
-                        used_gene = gene[gene_index:gene_index+digit_needed]
-                        
-                        gene_index = gene_index + digit_needed                          
-                                               
+                        used_gene = gene[gene_index:gene_index+digit_needed]                        
+                        gene_index = gene_index + digit_needed
                         rule_index = utils.bin_to_dec(used_gene) % possibility
                         new_expr += self._grammar[key][rule_index]
                         i+= len(key)-1
@@ -830,6 +828,7 @@ class Grammatical_Evolution(Genetics_Algorithm):
                 i += 1
             expr = new_expr
             level = level+1
+        # add to cache for future usage
         self.genotype_dictionary[gene] = expr
         return expr
     

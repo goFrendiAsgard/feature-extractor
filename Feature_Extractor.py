@@ -812,7 +812,7 @@ class GE_Select_Feature(Genetics_Feature_Extractor, classes.Grammatical_Evolutio
         self.benchmarks = ['accuration']
         self.variables = self.features
         self.grammar = {
-            '<expr>' : ['<var>','(<expr>) <op> (<expr>)'],#,'<func>(<expr>)'],
+            '<expr>' : ['<var>','(<expr>) <op> (<expr>)','<func>(<expr>)'],
             '<var>'  : self.variables,
             '<op>'   : ['+','-','*','/'],
             '<func>' : ['exp','sigmoid','abs','sin','cos','sqr','sqrt']
