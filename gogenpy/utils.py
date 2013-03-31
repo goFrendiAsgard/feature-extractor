@@ -4,10 +4,8 @@ Created on Nov 10, 2012
 @author: gofrendi
 '''
 
-import random, math
+import math
 from sys import stdout
-
-randomizer = random.Random(10)
 
 LIMIT_ZERO = 0.0001
 

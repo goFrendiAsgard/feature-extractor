@@ -4,7 +4,7 @@ Created on Nov 10, 2012
 @author: gofrendi
 '''
 
-import utils, gc
+import utils, gc, random
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -12,11 +12,12 @@ class Tree(object):
     def __init__(self):
         self._data = ''
         self._children = []
+        self.randomizer = random.Random(10)
     
     def get_random_node(self):
         if self.children_count>0:
-            child_index = utils.randomizer.randrange(0,self.children_count)
-            rnd = utils.randomizer.randrange(0,2)
+            child_index = self.randomizer.randrange(0,self.children_count)
+            rnd = self.randomizer.randrange(0,2)
             if rnd==0:
                 return self.get_child(child_index)
             else:
@@ -62,7 +63,7 @@ class Tree(object):
     def generate(self,nodes=[['x','y'],[],['plus','minus','multiply','divide']],max_level = 10):
         children_count = 0
         if max_level > 0:
-            children_count = utils.randomizer.randrange(0,len(nodes))
+            children_count = self.randomizer.randrange(0,len(nodes))
             # anticipate if there is an empty array among nodes
             while len(nodes[children_count])==0:
                 if children_count<len(nodes)-1:
@@ -70,7 +71,7 @@ class Tree(object):
                 else:
                     children_count = 0
             # generate node_index
-            node_index = utils.randomizer.randrange(0,len(nodes[children_count]))
+            node_index = self.randomizer.randrange(0,len(nodes[children_count]))
             self.data = nodes[children_count][node_index]
             self.children = []
             if children_count>0:
@@ -147,6 +148,7 @@ class GA_Base(object):
         self._individual_total_fitness = {} # total fitness of individuals
         self._label = ''
         self._convergance_rate = 0.3
+        self.randomizer = random.Random(10)
     
     def _sort(self,benchmark,lst=None):
         '''
@@ -195,7 +197,7 @@ class GA_Base(object):
         '''
         take random individual (roulette wheel scenario for a benchmark)
         '''
-        num = utils.randomizer.random() * self._individual_total_fitness[benchmark]
+        num = self.randomizer.random() * self._individual_total_fitness[benchmark]
         acc = 0
         for i in xrange(len(self._individual_benchmark_rank[benchmark])):
             acc += self._individual_benchmark_rank[benchmark][i]['fitness']
@@ -730,12 +732,12 @@ class Genetics_Algorithm(GA_Base):
         individual = {}
         individual['default'] = ''
         while len(individual['default'])<self._individual_length:
-            rnd = utils.randomizer.randrange(0,2)
+            rnd = self.randomizer.randrange(0,2)
             individual['default'] = individual['default'] + str(rnd)
         return individual
     
     def do_crossover(self, individual_1, individual_2):
-        rnd = utils.randomizer.randrange(min(len(individual_1['default']),len(individual_2['default'])))
+        rnd = self.randomizer.randrange(min(len(individual_1['default']),len(individual_2['default'])))
         gene_1 = individual_1['default'][:rnd]
         gene_2 = individual_1['default'][rnd:]
         gene_3 = individual_2['default'][:rnd]
@@ -745,11 +747,11 @@ class Genetics_Algorithm(GA_Base):
         return individual_1, individual_2
     
     def do_mutation(self, individual):
-        mutation_point = utils.randomizer.randrange(1, self._individual_length)       
+        mutation_point = self.randomizer.randrange(1, self._individual_length)       
         lst = list(individual['default'])
         i = 0
         while i<mutation_point:
-            rnd = utils.randomizer.randrange(self._individual_length)
+            rnd = self.randomizer.randrange(self._individual_length)
             if lst[rnd] == '0':
                 lst[rnd] = '1'
             else:
@@ -886,7 +888,7 @@ class Genetics_Programming(GA_Base):
         node = individual['default'].get_random_node()
         children_count = node.children_count
         if len(self._nodes[children_count])>0:
-            rnd = utils.randomizer.randrange(0,len(self._nodes[children_count]))
+            rnd = self.randomizer.randrange(0,len(self._nodes[children_count]))
             node.data = self._nodes[children_count][rnd]
         return individual
     

@@ -1,9 +1,7 @@
-import os, sys, gc, shutil
+import os, sys, gc, shutil, random, csv, math, numpy
 lib_path = os.path.abspath('./gogenpy')
 sys.path.insert(0,lib_path)
 
-import csv
-import math, numpy
 from gogenpy import utils
 from gogenpy import classes
 #from sklearn import svm
@@ -40,9 +38,10 @@ def shuffle_record(record):
     '''
     record_length = len(record)
     i = 0
+    randomizer = random.Random(10)
     while i<record_length:
-        rnd1 = utils.randomizer.randrange(1,record_length)
-        rnd2 = utils.randomizer.randrange(1,record_length)
+        rnd1 = randomizer.randrange(1,record_length)
+        rnd2 = randomizer.randrange(1,record_length)
         record[rnd1], record[rnd2] = record[rnd2], record[rnd1]
         i+=1
     return record
@@ -587,8 +586,9 @@ def my_metric(group_projection):
         intrusion_proportion = intrusion_proportions[group]
         collision_proportion = collision_proportions[group]
         #distance = min(distance,1)
-        value = (separability_index + 2*(1-intrusion_proportion) + 3*(1-collision_proportion))/6
-        result[group] = max(0, value)
+        #value = (separability_index + 2*(1-intrusion_proportion) + 3*(1-collision_proportion))/6
+        value = separability_index - 0.5*intrusion_proportion - 1*collision_proportion
+        result[group] = value
     return result
 
 class Feature_Extractor(object):   
@@ -984,6 +984,9 @@ class GE_Tatami(GE_Multi_Accuration_Fitness):
         GE_Multi_Accuration_Fitness.__init__(self, records, fold_count, fold_index, classifier)
         self.tatami_best_phenotypes = []
         self.extractors = []
+    
+    def _extractor_class(self):
+        return GE_Local_Separability_Fitness
         
     def process(self):
         training_data = self.training_data
@@ -998,8 +1001,9 @@ class GE_Tatami(GE_Multi_Accuration_Fitness):
         best_phenotypes = []
         ommited_classes = []
         while(len(ommited_classes) < len(self.benchmarks)-1):
-            fe = GE_Local_Separability_Fitness(records, 1, 0)
-            #fe = GE_Multi_Accuration_Fitness(records, 1, 0)
+            fe_class = self._extractor_class()
+            fe = fe_class(records, 1, 0)
+            fe.label = self.label
             fe.max_epoch = self.max_epoch
             fe.process()
             self.extractors.append(fe)
@@ -1040,6 +1044,14 @@ class GE_Tatami(GE_Multi_Accuration_Fitness):
             new_file_name_parts[-1] = actual_file_name          
             extractor_file_name = '/'.join(new_file_name_parts)
             classes.GA_Base.show(extractor, silent, extractor_file_name)     
+
+class GE_Tatami_Local_Separabality_Fitness(GE_Tatami):
+    def _extractor_class(self):
+        return GE_Local_Separability_Fitness
+
+class GE_Tatami_Multi_Accuration_Fitness(GE_Tatami):
+    def _extractor_class(self):
+        return GE_Multi_Accuration_Fitness
 
 def extract_feature(records, data_label='Test', fold_count=5, extractors=[], classifier=None):
     if extractors is None or len(extractors) == 0:
