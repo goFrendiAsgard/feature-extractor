@@ -8,34 +8,18 @@ Accuracy :
 1 Feature(s) Used :
 
   sepal_length
-    Distance :
-      Iris-setosa     : 0.585375
-      Iris-versicolor : 0.1275
-      Iris-virginica  : 0.457875
-    Separability Index :
-      Iris-setosa     : 0.804659752758
-      Iris-versicolor : 0.0
-      Iris-virginica  : 0.306791320524
-    Intrusion Proportion :
-      Iris-setosa     : 0.0
-      Iris-versicolor : 0.441666666667
-      Iris-virginica  : 0.241666666667
-    Maximum Accuration Prediction :
-      Iris-setosa     : 1.0
-      Iris-versicolor : 0.966666666667
-      Iris-virginica  : 0.966666666667
-    Standard Deviation :
-      Iris-setosa     : 0.0313039534244
-      Iris-versicolor : 0.0761166867382
-      Iris-virginica  : 0.0967726071779
     Collision Proportion :
       Iris-setosa     : 0.0
       Iris-versicolor : 0.175
       Iris-virginica  : 0.175
-    Linear Maximum Accuration Prediction :
-      Iris-setosa     : 1.0
-      Iris-versicolor : 0.666666666667
-      Iris-virginica  : 0.966666666667
+    Standard Deviation :
+      Iris-setosa     : 0.0313039534244
+      Iris-versicolor : 0.0761166867382
+      Iris-virginica  : 0.0967726071779
+    Intrusion Proportion :
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.441666666667
+      Iris-virginica  : 0.241666666667
     Means :
       Iris-setosa     : 0.07725
       Iris-versicolor : 0.5525
