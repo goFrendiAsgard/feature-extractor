@@ -904,16 +904,33 @@ class Global_Separability_Fitness(Genetics_Feature_Extractor):
         return [best_phenotype]
     
     def do_calculate_fitness(self, individual):
-        new_feature = individual['phenotype']
+        new_feature = individual['phenotype']        
+        '''
         group_projection = get_projection(new_feature, self.features, self.data, self.training_data, self.training_label_target)
         local_fitness = my_metric(group_projection)
         global_fitness = 0.0
         for benchmark in local_fitness:
             global_fitness += local_fitness[benchmark]
         global_fitness /= len(local_fitness)
+        '''
+        total_projection = get_projection(new_feature, self.features, self.data, self.training_data)
+        new_training_data = []
+        for i in xrange(len(total_projection)):
+            new_training_data.append([total_projection[i]])
+        new_target = list(self.training_num_target)
+        self.classifier.fit(new_training_data, new_target)
+        prediction = self.classifier.predict(new_training_data)
+        true_count = 0.0
+        false_count = 0.0
+        for i in xrange(len(prediction)):
+            if prediction[i] == new_target[i]:
+                true_count += 1
+            else:
+                false_count += 1
+        accuration = true_count/(true_count+false_count)
         
         fitness = {}
-        fitness['separability'] = global_fitness
+        fitness['accuration'] = accuration
         return fitness
 
 class Local_Separability_Fitness(Genetics_Feature_Extractor):
@@ -1053,6 +1070,22 @@ class GE_Tatami_Multi_Accuration_Fitness(GE_Tatami):
     def _extractor_class(self):
         return GE_Multi_Accuration_Fitness
 
+class GE_Gravalis(GE_Select_Feature):
+    
+    def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
+        GE_Select_Feature.__init__(self, records, fold_count, fold_index, classifier)
+        self.grammar[self.start_node].append(self.start_node+'|'+self.start_node)
+    
+    def do_calculate_fitness(self, individual):
+        features = individual['phenotype'].split('|')
+        # self.classifier
+        
+    
+    def show(self):
+        pass
+    
+    
+
 def extract_feature(records, data_label='Test', fold_count=5, extractors=[], classifier=None):
     if extractors is None or len(extractors) == 0:
         extractors = [
@@ -1086,14 +1119,10 @@ def extract_feature(records, data_label='Test', fold_count=5, extractors=[], cla
         return 0
     
     shown_metrics = {
-        'max_accuration_prediction' : 'Maximum Accuration Prediction',
         'collision_proportion' : 'Collision Proportion',
         'intrusion_proportion' : 'Intrusion Proportion',
-        'separability_index': 'Separability Index',
         'mean': 'Means',
         'stdev': 'Standard Deviation',
-        'linear_max_accuration_prediction': 'Linear Maximum Accuration Prediction',
-        'distance':'Distance'
     }
         
     # prepare directory

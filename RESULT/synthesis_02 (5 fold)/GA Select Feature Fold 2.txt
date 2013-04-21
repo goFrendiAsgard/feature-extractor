@@ -1,177 +1,97 @@
 Accuracy :
 
-  training : 0.859756097561
-  test     : 0.818181818182
-  total    : 0.851549755302
+  training : 0.837398373984
+  test     : 0.851239669421
+  total    : 0.84013050571
 
 
 4 Feature(s) Used :
 
   defense
-    Distance :
-      defender     : 0.283929010071
-      demon hunter : 0.158777478158
-      monk         : 0.168446236559
-      wizard       : 0.0244949629809
-    Separability Index :
-      defender     : -7.90028268248e-16
-      demon hunter : -1.49347809614e-16
-      monk         : -1.81706501697e-15
-      wizard       : -1.52837244418e-15
-    Intrusion Proportion :
-      defender     : 0.819105691057
-      demon hunter : 1.0
-      monk         : 0.957317073171
-      wizard       : 1.0
-    Maximum Accuration Prediction :
-      defender     : 0.747967479675
-      demon hunter : 0.75
-      monk         : 0.768292682927
-      wizard       : 0.786585365854
-    Standard Deviation :
-      defender     : 0.18714982704
-      demon hunter : 0.27911125704
-      monk         : 0.256172901681
-      wizard       : 0.289229703341
     Collision Proportion :
-      defender     : 0.619918699187
-      demon hunter : 0.74593495935
-      monk         : 0.701219512195
-      wizard       : 0.770325203252
-    Linear Maximum Accuration Prediction :
-      defender     : 0.739837398374
-      demon hunter : 0.743902439024
-      monk         : 0.756097560976
-      wizard       : 0.784552845528
+      defender     : 0.660569105691
+      demon hunter : 0.735772357724
+      monk         : 0.69512195122
+      wizard       : 0.691056910569
+    Standard Deviation :
+      defender     : 0.216308743921
+      demon hunter : 0.287955264297
+      monk         : 0.267128053226
+      wizard       : 0.273299672391
+    Intrusion Proportion :
+      defender     : 0.876016260163
+      demon hunter : 0.991869918699
+      monk         : 0.981707317073
+      wizard       : 0.997967479675
     Means :
-      defender     : 0.71231884058
-      demon hunter : 0.390236220472
-      monk         : 0.380666666667
-      wizard       : 0.527196261682
+      defender     : 0.651917808219
+      demon hunter : 0.438503937008
+      monk         : 0.370353982301
+      wizard       : 0.418396226415
 
   attack
-    Distance :
-      defender     : 0.424733480717
-      demon hunter : 0.146659475785
-      monk         : 0.00646505376344
-      wizard       : 0.331644131569
-    Separability Index :
-      defender     : 0.0073884527818
-      demon hunter : 0.0
-      monk         : -1.81706501697e-15
-      wizard       : -3.05674488836e-15
-    Intrusion Proportion :
-      defender     : 0.603658536585
-      demon hunter : 0.99593495935
-      monk         : 0.951219512195
-      wizard       : 0.756097560976
-    Maximum Accuration Prediction :
-      defender     : 0.843495934959
-      demon hunter : 0.75
-      monk         : 0.762195121951
-      wizard       : 0.806910569106
-    Standard Deviation :
-      defender     : 0.148741076346
-      demon hunter : 0.248296845938
-      monk         : 0.223011194911
-      wizard       : 0.169117411141
     Collision Proportion :
-      defender     : 0.441056910569
-      demon hunter : 0.760162601626
-      monk         : 0.707317073171
-      wizard       : 0.510162601626
-    Linear Maximum Accuration Prediction :
-      defender     : 0.843495934959
-      demon hunter : 0.741869918699
-      monk         : 0.756097560976
-      wizard       : 0.806910569106
+      defender     : 0.40243902439
+      demon hunter : 0.628048780488
+      monk         : 0.684959349593
+      wizard       : 0.483739837398
+    Standard Deviation :
+      defender     : 0.136838276188
+      demon hunter : 0.222488922427
+      monk         : 0.218026410561
+      wizard       : 0.180106693785
+    Intrusion Proportion :
+      defender     : 0.522357723577
+      demon hunter : 0.904471544715
+      monk         : 0.943089430894
+      wizard       : 0.790650406504
     Means :
-      defender     : 0.209927536232
-      demon hunter : 0.624330708661
-      monk         : 0.520416666667
-      wizard       : 0.775046728972
+      defender     : 0.197671232877
+      demon hunter : 0.652047244094
+      monk         : 0.478407079646
+      wizard       : 0.763113207547
 
   agility
-    Distance :
-      defender     : 0.0135814296242
-      demon hunter : 0.236326178406
-      monk         : 0.057623655914
-      wizard       : 0.187379536351
-    Separability Index :
-      defender     : 0.0
-      demon hunter : 4.29227956765e-16
-      monk         : -1.81706501697e-15
-      wizard       : 0.00555646439434
-    Intrusion Proportion :
-      defender     : 0.985772357724
-      demon hunter : 0.906504065041
-      monk         : 0.979674796748
-      wizard       : 0.965447154472
-    Maximum Accuration Prediction :
-      defender     : 0.727642276423
-      demon hunter : 0.752032520325
-      monk         : 0.760162601626
-      wizard       : 0.792682926829
-    Standard Deviation :
-      defender     : 0.287651186698
-      demon hunter : 0.215934944036
-      monk         : 0.290398959288
-      wizard       : 0.270835252092
     Collision Proportion :
-      defender     : 0.857723577236
-      demon hunter : 0.672764227642
-      monk         : 0.731707317073
-      wizard       : 0.674796747967
-    Linear Maximum Accuration Prediction :
-      defender     : 0.719512195122
-      demon hunter : 0.747967479675
-      monk         : 0.756097560976
-      wizard       : 0.788617886179
+      defender     : 0.808943089431
+      demon hunter : 0.632113821138
+      monk         : 0.752032520325
+      wizard       : 0.632113821138
+    Standard Deviation :
+      defender     : 0.272562879994
+      demon hunter : 0.242631633841
+      monk         : 0.267803197787
+      wizard       : 0.248837668208
+    Intrusion Proportion :
+      defender     : 0.975609756098
+      demon hunter : 0.871951219512
+      monk         : 0.957317073171
+      wizard       : 0.918699186992
     Means :
-      defender     : 0.512463768116
-      demon hunter : 0.697559055118
-      monk         : 0.478666666667
-      wizard       : 0.375607476636
+      defender     : 0.484520547945
+      demon hunter : 0.694251968504
+      monk         : 0.42982300885
+      wizard       : 0.340754716981
 
   stamina
-    Distance :
-      defender     : 0.000109309751904
-      demon hunter : 0.364652141085
-      monk         : 0.341521505376
-      wizard       : 0.0401162762471
-    Separability Index :
-      defender     : 0.0
-      demon hunter : -8.58455913529e-16
-      monk         : 0.0113934701657
-      wizard       : -1.52837244418e-15
-    Intrusion Proportion :
-      defender     : 0.993902439024
-      demon hunter : 0.719512195122
-      monk         : 0.845528455285
-      wizard       : 0.985772357724
-    Maximum Accuration Prediction :
-      defender     : 0.733739837398
-      demon hunter : 0.813008130081
-      monk         : 0.835365853659
-      wizard       : 0.788617886179
-    Standard Deviation :
-      defender     : 0.277531132885
-      demon hunter : 0.169019961944
-      monk         : 0.17996573748
-      wizard       : 0.215946708811
     Collision Proportion :
-      defender     : 0.778455284553
-      demon hunter : 0.518292682927
-      monk         : 0.485772357724
-      wizard       : 0.713414634146
-    Linear Maximum Accuration Prediction :
-      defender     : 0.721544715447
-      demon hunter : 0.813008130081
-      monk         : 0.829268292683
-      wizard       : 0.782520325203
+      defender     : 0.792682926829
+      demon hunter : 0.59756097561
+      monk         : 0.459349593496
+      wizard       : 0.628048780488
+    Standard Deviation :
+      defender     : 0.294532884418
+      demon hunter : 0.196737794568
+      monk         : 0.182237208572
+      wizard       : 0.233989879685
+    Intrusion Proportion :
+      defender     : 0.997967479675
+      demon hunter : 0.743902439024
+      monk         : 0.756097560976
+      wizard       : 0.971544715447
     Means :
-      defender     : 0.514855072464
-      demon hunter : 0.244251968504
-      monk         : 0.773
-      wizard       : 0.546168224299
+      defender     : 0.509383561644
+      demon hunter : 0.273937007874
+      monk         : 0.764336283186
+      wizard       : 0.496981132075
 
