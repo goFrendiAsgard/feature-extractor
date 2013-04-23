@@ -8,10 +8,11 @@ def extract_feature(csv_file_name):
     fold_count = 1
     # define extractors
     extractors = [
-        {'class': FE.GA_Select_Feature, 'label':'GA Select Feature', 'color':'red', 'params':{'max_epoch':100,'population_size':200}},
-        {'class': FE.GE_Global_Separability_Fitness, 'label':'GE Global', 'color':'green', 'params':{'max_epoch':100,'population_size':200}},
-        {'class': FE.GE_Multi_Accuration_Fitness, 'label':'GE Multi', 'color':'magenta', 'params':{'max_epoch':100,'population_size':200}},
-        {'class': FE.GE_Tatami_Multi_Accuration_Fitness, 'label':'GE Tatami Multi', 'color':'black', 'params':{'max_epoch':100,'population_size':200}},
+        #{'class': FE.GA_Select_Feature, 'label':'GA Select Feature', 'color':'red', 'params':{'max_epoch':100,'population_size':200}},
+        {'class': FE.GE_Gravalis, 'label':'GE Gravalis', 'color':'red','params':{'max_epoch':100,'population_size':200}}
+        #{'class': FE.GE_Global_Separability_Fitness, 'label':'GE Global', 'color':'green', 'params':{'max_epoch':100,'population_size':200}},
+        #{'class': FE.GE_Multi_Accuration_Fitness, 'label':'GE Multi', 'color':'magenta', 'params':{'max_epoch':100,'population_size':200}},
+        #{'class': FE.GE_Tatami_Multi_Accuration_Fitness, 'label':'GE Tatami Multi', 'color':'black', 'params':{'max_epoch':100,'population_size':200}},
     ]
     # get label
     file_name_partials = csv_file_name.split('.')
@@ -21,8 +22,8 @@ def extract_feature(csv_file_name):
         label = csv_file_name
     # extract feature
     FE.extract_feature(records, label+' (whole)', fold_count, extractors)
-    fold_count = 5
-    FE.extract_feature(records, label+' (5 fold)', fold_count, extractors)
+    #fold_count = 5
+    #FE.extract_feature(records, label+' (5 fold)', fold_count, extractors)
 
 if __name__ == '__main__':
     if len(sys.argv)>1:

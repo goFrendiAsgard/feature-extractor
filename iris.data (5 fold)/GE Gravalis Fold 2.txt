@@ -1,0 +1,27 @@
+Accuracy :
+
+  training : 0.333333333333
+  test     : 0.333333333333
+  total    : 0.333333333333
+
+
+1 Feature(s) Used :
+
+  ((petal_length) + ((exp(sin((petal_width) / (((petal_length) + ((((((sqr(sepal_width)) + (sqr((<expr>|<expr>) * (<var>)))) / ((sepal_width) + ((sepal_width) + ((<var>) - (<expr>|<expr>))))) * (petal_width)) - (sepal_length)) * (petal_width))|((petal_width) - (petal_width|petal_length|petal_width)) + (sepal_width)) / (sqr(sepal_width))))|petal_width|petal_length)) + (petal_length))|petal_width) - (((petal_width) + (sqr(petal_width|(sqr(sepal_length)) + (petal_width))|petal_width)) - ((petal_width) - (((((petal_length) * (sepal_width)) / (petal_length)) / (petal_width|(exp((((cos((sqr((sigmoid(petal_width)) + (petal_length))) + (sepal_width))) + (((petal_width) + (((<expr>) <op> (<expr>)|(<expr>) <op> (<expr>)|(<var>) - ((<expr>) <op> (<expr>))) / (abs(sepal_width)))) / ((sepal_length) / (petal_length)|petal_width)|sepal_length)) * (petal_length)) - (sqr(petal_length|sepal_width|(petal_length) - (cos((<expr>) <op> (<expr>)))|(petal_width) + ((<var>) + (<expr>|<expr>))|petal_width)|petal_width))) + (sepal_width))) + (sepal_length)|sepal_width)|sin(sqr(((petal_width) / (petal_length)) * (petal_width)))))
+    Collision Proportion :
+      Iris-setosa     : 1.0
+      Iris-versicolor : 1.0
+      Iris-virginica  : 1.0
+    Standard Deviation :
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.0
+      Iris-virginica  : 0.0
+    Intrusion Proportion :
+      Iris-setosa     : 1.0
+      Iris-versicolor : 1.0
+      Iris-virginica  : 1.0
+    Means :
+      Iris-setosa     : -1.0
+      Iris-versicolor : -1.0
+      Iris-virginica  : -1.0
+

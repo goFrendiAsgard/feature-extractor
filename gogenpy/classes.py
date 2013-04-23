@@ -779,7 +779,7 @@ class Grammatical_Evolution(Genetics_Algorithm):
             'var' :['x','y'],
             'op'  :['+','-','*','/']
         }
-        self.individual_length = 100
+        self.individual_length = 200
         self._start_node = 'expr'
         self.genotype_dictionary = {}
         self.fitness_dictionary = {}
@@ -797,7 +797,7 @@ class Grammatical_Evolution(Genetics_Algorithm):
         if gene in self.genotype_dictionary:
             return self.genotype_dictionary[gene]
         # maximum depth
-        depth = 20
+        depth = 30
         gene_index = 0
         expr = self._start_node
         # for each level

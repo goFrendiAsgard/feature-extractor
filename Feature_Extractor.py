@@ -1074,15 +1074,30 @@ class GE_Gravalis(GE_Select_Feature):
     
     def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
         GE_Select_Feature.__init__(self, records, fold_count, fold_index, classifier)
-        self.grammar[self.start_node].append(self.start_node+'|'+self.start_node)
+        self.grammar['<starter>'] = [self.start_node+'|'+self.start_node]
+        self.start_node = '<starter>'
     
     def do_calculate_fitness(self, individual):
         features = individual['phenotype'].split('|')
-        # self.classifier
-        
-    
-    def show(self):
-        pass
+        data = []
+        while len(data)<len(self.training_data):
+            data.append([])
+        for feature in features:
+            projection = get_projection(feature, self.features, self.data, self.training_data)
+            for i in xrange(len(self.training_data)):
+                data[i].append(projection[i])
+        target = self.training_num_target
+        prediction = self.classifier.fit(data, target).predict(data)
+        true_count = 0.0
+        for i in xrange(len(self.training_data)):
+            if prediction[i] == target[i]:
+                true_count += 1
+        return true_count/len(self.training_data)
+            
+    def get_new_features(self):
+        features = GE_Select_Feature.get_new_features(self)
+        features = features[0].split('|')
+        return features
     
     
 
