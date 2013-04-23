@@ -1092,12 +1092,19 @@ class GE_Gravalis(GE_Select_Feature):
         for i in xrange(len(self.training_data)):
             if prediction[i] == target[i]:
                 true_count += 1
-        return true_count/len(self.training_data)
+        accuration = true_count/len(self.training_data)
+        return {'accuration':accuration}
             
+    def best_individuals(self, count=1, benchmark='default', representation='default'):
+        return GE_Select_Feature.best_individuals(self, count=count, benchmark=benchmark, representation=representation)
+    
     def get_new_features(self):
         features = GE_Select_Feature.get_new_features(self)
         features = features[0].split('|')
         return features
+    
+    def show(self, silent=False, file_name='figure.png'):
+        classes.Grammatical_Evolution.show(self, silent, file_name)
     
     
 

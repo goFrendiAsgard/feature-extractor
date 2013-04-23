@@ -22,8 +22,8 @@ def extract_feature(csv_file_name):
         label = csv_file_name
     # extract feature
     FE.extract_feature(records, label+' (whole)', fold_count, extractors)
-    #fold_count = 5
-    #FE.extract_feature(records, label+' (5 fold)', fold_count, extractors)
+    fold_count = 5
+    FE.extract_feature(records, label+' (5 fold)', fold_count, extractors)
 
 if __name__ == '__main__':
     if len(sys.argv)>1:
