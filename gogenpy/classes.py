@@ -154,19 +154,36 @@ class GA_Base(object):
         '''
         Quick sorting self._individual_benchmark_rank
         '''
+        # lst is a list consists of dictionaries.
+        # each dictionary has 3 keys: index, fitness and other fitness
         if lst is None:
             lst = self._individual_benchmark_rank[benchmark]
+            for i in xrange(len(lst)):
+                lst[i]['other_fitness'] = 0
+                for other_benchmark in self.benchmarks:
+                    if other_benchmark == benchmark:
+                        continue
+                    lst[i]['other_fitness'] += 0.001 * self._individual_benchmark_rank[other_benchmark][i]['fitness']
         if len(lst)==0:
             return lst
         else:
             pivot = lst[0]
-            lesser = self._sort(benchmark, [x for x in lst[1:] if x['fitness'] < pivot['fitness']])
-            equal = [x for x in lst[1:] if x['fitness'] == pivot['fitness']]
-            greater = self._sort(benchmark, [x for x in lst[1:] if x['fitness'] > pivot['fitness']])
+            # if the "fitness" is equal, this will also look for "other_fitness"
+            lesser = self._sort(benchmark, [x for x in lst[1:] 
+                                            if x['fitness'] < pivot['fitness'] or
+                                            (x['fitness']==pivot['fitness'] and x['other_fitness']<pivot['other_fitness']) 
+                                           ]
+                                )
+            equal = [x for x in lst[1:] if x['fitness'] == pivot['fitness'] and x['other_fitness']==pivot['other_fitness']]
+            greater = self._sort(benchmark, [x for x in lst[1:] 
+                                            if x['fitness'] > pivot['fitness'] or
+                                            (x['fitness']==pivot['fitness'] and x['other_fitness']>pivot['other_fitness']) 
+                                           ]
+                                )
             if self._fitness_measurement == 'MAX':
                 return greater + [pivot] + equal + lesser                
             else:
-                return lesser + equal + [pivot] + greater        
+                return lesser + equal + [pivot] + greater
     
     def _process_population(self,generation_index, end=False):
         '''

@@ -852,12 +852,6 @@ class Multi_Accuration_Fitness(Genetics_Feature_Extractor):
         for group in self.group_label:
             group_index = self.target_dictionary[group]
             new_target = list(self.training_num_target)
-            # TODO: COMMENT THESE LINES IF SOMETHING GOES WRONG
-            '''
-            for i in xrange(len(new_target)):
-                if not new_target[i] == group_index:
-                    new_target[i] = -1
-            '''
             
             self.classifier.fit(new_training_data, new_target)
             prediction = self.classifier.predict(new_training_data)
@@ -1074,7 +1068,7 @@ class GE_Gravalis(GE_Select_Feature):
     
     def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
         GE_Select_Feature.__init__(self, records, fold_count, fold_index, classifier)
-        self.grammar['<starter>'] = [self.start_node+'|'+self.start_node]
+        self.grammar['<starter>'] = ['<starter>|<starter>', self.start_node]
         self.start_node = '<starter>'
     
     def do_calculate_fitness(self, individual):
