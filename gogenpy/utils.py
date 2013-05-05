@@ -89,7 +89,7 @@ def execute(expr, record, variables):
         for i in xrange(len(variables)):
             feature = variables[i]
             feature = feature.replace(' ','')
-            exec(feature+' = '+str(record[i])) in sandbox 
+            exec(feature+' = '+str(float(record[i]))) in sandbox 
         # execute expr, and get the result       
         exec('__result = '+expr) in sandbox                      
         result = float(sandbox['__result'])

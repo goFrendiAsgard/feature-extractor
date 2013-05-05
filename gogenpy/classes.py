@@ -8,6 +8,9 @@ import utils, gc, random
 import matplotlib.pyplot as plt
 import numpy as np
 
+import sys
+sys.setrecursionlimit(5000)
+
 class Tree(object):
     def __init__(self):
         self._data = ''
@@ -144,6 +147,7 @@ class GA_Base(object):
         self._new_rate = 0.1
         self._fitness_measurement = 'MAX'
         self._stopping_value = None
+        self._easy_stop = False
         self._individual_benchmark_rank = {} # rank of individual in current generation
         self._individual_total_fitness = {} # total fitness of individuals
         self._label = ''
@@ -159,18 +163,18 @@ class GA_Base(object):
         if lst is None:
             lst = self._individual_benchmark_rank[benchmark]
             for i in xrange(len(lst)):
-                lst[i]['other_fitness'] = 0
+                lst[i]['other_fitness'] = 0.0
                 for other_benchmark in self.benchmarks:
-                    if other_benchmark == benchmark:
+                    if other_benchmark == benchmark or other_benchmark not in self._individual_benchmark_rank:
                         continue
-                    lst[i]['other_fitness'] += 0.001 * self._individual_benchmark_rank[other_benchmark][i]['fitness']
+                    lst[i]['other_fitness'] += self._individual_benchmark_rank[other_benchmark][i]['fitness']
         if len(lst)==0:
             return lst
         else:
             pivot = lst[0]
             # if the "fitness" is equal, this will also look for "other_fitness"
-            lesser = self._sort(benchmark, [x for x in lst[1:] 
-                                            if x['fitness'] < pivot['fitness'] or
+            lesser = self._sort(benchmark, [x for x in lst[1:]  
+                                            if x['fitness'] < pivot['fitness'] or 
                                             (x['fitness']==pivot['fitness'] and x['other_fitness']<pivot['other_fitness']) 
                                            ]
                                 )
@@ -326,7 +330,10 @@ class GA_Base(object):
             ended = False
             # check stopping condition
             if not self.stopping_value is None:
-                can_stop = True
+                if self.easy_stop:
+                    can_stop = False
+                else:
+                    can_stop = True
                 self._process_population(gen, ended)
                 for benchmark in self.benchmarks:
                     if self.stopping_value[benchmark] is None:
@@ -334,14 +341,25 @@ class GA_Base(object):
                     else:
                         index = self._individual_benchmark_rank[benchmark][0]['index']
                         fitness = self.fitness[index][benchmark]
-                        if self.fitness_measurement == 'MAX':
-                            if fitness < self.stopping_value[benchmark]:
-                                can_stop = False
-                                break
+                        
+                        if self.easy_stop:                            
+                            if self.fitness_measurement == 'MAX':
+                                if fitness >= self.stopping_value[benchmark]:
+                                    can_stop = True
+                                    break
+                            else:
+                                if fitness <= self.stopping_value[benchmark]:
+                                    can_stop = True
+                                    break
                         else:
-                            if fitness > self.stopping_value[benchmark]:
-                                can_stop = False
-                                break
+                            if self.fitness_measurement == 'MAX':
+                                if fitness < self.stopping_value[benchmark]:
+                                    can_stop = False
+                                    break
+                            else:
+                                if fitness > self.stopping_value[benchmark]:
+                                    can_stop = False
+                                    break
                 ended = can_stop
             
             # check convergance
@@ -731,6 +749,14 @@ class GA_Base(object):
     @convergance_rate.setter
     def convergance_rate(self, value):
         self._convergance_rate = value
+    
+    @property
+    def easy_stop(self):
+        return self._easy_stop
+    
+    @easy_stop.setter
+    def easy_stop(self, value):
+        self._easy_stop = value
 
 class Genetics_Algorithm(GA_Base):
     '''
@@ -796,7 +822,7 @@ class Grammatical_Evolution(Genetics_Algorithm):
             'var' :['x','y'],
             'op'  :['+','-','*','/']
         }
-        self.individual_length = 200
+        self.individual_length = 50
         self._start_node = 'expr'
         self.genotype_dictionary = {}
         self.fitness_dictionary = {}
@@ -813,42 +839,45 @@ class Grammatical_Evolution(Genetics_Algorithm):
     def _transform(self, gene):
         if gene in self.genotype_dictionary:
             return self.genotype_dictionary[gene]
-        # maximum depth
-        depth = 30
-        gene_index = 0
-        expr = self._start_node
-        # for each level
-        level = 0
-        while level < depth:
-            i=0
-            new_expr = ''
-            # parse every character in the expr
-            while i<len(expr):                
-                found = False
-                for key in self._grammar:
-                    # if there is a keyword in the grammar, replace it with rule in production
-                    if (expr[i:i+len(key)] == key):
-                        found = True
-                        # count how many transformation possibility exists
-                        possibility = len(self._grammar[key])
-                        # how many binary digit needed to represent the possibilities
-                        digit_needed = utils.bin_digit_needed(possibility)
-                        # if end of gene, then start over from the beginning
-                        if(gene_index+digit_needed)>len(gene):
-                            gene_index = 0
-                        # get part of gene that will be used
-                        used_gene = gene[gene_index:gene_index+digit_needed]                        
-                        gene_index = gene_index + digit_needed
-                        rule_index = utils.bin_to_dec(used_gene) % possibility
-                        new_expr += self._grammar[key][rule_index]
-                        i+= len(key)-1
-                if not found:
-                    new_expr += expr[i:i+1]
-                i += 1
-            expr = new_expr
-            level = level+1
-        # add to cache for future usage
-        self.genotype_dictionary[gene] = expr
+        try:
+            # maximum depth
+            depth = 30
+            gene_index = 0
+            expr = self._start_node
+            # for each level
+            level = 0
+            while level < depth:
+                i=0
+                new_expr = ''
+                # parse every character in the expr
+                while i<len(expr):                
+                    found = False
+                    for key in self._grammar:
+                        # if there is a keyword in the grammar, replace it with rule in production
+                        if (expr[i:i+len(key)] == key):
+                            found = True
+                            # count how many transformation possibility exists
+                            possibility = len(self._grammar[key])
+                            # how many binary digit needed to represent the possibilities
+                            digit_needed = utils.bin_digit_needed(possibility)
+                            # if end of gene, then start over from the beginning
+                            if(gene_index+digit_needed)>len(gene):
+                                gene_index = 0
+                            # get part of gene that will be used
+                            used_gene = gene[gene_index:gene_index+digit_needed]                        
+                            gene_index = gene_index + digit_needed
+                            rule_index = utils.bin_to_dec(used_gene) % possibility
+                            new_expr += self._grammar[key][rule_index]
+                            i+= len(key)-1
+                    if not found:
+                        new_expr += expr[i:i+1]
+                    i += 1
+                expr = new_expr
+                level = level+1
+            # add to cache for future usage
+            self.genotype_dictionary[gene] = expr
+        except:
+            return ''
         return expr
     
     def do_process_individual(self, individual):

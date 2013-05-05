@@ -1,45 +1,45 @@
 Accuracy :
 
-  training : 0.966666666667
+  training : 0.991666666667
   test     : 0.966666666667
-  total    : 0.966666666667
+  total    : 0.986666666667
 
 
 2 Feature(s) Used :
 
-  sqr(sepal_length)
+  sepal_length
     Collision Proportion :
       Iris-setosa     : 0.0
       Iris-versicolor : 0.175
       Iris-virginica  : 0.175
     Standard Deviation :
-      Iris-setosa     : 0.012183492931
-      Iris-versicolor : 0.0863293113606
-      Iris-virginica  : 0.130697886364
+      Iris-setosa     : 0.0269459543993
+      Iris-versicolor : 0.0831675071349
+      Iris-virginica  : 0.0907996569793
     Intrusion Proportion :
       Iris-setosa     : 0.0
       Iris-versicolor : 0.441666666667
       Iris-virginica  : 0.233333333333
     Means :
-      Iris-setosa     : 0.02625
-      Iris-versicolor : 0.3635
-      Iris-virginica  : 0.64075
+      Iris-setosa     : 0.0822033898305
+      Iris-versicolor : 0.544915254237
+      Iris-virginica  : 0.767372881356
 
-  (((sepal_width) / (petal_length)) * (sqr(sepal_length))) * (sepal_length)
+  (sepal_width) - ((((sqrt(sqr(petal_length+sepal_width)/2)) + (sepal_width)) / (petal_width)) + ((petal_width) - (sepal_length)))
     Collision Proportion :
-      Iris-setosa     : 0.341666666667
-      Iris-versicolor : 0.366666666667
-      Iris-virginica  : 0.025
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.0
+      Iris-virginica  : 0.0
     Standard Deviation :
-      Iris-setosa     : 0.00217944947177
-      Iris-versicolor : 0.0821093021527
-      Iris-virginica  : 0.145684590812
+      Iris-setosa     : 0.0428548199473
+      Iris-versicolor : 0.0635691089885
+      Iris-virginica  : 0.0634636030012
     Intrusion Proportion :
-      Iris-setosa     : 0.358333333333
-      Iris-versicolor : 0.716666666667
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.391666666667
       Iris-virginica  : 0.0666666666667
     Means :
-      Iris-setosa     : 0.0005
-      Iris-versicolor : 0.17075
-      Iris-virginica  : 0.534
+      Iris-setosa     : 0.129086406505
+      Iris-versicolor : 0.617160246284
+      Iris-virginica  : 0.825786567302
 

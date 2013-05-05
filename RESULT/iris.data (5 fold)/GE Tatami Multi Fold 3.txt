@@ -1,45 +1,45 @@
 Accuracy :
 
-  training : 0.975
-  test     : 0.933333333333
-  total    : 0.966666666667
+  training : 0.991666666667
+  test     : 1.0
+  total    : 0.993333333333
 
 
 2 Feature(s) Used :
 
-  sqr(sepal_length)
+  sepal_length
     Collision Proportion :
       Iris-setosa     : 0.0
       Iris-versicolor : 0.141666666667
       Iris-virginica  : 0.141666666667
     Standard Deviation :
-      Iris-setosa     : 0.0109430343141
-      Iris-versicolor : 0.0816072913409
-      Iris-virginica  : 0.12499774998
+      Iris-setosa     : 0.0267687974103
+      Iris-versicolor : 0.0780754115821
+      Iris-virginica  : 0.0856718467529
     Intrusion Proportion :
       Iris-setosa     : 0.0
       Iris-versicolor : 0.433333333333
       Iris-virginica  : 0.141666666667
     Means :
-      Iris-setosa     : 0.0245
-      Iris-versicolor : 0.3795
-      Iris-virginica  : 0.64575
+      Iris-setosa     : 0.0775423728814
+      Iris-versicolor : 0.560593220339
+      Iris-virginica  : 0.771610169492
 
-  ((petal_width) / (sepal_width)) - (sepal_length)
+  (petal_length) - (sqrt(sqr(sepal_length+sqrt(sqr(abs(petal_length)+(sqrt(sqr(petal_length+petal_width)/2)) - (abs(-((sepal_width) - (petal_width)))))/2))/2))
     Collision Proportion :
       Iris-setosa     : 0.0
-      Iris-versicolor : 0.133333333333
-      Iris-virginica  : 0.133333333333
+      Iris-versicolor : 0.0
+      Iris-virginica  : 0.0
     Standard Deviation :
-      Iris-setosa     : 0.14806902951
-      Iris-versicolor : 0.0130766968306
-      Iris-virginica  : 0.0125274698164
+      Iris-setosa     : 0.0292717873975
+      Iris-versicolor : 0.0651237979242
+      Iris-virginica  : 0.0679066547367
     Intrusion Proportion :
       Iris-setosa     : 0.0
-      Iris-versicolor : 0.416666666667
-      Iris-virginica  : 0.133333333333
+      Iris-versicolor : 0.375
+      Iris-virginica  : 0.05
     Means :
-      Iris-setosa     : 0.46175
-      Iris-versicolor : 0.078
-      Iris-virginica  : 0.03675
+      Iris-setosa     : 0.919927853873
+      Iris-versicolor : 0.413810243494
+      Iris-virginica  : 0.195643802098
 

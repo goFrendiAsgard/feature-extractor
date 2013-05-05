@@ -1,11 +1,11 @@
 Accuracy :
 
-  training : 0.966666666667
-  test     : 0.966666666667
-  total    : 0.966666666667
+  training : 0.96
+  test     : 0.96
+  total    : 0.96
 
 
-3 Feature(s) Used :
+2 Feature(s) Used :
 
   petal_length
     Collision Proportion :
@@ -13,35 +13,17 @@ Accuracy :
       Iris-versicolor : 0.786666666667
       Iris-virginica  : 0.546666666667
     Standard Deviation :
-      Iris-setosa     : 0.0973260499558
-      Iris-versicolor : 0.142591584604
-      Iris-virginica  : 0.174058495914
+      Iris-setosa     : 0.096929718716
+      Iris-versicolor : 0.1419398238
+      Iris-virginica  : 0.174857967053
     Intrusion Proportion :
       Iris-setosa     : 0.426666666667
       Iris-versicolor : 0.813333333333
       Iris-virginica  : 0.813333333333
     Means :
-      Iris-setosa     : 0.1958
-      Iris-versicolor : 0.4542
-      Iris-virginica  : 0.6358
-
-  sepal_length
-    Collision Proportion :
-      Iris-setosa     : 0.0
-      Iris-versicolor : 0.193333333333
-      Iris-virginica  : 0.193333333333
-    Standard Deviation :
-      Iris-setosa     : 0.0286921592077
-      Iris-versicolor : 0.0788050759786
-      Iris-virginica  : 0.0938262223475
-    Intrusion Proportion :
-      Iris-setosa     : 0.0
-      Iris-versicolor : 0.44
-      Iris-virginica  : 0.246666666667
-    Means :
-      Iris-setosa     : 0.0774
-      Iris-versicolor : 0.5524
-      Iris-virginica  : 0.7708
+      Iris-setosa     : 0.196111111111
+      Iris-versicolor : 0.454444444444
+      Iris-virginica  : 0.635555555556
 
   sepal_width
     Collision Proportion :
@@ -49,15 +31,15 @@ Accuracy :
       Iris-versicolor : 0.253333333333
       Iris-virginica  : 0.253333333333
     Standard Deviation :
-      Iris-setosa     : 0.0457125803253
-      Iris-versicolor : 0.0800502342283
-      Iris-virginica  : 0.113884854129
+      Iris-setosa     : 0.0442216638714
+      Iris-versicolor : 0.0815688189336
+      Iris-virginica  : 0.11328736813
     Intrusion Proportion :
       Iris-setosa     : 0.0
       Iris-versicolor : 0.44
       Iris-virginica  : 0.253333333333
     Means :
-      Iris-setosa     : 0.0594
-      Iris-versicolor : 0.5114
-      Iris-virginica  : 0.8032
+      Iris-setosa     : 0.06
+      Iris-versicolor : 0.510833333333
+      Iris-virginica  : 0.8025
 

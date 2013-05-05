@@ -5,7 +5,7 @@ sys.path.insert(0,lib_path)
 from gogenpy import utils
 from gogenpy import classes
 #from sklearn import svm
-from sklearn.naive_bayes import GaussianNB
+from sklearn.tree import DecisionTreeClassifier
 from scipy.stats import pearsonr
 import matplotlib.pyplot as plt
 import pickle
@@ -126,7 +126,8 @@ def get_projection(new_feature, old_features, all_data, used_data = None, used_t
             value = -1
         if math.isnan(value):
             value = -1
-        used_projection[i] = round(value,2)
+        #used_projection[i] = round(value,2)
+        used_projection[i] = value
     
     if used_target is None:
         return used_projection
@@ -674,12 +675,7 @@ class Genetics_Feature_Extractor(Feature_Extractor, classes.GA_Base):
         Feature_Extractor.__init__(self, records, fold_count, fold_index)
         classes.GA_Base.__init__(self)
         if classifier is None:
-            try:
-                #self.classifier = svm.SVC(max_iter=2000, class_weight='auto')
-                self.classifier = GaussianNB()
-            except:
-                #self.classifier = svm.SVC(class_weight='auto')
-                self.classifier = GaussianNB()
+            self.classifier = DecisionTreeClassifier(max_depth=2)
         else:
             self.classifier = classifier
         
@@ -812,10 +808,11 @@ class GE_Select_Feature(Genetics_Feature_Extractor, classes.Grammatical_Evolutio
         self.benchmarks = ['accuration']
         self.variables = self.features
         self.grammar = {
-            '<expr>' : ['<var>','(<expr>) <op> (<expr>)','<func>(<expr>)'],
+            '<expr>' : ['<var>', '<stmt>'],
+            '<stmt>' : ['(<expr>) <op> (<expr>)','<func>(<expr>)','sqrt(sqr(<expr>+<expr>)/2)'],
             '<var>'  : self.variables,
             '<op>'   : ['+','-','*','/'],
-            '<func>' : ['exp','sigmoid','abs','sin','cos','sqr','sqrt']
+            '<func>' : ['exp','abs','sigmoid','sqr','sqrt','-']
         }
         self.start_node = '<expr>'
     
@@ -832,6 +829,7 @@ class Multi_Accuration_Fitness(Genetics_Feature_Extractor):
     def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
         Genetics_Feature_Extractor.__init__(self, records, fold_count, fold_index, classifier)
         self.benchmarks = self.group_label
+        self.ommited_label = []
     
     def get_new_features(self):
         new_features = []
@@ -842,35 +840,69 @@ class Multi_Accuration_Fitness(Genetics_Feature_Extractor):
         return new_features
     
     def do_calculate_fitness(self, individual):
+        ommited_target_index = []
+        for group in self.ommited_label:
+            ommited_target_index.append(self.target_dictionary[group])
+                    
         feature = individual['phenotype']
         total_projection = get_projection(feature, self.features, self.data, self.training_data)
-        new_training_data = []
+        # get new target and new training data by ommiting ommited_target_index
+        new_target = []
+        new_training_data = []        
         for i in xrange(len(total_projection)):
+            if self.training_num_target[i] in ommited_target_index:
+                continue
+            new_target.append(self.training_num_target[i])
             new_training_data.append([total_projection[i]])
         
         fitness = {}
         for group in self.group_label:
+            if group in self.ommited_label:
+                continue
             group_index = self.target_dictionary[group]
-            new_target = list(self.training_num_target)
             
-            self.classifier.fit(new_training_data, new_target)
-            prediction = self.classifier.predict(new_training_data)
-            true_count = 0.0
-            false_count = 0.0
-            for i in xrange(len(prediction)):
-                if prediction[i] == group_index or new_target[i] == group_index:
-                    if prediction[i] == new_target[i]:
-                        true_count += 1
-                    else:
-                        false_count += 1
-            accuration = true_count/(true_count+false_count)
-            fitness[group] = accuration        
+            new_imba_target = list(new_target)
+            for i in xrange(len(new_imba_target)):
+                if not (new_imba_target[i] == group_index):
+                    new_imba_target[i] = -1
+            
+            classifier = DecisionTreeClassifier(max_depth=2, random_state=0)
+            classifier.fit(new_training_data, new_imba_target)
+            prediction = classifier.predict(new_training_data)
+            #self.classifier.fit(new_training_data, new_imba_target)
+            #prediction = self.classifier.predict(new_training_data)
+            true_positive = 0.0
+            true_negative = 0.0
+            false_positive = 0.0
+            false_negative = 0.0
+            for i in xrange(len(prediction)): 
+                if new_imba_target[i] in ommited_target_index:
+                    continue      
+                if (new_target[i] == group_index) and (prediction[i] == group_index):
+                    true_positive += 1
+                elif (new_target[i] <> group_index) and (prediction[i] <> group_index):
+                    true_negative += 1
+                elif (new_target[i] <> group_index) and (prediction[i] == group_index):
+                    false_positive += 1
+                elif (new_target[i] == group_index) and (prediction[i] <> group_index):
+                    false_negative += 1
+            sensitivity = true_positive/(true_positive+false_negative) if true_positive>0 else 0
+            sensibility = true_negative/(true_negative+false_positive) if true_negative>0 else 0
+            balanced_accuracy = (sensitivity+sensibility)/2.0
+            #fitness[group] = balanced_accuracy
+            #fitness[group] = (true_positive+true_negative)/(true_positive+true_negative+false_positive+false_negative)
+            fitness[group] = sensitivity+sensibility - 1
         return fitness
 
 class GE_Multi_Accuration_Fitness(GE_Select_Feature, Multi_Accuration_Fitness):
     def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
         GE_Select_Feature.__init__(self, records, fold_count, fold_index, classifier)
         Multi_Accuration_Fitness.__init__(self, records, fold_count, fold_index, self.classifier)
+    
+    def process(self):
+        for ommited_label in self.ommited_label:
+            self.benchmarks.remove(ommited_label)
+        GE_Select_Feature.process(self)
     
     def do_calculate_fitness(self, individual):
         return Multi_Accuration_Fitness.do_calculate_fitness(self, individual)
@@ -891,22 +923,14 @@ class GP_Multi_Accuration_Fitness(GP_Select_Feature, Multi_Accuration_Fitness):
 
 class Global_Separability_Fitness(Genetics_Feature_Extractor):
     def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
-        self.benchmarks = ['separability']
+        self.benchmarks = ['accuration']
     
     def get_new_features(self):
-        best_phenotype = self.best_individuals(1, 'separability', 'phenotype')
+        best_phenotype = self.best_individuals(1, 'accuration', 'phenotype')
         return [best_phenotype]
     
     def do_calculate_fitness(self, individual):
-        new_feature = individual['phenotype']        
-        '''
-        group_projection = get_projection(new_feature, self.features, self.data, self.training_data, self.training_label_target)
-        local_fitness = my_metric(group_projection)
-        global_fitness = 0.0
-        for benchmark in local_fitness:
-            global_fitness += local_fitness[benchmark]
-        global_fitness /= len(local_fitness)
-        '''
+        new_feature = individual['phenotype'] 
         total_projection = get_projection(new_feature, self.features, self.data, self.training_data)
         new_training_data = []
         for i in xrange(len(total_projection)):
@@ -1016,10 +1040,18 @@ class GE_Tatami(GE_Multi_Accuration_Fitness):
             fe = fe_class(records, 1, 0)
             fe.label = self.label
             fe.max_epoch = self.max_epoch
+            fe.stopping_value = self.stopping_value
+            fe.crossover_rate = self.crossover_rate
+            fe.mutation_rate = self.mutation_rate
+            fe.new_rate = self.new_rate
+            fe.elitism_rate = self.elitism_rate
+            fe.population_size = self.population_size
+            fe.ommited_label = ommited_classes
+            fe.easy_stop = True
             fe.process()
             self.extractors.append(fe)
             # look for best benchmark in this iteration
-            best_fitness = 0
+            best_fitness = -1
             best_benchmark = ''
             best_phenotype = ''
             for benchmark in fe.benchmarks:
@@ -1033,9 +1065,6 @@ class GE_Tatami(GE_Multi_Accuration_Fitness):
             # get best_phenotypes, and omitted_classes
             best_phenotypes.append(best_phenotype)
             ommited_classes.append(best_benchmark)
-            # remove the class from the record
-            new_records = [record for record in records if not (record[len(record)-1] == best_benchmark) or record==records[0] ]
-            records = new_records
         # we have best phenotype here, what to do?
         self.tatami_best_phenotypes = best_phenotypes
 
@@ -1068,7 +1097,7 @@ class GE_Gravalis(GE_Select_Feature):
     
     def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
         GE_Select_Feature.__init__(self, records, fold_count, fold_index, classifier)
-        self.grammar['<starter>'] = ['<starter>|<starter>', self.start_node]
+        self.grammar['<starter>'] = ['<starter>|<starter>', self.start_node, self.start_node, self.start_node]
         self.start_node = '<starter>'
     
     def do_calculate_fitness(self, individual):
@@ -1102,7 +1131,7 @@ class GE_Gravalis(GE_Select_Feature):
     
     
 
-def extract_feature(records, data_label='Test', fold_count=5, extractors=[], classifier=None):
+def extract_feature(records, data_label='Test', fold_count=5, extractors=[], classifier = None):
     if extractors is None or len(extractors) == 0:
         extractors = [
             {'class': GA_Select_Feature, 'label':'GA', 'color':'red', 'params':{}},
@@ -1174,6 +1203,42 @@ def extract_feature(records, data_label='Test', fold_count=5, extractors=[], cla
             fe.process()            
             new_features = fe.get_new_features()
             accuracy = fe.get_accuracy()
+            
+            # calculate accuracy THE RIGHT WAY
+            training_data = []
+            test_data = []
+            old_features = fe.features
+            
+            # training & test data
+            for i in xrange(len(fe.training_data)):
+                training_data.append([])
+            for i in xrange(len(fe.test_data)):
+                test_data.append([])
+            for new_feature in new_features:
+                training_projection = get_projection(new_feature, old_features, fe.training_data)
+                for i in xrange(len(fe.training_data)):
+                    training_data[i].append(training_projection[i])
+                test_projection = get_projection(new_feature, old_features, fe.test_data)
+                for i in xrange(len(fe.test_data)):
+                    test_data[i].append(test_projection[i])
+            # train classifier
+            classifier.fit(training_data, fe.training_num_target)
+            # training & test prediction
+            training_prediction = classifier.predict(training_data)
+            test_prediction = classifier.predict(test_data)
+            #calculate true prediction
+            true_training = 0.0
+            true_test = 0.0
+            for i in xrange(len(fe.training_num_target)):
+                if fe.training_num_target[i] == training_prediction[i]:
+                    true_training += 1
+            for i in xrange(len(fe.test_num_target)):
+                if fe.test_num_target[i] == test_prediction[i]:
+                    true_test += 1
+            # calculate accuracy
+            accuracy['training'] = true_training/len(fe.training_num_target)
+            accuracy['test'] = true_test/len(fe.test_num_target)
+            accuracy['total'] = (true_training+true_test)/(len(fe.training_num_target)+len(fe.test_num_target))
             
             # prepare output
             groups = fe.group_label            
@@ -1392,8 +1457,7 @@ def measure_metrics(records, metric_measurement=None, classifier = None, measure
         }
     
     if classifier is None:
-        #classifier = svm.SVC()
-        classifier = GaussianNB()
+        classifier = DecisionTreeClassifier(max_depth=2)
     
     # prepare feature extractor
     fe = GE_Select_Feature(records, fold_count=1, fold_index=0)

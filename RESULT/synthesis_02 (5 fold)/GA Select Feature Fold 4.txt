@@ -1,8 +1,8 @@
 Accuracy :
 
-  training : 0.823170731707
-  test     : 0.867768595041
-  total    : 0.831973898858
+  training : 0.790650406504
+  test     : 0.727272727273
+  total    : 0.778140293638
 
 
 4 Feature(s) Used :

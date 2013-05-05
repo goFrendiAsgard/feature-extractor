@@ -1,11 +1,11 @@
 Accuracy :
 
-  training : 0.913513513514
-  test     : 0.866666666667
-  total    : 0.904347826087
+  training : 0.737837837838
+  test     : 0.7
+  total    : 0.730434782609
 
 
-4 Feature(s) Used :
+3 Feature(s) Used :
 
   defense
     Collision Proportion :
@@ -13,17 +13,17 @@ Accuracy :
       demon hunter : 0.751351351351
       wizard       : 0.689189189189
     Standard Deviation :
-      defender     : 0.237263390427
-      demon hunter : 0.263966714754
-      wizard       : 0.288787339109
+      defender     : 0.236261910593
+      demon hunter : 0.262315479415
+      wizard       : 0.287652918927
     Intrusion Proportion :
       defender     : 0.894594594595
       demon hunter : 0.956756756757
       wizard       : 0.983783783784
     Means :
-      defender     : 0.690151515152
-      demon hunter : 0.384180327869
-      wizard       : 0.411896551724
+      defender     : 0.689240893786
+      demon hunter : 0.384086769333
+      wizard       : 0.412574016022
 
   attack
     Collision Proportion :
@@ -31,17 +31,17 @@ Accuracy :
       demon hunter : 0.702702702703
       wizard       : 0.664864864865
     Standard Deviation :
-      defender     : 0.163478388953
-      demon hunter : 0.243160735402
-      wizard       : 0.240980258194
+      defender     : 0.163445543694
+      demon hunter : 0.24162165575
+      wizard       : 0.239956160405
     Intrusion Proportion :
       defender     : 0.664864864865
       demon hunter : 0.994594594595
       wizard       : 0.948648648649
     Means :
-      defender     : 0.207424242424
-      demon hunter : 0.61606557377
-      wizard       : 0.68474137931
+      defender     : 0.208754208754
+      demon hunter : 0.615499254844
+      wizard       : 0.683820968304
 
   agility
     Collision Proportion :
@@ -60,22 +60,4 @@ Accuracy :
       defender     : 0.525378787879
       demon hunter : 0.679098360656
       wizard       : 0.330948275862
-
-  stamina
-    Collision Proportion :
-      defender     : 0.82972972973
-      demon hunter : 0.691891891892
-      wizard       : 0.659459459459
-    Standard Deviation :
-      defender     : 0.284922258338
-      demon hunter : 0.252966862001
-      wizard       : 0.243713650907
-    Intrusion Proportion :
-      defender     : 0.994594594595
-      demon hunter : 0.967567567568
-      wizard       : 0.932432432432
-    Means :
-      defender     : 0.491060606061
-      demon hunter : 0.352786885246
-      wizard       : 0.656034482759
 

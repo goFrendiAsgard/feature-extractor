@@ -7,39 +7,39 @@ Accuracy :
 
 2 Feature(s) Used :
 
-  sqr(sepal_length)
+  sepal_length
     Collision Proportion :
       Iris-setosa     : 0.0
       Iris-versicolor : 0.2
       Iris-virginica  : 0.2
     Standard Deviation :
-      Iris-setosa     : 0.0115758369028
-      Iris-versicolor : 0.0784183492558
-      Iris-virginica  : 0.13368596598
+      Iris-setosa     : 0.0288509229331
+      Iris-versicolor : 0.0739573702687
+      Iris-virginica  : 0.0922289346469
     Intrusion Proportion :
       Iris-setosa     : 0.0
       Iris-versicolor : 0.441666666667
       Iris-virginica  : 0.25
     Means :
-      Iris-setosa     : 0.024
-      Iris-versicolor : 0.37575
-      Iris-virginica  : 0.64075
+      Iris-setosa     : 0.0771186440678
+      Iris-versicolor : 0.557627118644
+      Iris-virginica  : 0.767796610169
 
-  (exp(sin((((petal_width) + (((petal_length) / (sepal_length)) + (sqrt(sepal_width)))) + (((petal_width) / (sqrt(abs(sepal_width)))) / (sepal_length))) - (petal_width)))) + (sepal_width)
+  (sepal_length) * ((sqrt(sqr(sqrt(sqr(sepal_length+sepal_width)/2)+sepal_width)/2)) / (petal_length))
     Collision Proportion :
-      Iris-setosa     : 0.3
-      Iris-versicolor : 0.225
-      Iris-virginica  : 0.15
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.0
+      Iris-virginica  : 0.0
     Standard Deviation :
-      Iris-setosa     : 0.26503348845
-      Iris-versicolor : 0.0769541259453
-      Iris-virginica  : 0.0653256266713
+      Iris-setosa     : 0.0145748507042
+      Iris-versicolor : 0.0795752150941
+      Iris-virginica  : 0.0914466353747
     Intrusion Proportion :
-      Iris-setosa     : 0.6
-      Iris-versicolor : 0.5
-      Iris-virginica  : 0.216666666667
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.383333333333
+      Iris-virginica  : 0.0583333333333
     Means :
-      Iris-setosa     : 0.3915
-      Iris-versicolor : 0.58675
-      Iris-virginica  : 0.85025
+      Iris-setosa     : 0.024973400093
+      Iris-versicolor : 0.455568142496
+      Iris-virginica  : 0.76057846173
 

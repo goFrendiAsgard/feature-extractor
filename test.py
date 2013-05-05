@@ -55,9 +55,9 @@ def test(csv_file_name, new_feature):
         target_value = target[i]
         prediction_value = prediction[i]
         if target_value == prediction_value:
-            true_count[reverse_target_dictionary[prediction_value]] += 1
+            true_count[reverse_target_dictionary[target_value]] += 1
         else:
-            false_count[reverse_target_dictionary[prediction_value]] += 1
+            false_count[reverse_target_dictionary[target_value]] += 1
     # calculate accuracy
     for key in accuracy:
         accuracy[key] = true_count[key]/(true_count[key]+false_count[key])
