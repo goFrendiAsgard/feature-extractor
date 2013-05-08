@@ -1,17 +1,14 @@
 from Feature_Extractor import *
 import pylab as pl
 import numpy as np
-from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
-from sklearn.tree import DecisionTreeClassifier
-from matplotlib.colors import ListedColormap
 
 # parameters
 records                     = extract_csv('iris.data.csv')
-ommited_class_for_plotting  = ['Iris-setosa']
+ommited_class_for_plotting  = []
 new_features                = [
-                               #'sqrt(sqr(sqrt(sqr(petal_width+(exp(sepal_length)) * (((petal_length) / (sqrt(sqr(petal_length+sepal_length)/2))) - ((abs(sqr(sepal_width))) / (petal_width))))/2)+sepal_width)/2)', 
+                               'sqrt(sqr(sqrt(sqr(petal_width+(exp(sepal_length)) * (((petal_length) / (sqrt(sqr(petal_length+sepal_length)/2))) - ((abs(sqr(sepal_width))) / (petal_width))))/2)+sepal_width)/2)', 
                                #'sqrt(sqr((sepal_width) / (sepal_width)+(sqrt(sqr((petal_width) / (sepal_width)+petal_length)/2)) / (sepal_length))/2)',
-                               '(petal_length) - (sqrt(sqr(sepal_length+sqrt(sqr(abs(petal_length)+(sqrt(sqr(petal_length+petal_width)/2)) - (abs(-((sepal_width) - (petal_width)))))/2))/2))',
+                               #'(petal_length) - (sqrt(sqr(sepal_length+sqrt(sqr(abs(petal_length)+(sqrt(sqr(petal_length+petal_width)/2)) - (abs(-((sepal_width) - (petal_width)))))/2))/2))',
                                'sepal_length'
                               ]
 
@@ -68,8 +65,10 @@ else:
 
 # Put the result into a color plot
 Z = Z.reshape(xx.shape)
-pl.contourf(xx, yy, Z)
-pl.axis('off')
+pl.xlabel(new_features[projection_feature_indexes[0]])
+pl.ylabel(new_features[projection_feature_indexes[1]])
+#pl.contourf(xx, yy, Z)
+#pl.axis('off')
 
 # Plot also the training points
 pl.scatter(new_data[:, projection_feature_indexes[0]], new_data[:, projection_feature_indexes[1]], c=numeric_targets, cmap=plt.cm.gist_rainbow)

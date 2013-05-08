@@ -4,7 +4,6 @@ sys.path.insert(0,lib_path)
 
 from gogenpy import utils
 from gogenpy import classes
-#from sklearn import svm
 from sklearn.tree import DecisionTreeClassifier
 from scipy.stats import pearsonr
 import matplotlib.pyplot as plt
@@ -888,9 +887,7 @@ class Multi_Accuration_Fitness(Genetics_Feature_Extractor):
                     false_negative += 1
             sensitivity = true_positive/(true_positive+false_negative) if true_positive>0 else 0
             sensibility = true_negative/(true_negative+false_positive) if true_negative>0 else 0
-            balanced_accuracy = (sensitivity+sensibility)/2.0
-            #fitness[group] = balanced_accuracy
-            #fitness[group] = (true_positive+true_negative)/(true_positive+true_negative+false_positive+false_negative)
+            # balanced_accuracy = (sensitivity+sensibility)/2.0
             fitness[group] = sensitivity+sensibility - 1
         return fitness
 
