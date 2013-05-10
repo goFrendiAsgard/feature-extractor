@@ -20,7 +20,7 @@ def extract_feature(csv_file_name, label = None):
         {'class': FE.GE_Global_Separability_Fitness, 'label':'GE Global', 'color':'blue', 'params':params},
         {'class': FE.GE_Multi_Accuration_Fitness, 'label':'GE Multi', 'color':'cyan', 'params':params},
         {'class': FE.GE_Tatami_Multi_Accuration_Fitness, 'label':'GE Tatami Multi', 'color':'magenta', 'params':params},
-        #{'class': FE.GE_Gravalis, 'label':'GE Gravalis', 'color':'green','params':params},
+        {'class': FE.GE_Gravalis, 'label':'GE Gravalis', 'color':'green','params':params},
     ]
     # get label
     if label is None:
