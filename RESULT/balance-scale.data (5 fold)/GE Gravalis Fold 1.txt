@@ -1,0 +1,81 @@
+Accuracy :
+
+  training : 0.810756972112
+  test     : 0.813008130081
+  total    : 0.8112
+
+
+4 Feature(s) Used :
+
+  (exp(((right_distance) - (left_distance)) + (sqrt(sqr(right_weight+sqrt(left_weight))/2)))) / (left_weight)
+    Collision Proportion :
+      B : 0.117529880478
+      L : 0.113545816733
+      R : 0.103585657371
+    Standard Deviation :
+      B : 0.00573915056556
+      L : 0.00185953951394
+      R : 0.0927636710238
+    Intrusion Proportion :
+      B : 0.687250996016
+      L : 0.597609561753
+      R : 0.709163346614
+    Means :
+      B : 0.00481926477437
+      L : 0.00127125351459
+      R : 0.0489857510336
+
+  sigmoid(right_distance)
+    Collision Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Standard Deviation :
+      B : 0.364588335668
+      L : 0.397645123983
+      R : 0.258002182363
+    Intrusion Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Means :
+      B : 0.656950722696
+      L : 0.53979841551
+      R : 0.833897187508
+
+  (abs(exp(((left_weight) / ((sqrt(sqr(exp(sqrt(((sigmoid(sqrt(sqr(<stmt>+<var>)/2))) / ((right_weight) / ((<var>) / (<stmt>)))) / (left_distance)))+(((right_distance) / ((left_distance) - ((right_distance) / ((<stmt>) * (<stmt>))))) + (right_distance)) / ((left_weight) / (left_distance)))/2)) / (sqrt(sqr(left_distance+sqrt(sqr(right_distance+((right_distance) * (left_distance)) + ((sqrt(right_distance)) + ((right_distance) / (left_distance))))/2))/2)))) + ((left_weight) / (sqrt(sqr(abs(left_distance)+left_distance)/2)))))) * (left_weight)
+    Collision Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Standard Deviation :
+      B : 0.0
+      L : 0.0
+      R : 0.0
+    Intrusion Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Means :
+      B : -1.0
+      L : -1.0
+      R : -1.0
+
+  right_weight
+    Collision Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Standard Deviation :
+      B : 0.346353775062
+      L : 0.329370808647
+      R : 0.305842700584
+    Intrusion Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Means :
+      B : 0.48125
+      L : 0.36038961039
+      R : 0.658008658009
+

@@ -13,7 +13,7 @@ def extract_feature(csv_file_name, label = None):
     # define classifier    
     classifier = DecisionTreeClassifier(max_depth=group_count-1, random_state=0)
     # define extractors
-    params = {'max_epoch':50,'population_size':25, 'mutation_rate':0.25, 'new_rate':0.5, 
+    params = {'max_epoch':25,'population_size':25, 'mutation_rate':0.25, 'new_rate':0.5, 
               'elitism_rate':0.05, 'crossover_rate': 0.2, 'stopping_value':1.0}
     extractors = [
         #{'class': FE.GA_Select_Feature, 'label':'GA Select Feature', 'color':'red', 'params':params},        
