@@ -8,11 +8,12 @@ def make_resume(data_name, fold_count):
     label_list = ['GA Select Feature', 'GE Global', 'GE Multi', 'GE Tatami Multi', 'GE Gravalis']
     # make table head
     thead = '<tr>'
-    thead += '<th rowspan="2" colspan="2">Experiment</th>'
+    thead += '<th>Experiment</th><th>&nbsp;</th>'
     for label in label_list:
-        thead += '<th colspan="2">'+label+'</th>'
+        thead += '<th>'+label+'</th><th>&nbsp;</th>'
     thead += '</tr>'
     thead += '<tr>'
+    thead += '<th>&nbsp;</th><th>&nbsp;</th>'
     for label in label_list:
         thead += '<th>Acc</th>'
         thead += '<th>F. Count</th>'
@@ -46,7 +47,8 @@ def make_resume(data_name, fold_count):
         testing_row = '<tr><td>Testing</td>' + testing_row + '</tr>'    
         total_row = '<tr><td>Total</td>' + total_row + '</tr>'
         tbody += training_row + testing_row + total_row
-    
+    last_row = '<tr><td colspan="'+str(2+2*len(label_list))+'">end of table</td></tr>'    
+    tbody = '<tbody>'+tbody+last_row+'</tbody>'
     html = '<table border="1">'+thead+tbody+'<table>'
     # write the file
     html_file_name = os.path.join(dir_name,'resume.html')
