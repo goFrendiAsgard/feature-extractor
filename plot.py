@@ -1,15 +1,14 @@
 from Feature_Extractor import *
 import pylab as pl
 import numpy as np
+from sklearn.svm import SVC
 
 # parameters
-records                     = extract_csv('iris.data.csv')
-ommited_class_for_plotting  = []
+records                     = extract_csv('synthesis_03.csv')
+ommited_class_for_plotting  = ['D','E']
 new_features                = [
-                               'sqrt(sqr(sqrt(sqr(petal_width+(exp(sepal_length)) * (((petal_length) / (sqrt(sqr(petal_length+sepal_length)/2))) - ((abs(sqr(sepal_width))) / (petal_width))))/2)+sepal_width)/2)', 
-                               #'sqrt(sqr((sepal_width) / (sepal_width)+(sqrt(sqr((petal_width) / (sepal_width)+petal_length)/2)) / (sepal_length))/2)',
-                               #'(petal_length) - (sqrt(sqr(sepal_length+sqrt(sqr(abs(petal_length)+(sqrt(sqr(petal_length+petal_width)/2)) - (abs(-((sepal_width) - (petal_width)))))/2))/2))',
-                               'sepal_length'
+                               '(f2) / (f1)',
+                               '(f1) / (f3)'
                               ]
 
 
@@ -20,7 +19,8 @@ for record in records[1:]:
     if record[-1] not in groups:
         groups.append(record[-1])
 group_count = len(groups)
-clf = DecisionTreeClassifier(max_depth=group_count-1, random_state=0)
+clf = SVC()
+#clf = DecisionTreeClassifier(max_depth=group_count-1, random_state=0)
 # calculate new_data, label_targets and numeric_targets
 new_data = []
 old_data = []
@@ -67,7 +67,7 @@ else:
 Z = Z.reshape(xx.shape)
 pl.xlabel(new_features[projection_feature_indexes[0]])
 pl.ylabel(new_features[projection_feature_indexes[1]])
-#pl.contourf(xx, yy, Z)
+pl.contourf(xx, yy, Z)
 #pl.axis('off')
 
 # Plot also the training points
