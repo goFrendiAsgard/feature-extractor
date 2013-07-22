@@ -4,11 +4,20 @@ import numpy as np
 from sklearn.svm import SVC
 
 # parameters
+'''
 records                     = extract_csv('synthesis_03.csv')
 ommited_class_for_plotting  = ['D','E']
 new_features                = [
                                '(f2) / (f1)',
                                '(f1) / (f3)'
+                              ]
+'''
+
+records                     = extract_csv('segitiga.csv')
+ommited_class_for_plotting  = []
+new_features                = [
+                               'x',
+                               'y'
                               ]
 
 
@@ -67,12 +76,49 @@ else:
 Z = Z.reshape(xx.shape)
 pl.xlabel(new_features[projection_feature_indexes[0]])
 pl.ylabel(new_features[projection_feature_indexes[1]])
-pl.contourf(xx, yy, Z)
+#pl.contourf(xx, yy, Z)
 #pl.axis('off')
 
 # Plot also the training points
-pl.scatter(new_data[:, projection_feature_indexes[0]], new_data[:, projection_feature_indexes[1]], c=numeric_targets, cmap=plt.cm.gist_rainbow)
+p_dict = {}
+x_dict = {}
+y_dict = {}
+z_dict = {}
+for label_target in target_dict:
+    p_dict[label_target] = []
+    x_dict[label_target] = []
+    y_dict[label_target] = []
+    z_dict[label_target] = []
 
+for element_index in xrange(len(new_data)):
+    x = new_data[element_index, projection_feature_indexes[0]]
+    y = new_data[element_index, projection_feature_indexes[1]]
+    z = numeric_targets[element_index]
+    for label_target in target_dict:
+        if z==target_dict[label_target]:
+            x_dict[label_target].append(x)
+            y_dict[label_target].append(y)
+            z_dict[label_target].append(z)
+            break
+i=3
+color_list = ['white', 'blue', 'red', 'purple', 'green']
+for label_target in target_dict:
+    p_dict[label_target] = pl.scatter(x_dict[label_target], y_dict[label_target], s=90, c=color_list[(i-1)%5], marker=(i,0))
+    i+=1
+
+p_list = []
+label_list = []
+for label_target in target_dict:
+    p_list.append(p_dict[label_target])
+    label_list.append(label_target)
+
+#pl.scatter(new_data[:, projection_feature_indexes[0]], new_data[:, projection_feature_indexes[1]], s=32, c=numeric_targets, cmap=plt.cm.gist_rainbow)
+#pl.scatter(new_data[:, projection_feature_indexes[0]], new_data[:, projection_feature_indexes[1]], s=32, c=numeric_targets, cmap=plt.cm.gist_rainbow)
+
+pl.title('plot')
+pl.legend(p_list, label_list)
+print label_list
+print p_list
 
 prediction = clf.predict(new_data)
 correct = 0.0
@@ -81,6 +127,6 @@ for i in xrange(len(prediction)):
         correct += 1
 print correct, len(prediction), correct/len(prediction)
 
-pl.title('plot')
+
 pl.show()
 
