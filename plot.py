@@ -4,21 +4,46 @@ import numpy as np
 from sklearn.svm import SVC
 
 # parameters
-'''
+
+# synthesis 03
 records                     = extract_csv('synthesis_03.csv')
 ommited_class_for_plotting  = ['D','E']
 new_features                = [
                                '(f2) / (f1)',
                                '(f1) / (f3)'
                               ]
-'''
 
+
+'''
+# ilustration-ori
 records                     = extract_csv('segitiga.csv')
 ommited_class_for_plotting  = []
 new_features                = [
                                'x',
                                'y'
                               ]
+'''
+
+'''
+# ilustration-extracted
+records                     = extract_csv('segitiga.csv')
+ommited_class_for_plotting  = []
+new_features                = [
+                               'sqr(x)+sqr(y)',
+                               '0'
+                              ]
+'''
+
+
+'''
+# ideal
+records                     = extract_csv('synthesis_01.csv')
+ommited_class_for_plotting  = []
+new_features                = [
+                               '(abs(attack)) / (defense)',
+                               '(exp(stamina)) - (exp(agility))'
+                              ]
+'''
 
 
 projection_feature_indexes = [0,1]
@@ -57,8 +82,8 @@ clf.fit(new_data, numeric_targets)
 # get minimum and maximum x & y
 new_data = np.array(new_data)
 
-x_min, x_max = new_data[:, projection_feature_indexes[0]].min() - 0.1, new_data[:, projection_feature_indexes[0]].max() + 0.1
-y_min, y_max = new_data[:, projection_feature_indexes[1]].min() - 0.1, new_data[:, projection_feature_indexes[1]].max() + 0.1
+x_min, x_max = new_data[:, projection_feature_indexes[0]].min() - 0.05, new_data[:, projection_feature_indexes[0]].max() + 0.05
+y_min, y_max = new_data[:, projection_feature_indexes[1]].min() - 0.05, new_data[:, projection_feature_indexes[1]].max() + 0.05
 xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.001),
                      np.arange(y_min, y_max, 0.001))
     
@@ -76,8 +101,7 @@ else:
 Z = Z.reshape(xx.shape)
 pl.xlabel(new_features[projection_feature_indexes[0]])
 pl.ylabel(new_features[projection_feature_indexes[1]])
-#pl.contourf(xx, yy, Z)
-#pl.axis('off')
+pl.contourf(xx, yy, Z, cmap = pl.cm.RdBu, alpha=.5)
 
 # Plot also the training points
 p_dict = {}
@@ -103,7 +127,7 @@ for element_index in xrange(len(new_data)):
 i=3
 color_list = ['white', 'blue', 'red', 'purple', 'green']
 for label_target in target_dict:
-    p_dict[label_target] = pl.scatter(x_dict[label_target], y_dict[label_target], s=90, c=color_list[(i-1)%5], marker=(i,0))
+    p_dict[label_target] = pl.scatter(x_dict[label_target], y_dict[label_target], s=90, c=color_list[(i-3)%5], marker=(i,0))
     i+=1
 
 p_list = []
