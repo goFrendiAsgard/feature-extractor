@@ -5,6 +5,7 @@ from sklearn.svm import SVC
 
 # parameters
 
+'''
 # synthesis 03
 records                     = extract_csv('synthesis_03.csv')
 ommited_class_for_plotting  = ['D','E']
@@ -12,9 +13,10 @@ new_features                = [
                                '(f2) / (f1)',
                                '(f1) / (f3)'
                               ]
-
-
 '''
+
+
+
 # ilustration-ori
 records                     = extract_csv('segitiga.csv')
 ommited_class_for_plotting  = []
@@ -22,7 +24,7 @@ new_features                = [
                                'x',
                                'y'
                               ]
-'''
+
 
 '''
 # ilustration-extracted
@@ -53,8 +55,8 @@ for record in records[1:]:
     if record[-1] not in groups:
         groups.append(record[-1])
 group_count = len(groups)
-clf = SVC()
-#clf = DecisionTreeClassifier(max_depth=group_count-1, random_state=0)
+#clf = SVC(kernel='rbf', C=100)
+clf = DecisionTreeClassifier(max_depth=group_count-1, random_state=0)
 # calculate new_data, label_targets and numeric_targets
 new_data = []
 old_data = []
