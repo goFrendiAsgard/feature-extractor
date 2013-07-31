@@ -1,6 +1,6 @@
 import os
 import numpy as np
-label_list = ['GA Select Feature', 'GE Global', 'GE Multi', 'GE Tatami Multi', 'GE Gravalis']
+label_list = ['Ori', 'GA Select Feature', 'GE Global', 'GE Multi', 'GE Tatami Multi', 'GE Gravalis']
 
 def make_resume(data_name, fold_count):
     if fold_count == 1:

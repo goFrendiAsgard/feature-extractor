@@ -1126,11 +1126,18 @@ class GE_Gravalis(GE_Select_Feature):
     def show(self, silent=False, file_name='figure.png'):
         classes.Grammatical_Evolution.show(self, silent, file_name)
     
+
+class No_Extractor(Genetics_Feature_Extractor):
+    def __init__(self, records, fold_count=1, fold_index=0, classifier=None):
+        Genetics_Feature_Extractor.__init__(self, records, fold_count, fold_index)
     
+    def process(self):
+        pass
 
 def extract_feature(records, data_label='Test', fold_count=5, extractors=[], classifier = None):
     if extractors is None or len(extractors) == 0:
         extractors = [
+            {'class': No_Extractor, 'label':'Ori', 'color':'red', 'params':{}},
             {'class': GA_Select_Feature, 'label':'GA', 'color':'red', 'params':{}},
             {'class': GP_Select_Feature, 'label':'GP', 'color':'orange', 'params':{'max_epoch':100,'population_size':200}},
             {'class': GP_Global_Separability_Fitness, 'label':'GP Global', 'color':'green', 'params':{'max_epoch':100,'population_size':200}},
@@ -1161,8 +1168,8 @@ def extract_feature(records, data_label='Test', fold_count=5, extractors=[], cla
         return 0
     
     shown_metrics = {
-        'collision_proportion' : 'Collision Proportion',
-        'intrusion_proportion' : 'Intrusion Proportion',
+        #'collision_proportion' : 'Collision Proportion',
+        #'intrusion_proportion' : 'Intrusion Proportion',
         'mean': 'Means',
         'stdev': 'Standard Deviation',
     }
@@ -1237,6 +1244,7 @@ def extract_feature(records, data_label='Test', fold_count=5, extractors=[], cla
             accuracy['test'] = true_test/len(fe.test_num_target)
             accuracy['total'] = (true_training+true_test)/(len(fe.training_num_target)+len(fe.test_num_target))
             
+            
             # prepare output
             groups = fe.group_label            
             max_group_label_length = 0
@@ -1266,8 +1274,9 @@ def extract_feature(records, data_label='Test', fold_count=5, extractors=[], cla
             output += '\r\n\r\n'
             output += str(len(new_features))+' Feature(s) Used :\r\n'
             output += '\r\n'
+            
             total_histogram = {}
-            group_histogram = {}
+            group_histogram = {}            
             for feature in new_features:
                 output += '  '+feature+'\r\n'
                 metrics = fe.get_metrics(feature)
@@ -1284,12 +1293,13 @@ def extract_feature(records, data_label='Test', fold_count=5, extractors=[], cla
                         output += '      '+label_group+' : '+str(metrics[key][group])+'\r\n'
                                         
                 output += '\r\n'
+            
             print output
             fe.show(True,data_label+'/'+extractor_label+' Fold '+str(fold_index+1)+'.png')
             text_file = open(data_label+'/'+extractor_label+' Fold '+str(fold_index+1)+'.txt', "w")
             text_file.write(output)
             text_file.close()
-            
+                 
             # plot features
             feature_count = len(new_features)
             if feature_count == 1:
@@ -1381,7 +1391,7 @@ def extract_feature(records, data_label='Test', fold_count=5, extractors=[], cla
             plt.close()
             gc.collect()
     
-    # accuracy plotting
+    # accuracy plotting    
     minimum_accuracy-=0.01
     maximum_accuracy+= 0.01
     extractor_count = len(extractors)
@@ -1441,6 +1451,7 @@ def extract_feature(records, data_label='Test', fold_count=5, extractors=[], cla
     fig.clf()
     plt.close()
     gc.collect()
+    '''
 
 def measure_metrics(records, metric_measurement=None, classifier = None, measurement_label='test'):
     if metric_measurement is None:
