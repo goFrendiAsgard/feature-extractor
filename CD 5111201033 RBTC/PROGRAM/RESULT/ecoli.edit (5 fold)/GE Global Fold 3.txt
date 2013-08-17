@@ -1,0 +1,47 @@
+Accuracy :
+
+  training : 0.892988929889
+  test     : 0.538461538462
+  total    : 0.824404761905
+
+
+1 Feature(s) Used :
+
+  sqr(sqr(sqrt(sqr(exp(exp(-(((alm1) - (sqr(alm1))) / (alm2))))+(alm2) / (sqrt(sqr(sqrt(sqr(sqrt(sqr(alm1+sqrt(sqr((exp(lip)) * (sqrt(sqr((alm2) * (chg)+((alm2) - (alm1)) + (chg))/2))+mcg)/2))/2)+mcg)/2)+sqrt(sqr(alm2+chg)/2))/2)))/2)))
+    Collision Proportion :
+      cp  : 0.0
+      im  : 0.0
+      imL : 0.0
+      imS : 0.0
+      imU : 0.0
+      om  : 0.0
+      omL : 0.0
+      pp  : 0.0
+    Standard Deviation :
+      cp  : 0.120806429511
+      im  : 0.175281701665
+      imL : 0.223647327138
+      imS : 0.18321366619
+      imU : 0.103047245725
+      om  : 0.0514452073505
+      omL : 0.0463217464035
+      pp  : 0.0854134977917
+    Intrusion Proportion :
+      cp  : 0.723247232472
+      im  : 0.937269372694
+      imL : 0.830258302583
+      imS : 0.70479704797
+      imU : 0.837638376384
+      om  : 0.509225092251
+      omL : 0.166051660517
+      pp  : 0.911439114391
+    Means :
+      cp  : 0.19694335311
+      im  : 0.47645743994
+      imL : 0.291428282564
+      imS : 0.289686558826
+      imU : 0.437305421256
+      om  : 0.0915074816926
+      omL : 0.0564459493452
+      pp  : 0.145940815992
+

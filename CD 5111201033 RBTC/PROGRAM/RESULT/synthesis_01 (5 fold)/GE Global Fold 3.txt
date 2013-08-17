@@ -1,0 +1,27 @@
+Accuracy :
+
+  training : 0.775675675676
+  test     : 0.255555555556
+  total    : 0.673913043478
+
+
+1 Feature(s) Used :
+
+  -(((agility) - (stamina)) / (attack))
+    Collision Proportion :
+      defender     : 0.00540540540541
+      demon hunter : 0.00540540540541
+      wizard       : 0.0
+    Standard Deviation :
+      defender     : 0.157847078185
+      demon hunter : 0.0389192182598
+      wizard       : 0.0269543672442
+    Intrusion Proportion :
+      defender     : 0.905405405405
+      demon hunter : 0.462162162162
+      wizard       : 0.443243243243
+    Means :
+      defender     : 0.4931321345
+      demon hunter : 0.476541786403
+      wizard       : 0.545078200038
+

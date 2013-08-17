@@ -1,0 +1,57 @@
+Accuracy :
+
+  training : 0.764227642276
+  test     : 0.776859504132
+  total    : 0.766721044046
+
+
+4 Feature(s) Used :
+
+  defense
+    Standard Deviation :
+      defender     : 0.216308743921
+      demon hunter : 0.287955264297
+      monk         : 0.267128053226
+      wizard       : 0.273299672391
+    Means :
+      defender     : 0.651917808219
+      demon hunter : 0.438503937008
+      monk         : 0.370353982301
+      wizard       : 0.418396226415
+
+  attack
+    Standard Deviation :
+      defender     : 0.136838276188
+      demon hunter : 0.222488922427
+      monk         : 0.218026410561
+      wizard       : 0.180106693785
+    Means :
+      defender     : 0.197671232877
+      demon hunter : 0.652047244094
+      monk         : 0.478407079646
+      wizard       : 0.763113207547
+
+  agility
+    Standard Deviation :
+      defender     : 0.272562879994
+      demon hunter : 0.242631633841
+      monk         : 0.267803197787
+      wizard       : 0.248837668208
+    Means :
+      defender     : 0.484520547945
+      demon hunter : 0.694251968504
+      monk         : 0.42982300885
+      wizard       : 0.340754716981
+
+  stamina
+    Standard Deviation :
+      defender     : 0.294532884418
+      demon hunter : 0.196737794568
+      monk         : 0.182237208572
+      wizard       : 0.233989879685
+    Means :
+      defender     : 0.509383561644
+      demon hunter : 0.273937007874
+      monk         : 0.764336283186
+      wizard       : 0.496981132075
+

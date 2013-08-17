@@ -1,0 +1,75 @@
+Accuracy :
+
+  training : 1.0
+  test     : 0.628099173554
+  total    : 0.926590538336
+
+
+3 Feature(s) Used :
+
+  exp((abs(attack)) / (defense))
+    Collision Proportion :
+      defender     : 0.0
+      demon hunter : 0.0325203252033
+      monk         : 0.0487804878049
+      wizard       : 0.0345528455285
+    Standard Deviation :
+      defender     : 1.7245732864e-05
+      demon hunter : 0.0168901938201
+      monk         : 0.0442822771036
+      wizard       : 0.100139257989
+    Intrusion Proportion :
+      defender     : 0.0
+      demon hunter : 0.686991869919
+      monk         : 0.69918699187
+      wizard       : 0.701219512195
+    Means :
+      defender     : 2.96415600561e-05
+      demon hunter : 0.00332231523736
+      monk         : 0.00650924127709
+      wizard       : 0.0161223075885
+
+  (stamina) / (agility)
+    Collision Proportion :
+      defender     : 0.0569105691057
+      demon hunter : 0.0386178861789
+      monk         : 0.020325203252
+      wizard       : 0.0386178861789
+    Standard Deviation :
+      defender     : 0.130629635926
+      demon hunter : 0.0188154264647
+      monk         : 0.157880950303
+      wizard       : 0.106941313607
+    Intrusion Proportion :
+      defender     : 0.99593495935
+      demon hunter : 0.361788617886
+      monk         : 0.613821138211
+      wizard       : 0.623983739837
+    Means :
+      defender     : 0.133547499016
+      demon hunter : 0.0368628232722
+      monk         : 0.217563904157
+      wizard       : 0.157794171012
+
+  (stamina) - (attack)
+    Collision Proportion :
+      defender     : 0.469512195122
+      demon hunter : 0.315040650407
+      monk         : 0.298780487805
+      wizard       : 0.262195121951
+    Standard Deviation :
+      defender     : 0.178143336925
+      demon hunter : 0.15050312477
+      monk         : 0.103846683875
+      wizard       : 0.115773503747
+    Intrusion Proportion :
+      defender     : 0.85162601626
+      demon hunter : 0.817073170732
+      monk         : 0.459349593496
+      wizard       : 0.508130081301
+    Means :
+      defender     : 0.665212689257
+      demon hunter : 0.306506423539
+      monk         : 0.653656264555
+      wizard       : 0.373485600794
+

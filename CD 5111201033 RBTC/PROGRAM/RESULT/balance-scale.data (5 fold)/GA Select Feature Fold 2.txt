@@ -1,0 +1,63 @@
+Accuracy :
+
+  training : 0.719123505976
+  test     : 0.666666666667
+  total    : 0.7088
+
+
+3 Feature(s) Used :
+
+  left_weight
+    Collision Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Standard Deviation :
+      B : 0.35963305952
+      L : 0.301686103385
+      R : 0.342419180024
+    Intrusion Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Means :
+      B : 0.48125
+      L : 0.675324675325
+      R : 0.364718614719
+
+  left_distance
+    Collision Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Standard Deviation :
+      B : 0.349106001094
+      L : 0.303188734095
+      R : 0.332242269015
+    Intrusion Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Means :
+      B : 0.5
+      L : 0.648268398268
+      R : 0.335497835498
+
+  right_weight
+    Collision Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Standard Deviation :
+      B : 0.368644052576
+      L : 0.329267666313
+      R : 0.311816051265
+    Intrusion Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Means :
+      B : 0.49375
+      L : 0.34632034632
+      R : 0.635281385281
+

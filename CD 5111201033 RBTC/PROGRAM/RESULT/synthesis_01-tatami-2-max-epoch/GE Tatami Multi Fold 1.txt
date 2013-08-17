@@ -1,0 +1,45 @@
+Accuracy :
+
+  training : 0.902173913043
+  test     : 0.902173913043
+  total    : 0.902173913043
+
+
+2 Feature(s) Used :
+
+  (exp(stamina)) - (exp(agility))
+    Collision Proportion :
+      defender     : 0.0521739130435
+      demon hunter : 0.0260869565217
+      wizard       : 0.0260869565217
+    Standard Deviation :
+      defender     : 0.144611223143
+      demon hunter : 0.12440171085
+      wizard       : 0.113061251924
+    Intrusion Proportion :
+      defender     : 0.991304347826
+      demon hunter : 0.526086956522
+      wizard       : 0.465217391304
+    Means :
+      defender     : 0.505318647045
+      demon hunter : 0.430142295157
+      wizard       : 0.599066408639
+
+  ((attack) / (stamina)) - ((sqrt(sqr((abs(defense)) - ((defense) / (attack))+defense)/2)) - (attack))
+    Collision Proportion :
+      defender     : 0.0
+      demon hunter : 0.0
+      wizard       : 0.0
+    Standard Deviation :
+      defender     : 0.101263461392
+      demon hunter : 0.155172733126
+      wizard       : 0.153006097015
+    Intrusion Proportion :
+      defender     : 0.384782608696
+      demon hunter : 0.728260869565
+      wizard       : 0.8
+    Means :
+      defender     : 0.195126035255
+      demon hunter : 0.54208568409
+      wizard       : 0.494589764107
+
