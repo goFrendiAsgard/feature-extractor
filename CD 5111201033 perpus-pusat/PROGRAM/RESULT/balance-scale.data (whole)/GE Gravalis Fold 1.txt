@@ -1,0 +1,171 @@
+Accuracy :
+
+  training : 0.8256
+  test     : 0.8256
+  total    : 0.8256
+
+
+9 Feature(s) Used :
+
+  (right_weight) / (left_distance)
+    Collision Proportion :
+      B : 1.0
+      L : 0.96
+      R : 0.96
+    Standard Deviation :
+      B : 0.181899732838
+      L : 0.111017970435
+      R : 0.272011667496
+    Intrusion Proportion :
+      B : 1.0
+      L : 0.96
+      R : 0.96
+    Means :
+      B : 0.210246598639
+      L : 0.115547839506
+      R : 0.377652391975
+
+  ((right_distance) / (left_weight)) * (left_weight)
+    Collision Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Standard Deviation :
+      B : 0.351411741994
+      L : 0.332381408046
+      R : 0.306343680557
+    Intrusion Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Means :
+      B : 0.484693877551
+      L : 0.349826388889
+      R : 0.652777777778
+
+  abs(left_distance)
+    Collision Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Standard Deviation :
+      B : 0.351411741994
+      L : 0.306343680557
+      R : 0.332381408046
+    Intrusion Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Means :
+      B : 0.484693877551
+      L : 0.652777777778
+      R : 0.349826388889
+
+  sqr(right_distance)
+    Collision Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Standard Deviation :
+      B : 0.356230613361
+      L : 0.314900405319
+      R : 0.343903409932
+    Intrusion Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Means :
+      B : 0.400510204082
+      L : 0.271846064815
+      R : 0.564236111111
+
+  left_weight
+    Collision Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Standard Deviation :
+      B : 0.351411741994
+      L : 0.306343680557
+      R : 0.332381408046
+    Intrusion Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Means :
+      B : 0.484693877551
+      L : 0.652777777778
+      R : 0.349826388889
+
+  right_distance
+    Collision Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Standard Deviation :
+      B : 0.351411741994
+      L : 0.332381408046
+      R : 0.306343680557
+    Intrusion Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Means :
+      B : 0.484693877551
+      L : 0.349826388889
+      R : 0.652777777778
+
+  left_distance
+    Collision Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Standard Deviation :
+      B : 0.351411741994
+      L : 0.306343680557
+      R : 0.332381408046
+    Intrusion Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Means :
+      B : 0.484693877551
+      L : 0.652777777778
+      R : 0.349826388889
+
+  sqr(right_weight)
+    Collision Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Standard Deviation :
+      B : 0.356230613361
+      L : 0.314900405319
+      R : 0.343903409932
+    Intrusion Proportion :
+      B : 1.0
+      L : 1.0
+      R : 1.0
+    Means :
+      B : 0.400510204082
+      L : 0.271846064815
+      R : 0.564236111111
+
+  (left_weight) / (right_distance)
+    Collision Proportion :
+      B : 1.0
+      L : 0.96
+      R : 0.96
+    Standard Deviation :
+      B : 0.181899732838
+      L : 0.272011667496
+      R : 0.111017970435
+    Intrusion Proportion :
+      B : 1.0
+      L : 0.96
+      R : 0.96
+    Means :
+      B : 0.210246598639
+      L : 0.377652391975
+      R : 0.115547839506
+

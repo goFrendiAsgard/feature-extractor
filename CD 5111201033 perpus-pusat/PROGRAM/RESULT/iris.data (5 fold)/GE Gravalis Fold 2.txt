@@ -1,0 +1,63 @@
+Accuracy :
+
+  training : 1.0
+  test     : 0.966666666667
+  total    : 0.993333333333
+
+
+3 Feature(s) Used :
+
+  (sepal_length) * ((sqrt(sqr(exp(sepal_width)+(sepal_width) - (((petal_width) * (sepal_width)) + (petal_length)))/2)) - (sepal_length))
+    Collision Proportion :
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.0
+      Iris-virginica  : 0.0
+    Standard Deviation :
+      Iris-setosa     : 0.0110982212628
+      Iris-versicolor : 0.0503635318278
+      Iris-virginica  : 0.157296218314
+    Intrusion Proportion :
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.333333333333
+      Iris-virginica  : 0.0
+    Means :
+      Iris-setosa     : 0.968414029822
+      Iris-versicolor : 0.813073973207
+      Iris-virginica  : 0.454327584832
+
+  abs((sqrt(sqr(sepal_length+petal_width)/2)) / (sqrt(sqr(sepal_width+(petal_length) - (-(petal_length)))/2)))
+    Collision Proportion :
+      Iris-setosa     : 0.0333333333333
+      Iris-versicolor : 0.05
+      Iris-virginica  : 0.0166666666667
+    Standard Deviation :
+      Iris-setosa     : 0.132044573306
+      Iris-versicolor : 0.141680339288
+      Iris-virginica  : 0.10647917505
+    Intrusion Proportion :
+      Iris-setosa     : 0.475
+      Iris-versicolor : 0.841666666667
+      Iris-virginica  : 0.575
+    Means :
+      Iris-setosa     : 0.394767907138
+      Iris-versicolor : 0.63277752934
+      Iris-virginica  : 0.760111743607
+
+  sqrt(sqr(abs(sqrt(sqr((sepal_width) - (sepal_width)+sepal_width)/2))+(petal_width) - (exp(sepal_width)))/2)
+    Collision Proportion :
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.0333333333333
+      Iris-virginica  : 0.0333333333333
+    Standard Deviation :
+      Iris-setosa     : 0.0523971342821
+      Iris-versicolor : 0.0484961592203
+      Iris-virginica  : 0.254149190323
+    Intrusion Proportion :
+      Iris-setosa     : 0.508333333333
+      Iris-versicolor : 0.108333333333
+      Iris-virginica  : 0.566666666667
+    Means :
+      Iris-setosa     : 0.319615578954
+      Iris-versicolor : 0.0497713915694
+      Iris-virginica  : 0.492449796901
+

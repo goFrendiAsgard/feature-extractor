@@ -1,0 +1,49 @@
+Accuracy :
+
+  training : 0.966666666667
+  test     : 0.933333333333
+  total    : 0.96
+
+
+4 Feature(s) Used :
+
+  petal_length
+    Standard Deviation :
+      Iris-setosa     : 0.0963852865161
+      Iris-versicolor : 0.140681144485
+      Iris-virginica  : 0.154809719923
+    Means :
+      Iris-setosa     : 0.197222222222
+      Iris-versicolor : 0.457638888889
+      Iris-virginica  : 0.644444444444
+
+  petal_width
+    Standard Deviation :
+      Iris-setosa     : 0.161253229942
+      Iris-versicolor : 0.130104124967
+      Iris-virginica  : 0.136736357993
+    Means :
+      Iris-setosa     : 0.589583333333
+      Iris-versicolor : 0.333333333333
+      Iris-virginica  : 0.413541666667
+
+  sepal_length
+    Standard Deviation :
+      Iris-setosa     : 0.0267687974103
+      Iris-versicolor : 0.0780754115821
+      Iris-virginica  : 0.0856718467529
+    Means :
+      Iris-setosa     : 0.0775423728814
+      Iris-versicolor : 0.560593220339
+      Iris-virginica  : 0.771610169492
+
+  sepal_width
+    Standard Deviation :
+      Iris-setosa     : 0.0367399835178
+      Iris-versicolor : 0.0747609036083
+      Iris-virginica  : 0.114848178769
+    Means :
+      Iris-setosa     : 0.05625
+      Iris-versicolor : 0.528125
+      Iris-virginica  : 0.810416666667
+

@@ -1,0 +1,49 @@
+Accuracy :
+
+  training : 0.693227091633
+  test     : 0.650406504065
+  total    : 0.6848
+
+
+4 Feature(s) Used :
+
+  left_weight
+    Standard Deviation :
+      B : 0.353332350628
+      L : 0.306229249936
+      R : 0.336390378184
+    Means :
+      B : 0.5125
+      L : 0.662337662338
+      R : 0.344155844156
+
+  left_distance
+    Standard Deviation :
+      B : 0.362284418655
+      L : 0.306175697973
+      R : 0.331331482565
+    Means :
+      B : 0.5
+      L : 0.654761904762
+      R : 0.351731601732
+
+  right_weight
+    Standard Deviation :
+      B : 0.357945526582
+      L : 0.331607100428
+      R : 0.302539026629
+    Means :
+      B : 0.5
+      L : 0.356060606061
+      R : 0.66341991342
+
+  right_distance
+    Standard Deviation :
+      B : 0.357727200531
+      L : 0.335721193629
+      R : 0.30533293365
+    Means :
+      B : 0.5125
+      L : 0.357142857143
+      R : 0.642857142857
+

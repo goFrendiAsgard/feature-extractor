@@ -1,0 +1,27 @@
+Accuracy :
+
+  training : 0.991666666667
+  test     : 0.966666666667
+  total    : 0.986666666667
+
+
+1 Feature(s) Used :
+
+  sigmoid((((sepal_length) + (petal_width)) / (petal_width)) * (sepal_width))
+    Collision Proportion :
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.0
+      Iris-virginica  : 0.0
+    Standard Deviation :
+      Iris-setosa     : 0.0819763687704
+      Iris-versicolor : 0.04322139819
+      Iris-virginica  : 0.0063431242383
+    Intrusion Proportion :
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.341666666667
+      Iris-virginica  : 0.0416666666667
+    Means :
+      Iris-setosa     : 0.119515825065
+      Iris-versicolor : 0.919311324398
+      Iris-virginica  : 0.9923285325
+

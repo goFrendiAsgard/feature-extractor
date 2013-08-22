@@ -1,0 +1,614 @@
+defense,attack,agility,stamina,class
+4.8,3.9,1.8,9.7,monk
+8.9,2.5,10.5,7,defender
+7.2,4.3,9.4,1.5,defender
+4,9.9,5.9,6.8,wizard
+5.5,8.7,3.4,4.9,wizard
+8.4,4.8,1.5,3.1,defender
+6.4,1.8,6.9,4.5,defender
+2,9,1.5,1.3,wizard
+1.4,10.8,9.1,4.3,demon hunter
+1.8,4.9,3.5,3.7,wizard
+4.5,1.5,8.2,3.8,defender
+10.3,3.9,6.5,5.3,defender
+4.1,8.7,6.9,8.4,wizard
+9,8.1,2.5,3.1,wizard
+6.8,1.6,1.8,4.2,defender
+2.6,8.9,4.9,9.7,monk
+4.5,2.7,5.6,7.3,defender
+2.2,10.7,5.3,2.4,demon hunter
+1.1,4,7.1,9.7,monk
+2.9,7.2,9.9,3.1,demon hunter
+7.2,9.3,9,1.2,demon hunter
+8.8,2.2,7.4,7,defender
+3.9,7.6,10,9,monk
+4.5,2.6,7.9,5.2,defender
+2.6,2.9,3.9,3.5,monk
+1.6,4.2,8.1,10.4,monk
+4.6,3.7,3.3,9.6,monk
+7,9.2,1.7,10.3,monk
+7.8,4.5,8.3,8.9,defender
+2.1,10.3,2.7,2.2,wizard
+2.5,3.3,1.5,2.6,wizard
+1.1,8.9,5,4.6,wizard
+3.9,3.7,3.5,6.1,monk
+4.5,6.9,7.1,2.3,demon hunter
+1.3,8.1,2.2,5.2,wizard
+6.4,3,8.9,1.2,defender
+1.6,5.2,4.8,10.1,monk
+3.6,6.4,2.3,6.6,monk
+10,3.9,10.4,4.2,defender
+4.7,9.2,8.3,4.5,demon hunter
+8.8,5.7,6.8,6.3,monk
+1,6.8,1.4,1.7,wizard
+2.7,1.7,9.5,9.6,defender
+9,1.3,6.3,6,defender
+5.6,1.3,5.3,7,defender
+2.1,5.9,7.7,2,demon hunter
+10.9,5.7,1.1,3.6,defender
+3.7,9.4,1,6.3,wizard
+3.3,8.4,7.2,7.4,wizard
+7.3,8.3,4,9.6,monk
+2.9,5.8,2.5,4.8,wizard
+2.7,9.4,5.6,8.2,wizard
+4,1.4,4.3,8.4,defender
+8.6,7.7,9.3,9.1,monk
+6.8,2.9,9,2.1,defender
+6,1.9,5.1,6.5,defender
+8.8,3.2,5.7,9.6,defender
+10.4,7.4,5.2,8.7,monk
+9.8,5.3,7.9,5.2,defender
+6.5,9.3,5,2,demon hunter
+7,9.2,3.8,7.9,wizard
+9.6,6.2,9.6,6.9,demon hunter
+1.7,6.1,3.6,5.3,wizard
+9.2,5.9,6.1,7.1,defender
+2.5,5.2,5.9,10.6,monk
+7.4,2.6,3.5,10,defender
+6.4,8.1,9.6,2,demon hunter
+7.3,7,10.9,3.5,demon hunter
+7.5,4.1,1.3,1.1,defender
+7.5,10.3,8.2,7.9,wizard
+7.6,7.8,3.4,1.7,demon hunter
+6.5,8.5,8.9,10.3,monk
+4.1,7.5,4,5.6,wizard
+4.5,10.8,4,7.5,wizard
+2,2.7,5.6,9.5,monk
+8.1,5.4,7.5,10.1,monk
+2.4,1.5,3.9,5,defender
+4.2,1.6,3.8,8,defender
+9.1,1.8,1.7,8.3,defender
+3.7,5.4,5.6,4.6,wizard
+7.6,10.6,10.5,8.1,demon hunter
+5,8.6,10.3,5.1,demon hunter
+4.8,4.2,8.8,1.5,demon hunter
+3.5,2.1,1.9,10.5,defender
+1.7,1.2,2.9,9.5,monk
+8.1,5.1,7.2,7.3,defender
+8.4,1.6,10,7.1,defender
+5.2,3,10,3.9,defender
+1.7,4.3,1.2,2.7,wizard
+7.3,5.4,3.9,9.9,monk
+4.1,7.5,3.9,5.7,wizard
+8,5.8,4.8,1.3,demon hunter
+6.7,1,3.2,1.8,defender
+4.3,1.7,9.9,1.8,defender
+8.9,7.6,4.4,4.4,wizard
+3.4,1.9,3,2.1,defender
+6.2,6,2.1,1.1,demon hunter
+9,5.8,1.7,8.1,defender
+2.5,4.4,5.5,1.9,demon hunter
+1.8,4.9,6.6,5.9,monk
+1.9,9.1,6.7,1.7,demon hunter
+7.9,8.1,3.2,10.3,monk
+9.3,2.5,9.6,6,defender
+2.7,7.9,3.7,5.8,wizard
+1.4,6.7,3.7,10.9,monk
+3.8,7.9,10.9,8.5,demon hunter
+7.4,2,3.7,4,defender
+6.2,2.3,7.3,6.1,defender
+8.5,3.3,2.2,6.1,defender
+7,4.5,7.5,2.1,defender
+2.2,3.5,9.4,6.8,demon hunter
+7.3,4.9,10.1,10.8,monk
+1.9,8.8,2.4,2.1,wizard
+5.4,9.8,9.8,3.1,demon hunter
+6,10.5,10.4,5.5,demon hunter
+6,8.1,9.7,1.3,demon hunter
+8.9,7.1,3.9,3.8,wizard
+6.4,6.5,1.6,1.8,wizard
+6.8,1.8,5.4,2.4,defender
+2.4,8,4.1,1.9,demon hunter
+5.8,1,10,4.5,defender
+4.2,10.6,1.6,8.9,wizard
+9.1,8.2,3.2,8,wizard
+7.4,4.3,2.6,10.1,defender
+6.6,7.6,10,8.4,monk
+3.1,4.5,4.8,6.2,monk
+5.1,10.4,3.7,4.1,wizard
+5.1,4.8,1.6,6,monk
+1.4,3.1,1.8,2.7,wizard
+4.8,3.9,8,4.6,demon hunter
+6.2,10.7,6.2,7.8,wizard
+4.7,10,10.8,7.8,demon hunter
+3.4,10.3,10.6,1.5,demon hunter
+10.8,7,6.5,1.1,demon hunter
+4.7,10.6,6.1,2.6,demon hunter
+3.6,5.1,1.5,8,monk
+3.5,7.7,2.1,7.8,monk
+2.5,8,5.6,4.4,demon hunter
+10.4,10.1,9.2,7,demon hunter
+7.7,10.6,4.7,8.9,wizard
+5.8,10.3,6,8.7,wizard
+9,8,9.5,7.8,wizard
+3.4,7.9,1.4,2.5,wizard
+6.4,5.3,5.2,5.5,monk
+7.1,4.2,9.6,1.4,defender
+7.6,3.5,9.7,7.1,defender
+4.1,6.9,1.3,5.5,wizard
+5,1.2,3,10.2,defender
+3.8,8.1,11,2.4,demon hunter
+5.5,10.6,5.1,6.6,wizard
+8.9,8,5.9,3.8,demon hunter
+10.7,10.3,8.4,10.1,wizard
+4.8,1.1,3.9,7.7,defender
+1.7,6.1,6.3,1.4,demon hunter
+3.9,7.9,1.9,5.2,wizard
+5.6,1.8,2.3,3,defender
+1.8,5.2,1.3,9.1,monk
+9.9,9.1,4.9,10.4,monk
+1.4,6.1,4.9,7.2,monk
+8.1,5,4.2,10.6,defender
+8.2,7.7,7,5.6,demon hunter
+6.3,6.6,9.7,9.4,monk
+3.2,6.7,4.7,4.3,wizard
+10.8,3.5,10.1,10.4,defender
+6.4,1.6,3.9,10.9,defender
+1.6,4.3,2.4,1.5,demon hunter
+10.7,6,6.4,5.2,defender
+2.1,7,9.4,10.6,monk
+6.9,10.1,8.7,2.4,demon hunter
+8.5,4.8,3.4,9.5,defender
+1.4,9.6,8,9.3,wizard
+7.2,3.9,8.7,4.1,defender
+3.9,9.9,10.4,6.2,demon hunter
+7.6,6.4,8.8,2.4,demon hunter
+2.5,3.4,2.5,3.9,monk
+9.7,2.3,9.4,3.7,defender
+8,2.1,2.9,5.5,defender
+2.6,5.8,3.2,1.7,demon hunter
+4.5,1.4,4.2,7.1,defender
+1.5,2.1,9.4,6.4,demon hunter
+6.3,1.2,7,10.1,defender
+8.8,7,7.7,6.4,wizard
+4.9,7.7,9.4,6.9,demon hunter
+3.3,3.7,8.7,5.4,demon hunter
+6.1,6,9.5,11,monk
+6.8,4,7.6,9.1,defender
+1.3,9.7,8.3,9.3,wizard
+2.3,9.6,1.3,9.8,monk
+9.9,1.3,8.7,5.8,defender
+6.3,7.9,9.8,10.9,monk
+9,9.6,3.2,8.4,wizard
+5.5,5.6,3.1,7.6,monk
+9.2,2.7,2.2,8.2,defender
+4.2,1.4,3.1,8.3,defender
+2.4,10.8,3.4,1.1,demon hunter
+7.9,6.3,5.6,5.9,wizard
+9.3,4.8,10.7,3.8,defender
+1.6,6.1,2.1,9.7,monk
+6.4,6.8,7.2,9.8,monk
+8.7,1.4,2.3,10,defender
+4.4,10.9,3.1,2.2,demon hunter
+3.4,8.6,5,5.7,wizard
+5.4,8,5.4,4.8,wizard
+10.3,10.9,7.8,7.5,wizard
+2.3,4.1,7.8,7,monk
+1.3,3.8,2.3,4.9,monk
+1.7,7.2,11,5.1,demon hunter
+2.5,9.2,8.7,3.9,demon hunter
+3.7,7.1,3.7,4,wizard
+8.5,4.4,4.6,6.2,defender
+4.4,7.8,10.9,6.7,demon hunter
+3.7,4.3,9.8,5.2,demon hunter
+5.9,7.6,6.6,7.1,wizard
+8.4,3.3,1.8,7.8,defender
+7.4,6.6,10.7,4.7,demon hunter
+9.6,2.5,4.4,7,defender
+10.4,7.2,4.7,10.7,monk
+9.5,9.4,5.7,1.7,demon hunter
+1.6,7.7,6.1,5.1,wizard
+8.3,5,6.8,7.8,defender
+3,3.7,8.7,9.6,monk
+3.4,10.2,8.3,8,wizard
+8.5,9.3,1.4,5.4,wizard
+9.7,1.3,2.6,2.4,defender
+7.1,1.4,9.6,7.5,defender
+6,6.4,4.5,1.9,demon hunter
+5.4,6.1,8.9,1.9,demon hunter
+6.2,10.9,4.4,6,wizard
+9.8,6.7,8,5,demon hunter
+6.4,2.6,7.3,7,defender
+10.9,8.9,10.8,3.6,demon hunter
+2.7,10.3,8.6,10.2,wizard
+9.6,9.7,7.9,9.9,monk
+1.3,7.4,5.3,10.7,monk
+1.7,4.9,10.3,3.4,demon hunter
+5.8,7.2,5.5,7.6,monk
+6.9,7.9,8.6,1.8,demon hunter
+5.1,9.5,10.6,5.7,demon hunter
+6,7.7,4.8,4.9,wizard
+7.1,7.7,9.2,7.9,monk
+9.3,1.6,6,6.5,defender
+10.4,10.8,6.1,3.5,demon hunter
+8,1.7,9.7,1.9,defender
+2.3,4.8,5.4,8.8,monk
+8.7,8,10.9,5.4,demon hunter
+1.8,3.7,3.4,9.2,monk
+11,2,5.4,10.9,defender
+7.1,8.1,2.2,5.1,wizard
+11,6.1,9.6,2.8,defender
+5.5,4.3,6.2,2.5,demon hunter
+2.7,4.2,6.5,10.1,monk
+4.3,2.8,8.3,9,monk
+5.4,3.8,3.2,9.4,monk
+8.9,8.1,5.1,8.7,monk
+7,7.4,7.8,1.5,demon hunter
+7.2,2.8,7.6,4.1,defender
+10.2,6.1,6.4,1.3,defender
+9,2.1,2.5,10.3,defender
+9.6,3.4,5.8,2,defender
+3.7,9.5,2.4,10.5,monk
+6.4,3.1,5.8,6.2,defender
+9.7,5.3,5.2,8.6,defender
+5.6,4.7,1.9,9.6,monk
+4.7,1.3,4.9,4.8,defender
+7,6.8,6.9,7.3,monk
+7.4,9.4,2.7,2.6,wizard
+11,7.9,4.2,4.5,wizard
+6.2,1.8,8.5,7.5,defender
+7.8,8.4,9.2,8,wizard
+7.6,4.4,4.7,2.8,defender
+8.3,1.6,6.5,7.1,defender
+1,5.8,7.8,3.5,demon hunter
+9.8,6.2,4.7,8.7,defender
+3.3,9.9,2.6,2,demon hunter
+4.2,6.2,9,9.5,monk
+11,3.3,7.2,3.8,defender
+8.3,3.2,7.3,4.1,defender
+2.5,5.2,5.5,5.8,monk
+7.8,10.4,2.3,7.8,wizard
+4.5,7.7,5.6,5.8,wizard
+5.2,8.7,4.4,5.2,wizard
+9.4,4.7,3.2,3.7,defender
+7.4,5.8,3.5,6.6,monk
+9,10.4,4.4,8.4,wizard
+6.4,6.2,1.7,9.9,monk
+7.6,6.1,9.7,6.4,demon hunter
+3.4,10.5,3.2,10.6,monk
+7,3.5,1.4,3.7,defender
+7.4,9.3,7.3,5.6,demon hunter
+9.9,9.9,9.9,6.1,demon hunter
+9.5,8.7,1.3,8.3,wizard
+9.6,4.2,7.6,2.4,defender
+6.8,4.9,9.6,7.5,demon hunter
+3.7,10.9,5.8,7.3,wizard
+7.6,8.7,3.9,10.1,monk
+8.1,5.9,5.7,9.4,monk
+6,1.2,3.9,4.5,defender
+2.4,1.5,4,10,defender
+7.6,6.4,7.9,3,demon hunter
+7.5,9.5,9.8,6.3,demon hunter
+2.2,10.6,6,4.8,demon hunter
+2.7,10.4,3.3,4.5,wizard
+1.7,2,4.6,7.6,monk
+10.3,1.8,7.9,9.6,defender
+11,9.5,3.7,8.2,wizard
+10.7,4.6,5.6,5.3,defender
+7.1,1.9,8.2,8.8,defender
+10,2.7,1.8,8.6,defender
+3.2,7.6,4.2,5.8,wizard
+6.3,10.2,2.5,2.5,wizard
+6.5,4.7,5.6,4.8,monk
+4,7.7,2.2,5,wizard
+10.1,5.3,3.2,7.1,defender
+4.9,4.5,6.4,7.7,monk
+7.7,5.9,10.5,10.4,monk
+1.5,3,5.4,3.2,demon hunter
+3.1,8.4,10.5,8.9,monk
+1.3,5.7,3.7,3.7,wizard
+9.1,10.8,8.9,1.2,demon hunter
+8.2,9.3,4,4.2,wizard
+9.8,1.7,2.5,4.5,defender
+9.1,8.1,6.1,2,demon hunter
+3.4,2.2,5.3,3.5,demon hunter
+5,2.1,4.6,5.5,defender
+7,2.3,1.7,1.9,defender
+6.9,4.4,6.6,9.9,defender
+7.6,7.3,10.3,9.5,monk
+10.6,10.1,4,2.7,demon hunter
+8.5,2.8,3.5,2.2,defender
+4.7,10.6,2,1.3,demon hunter
+4.8,2.3,9.5,2.3,defender
+9.6,9.6,4.1,1.6,demon hunter
+5.2,1.1,6,1.1,defender
+2.6,4.1,6.8,1.6,demon hunter
+2.1,10.3,3.3,4.3,wizard
+1.5,4.9,10.4,1.3,demon hunter
+2.8,2.9,7.4,1.5,demon hunter
+4.5,9,6,6.1,wizard
+10.5,9.6,4.8,9.3,wizard
+7.7,4,9.5,6.1,defender
+1.5,10.1,9.1,2.2,demon hunter
+8.2,6.6,9.2,9,monk
+8.4,9.7,10.8,6.5,demon hunter
+3.2,1.7,2.5,9.8,defender
+4.9,2.7,5.4,8.6,defender
+6.9,5.5,1.5,4.9,wizard
+10.9,9.4,11,4.1,demon hunter
+1.9,3.8,8.8,2.3,demon hunter
+6.5,10.8,6,1.1,demon hunter
+6.3,7,6.4,9.6,monk
+1.6,10.2,6.5,10.8,monk
+6.9,3.3,8.1,2,defender
+9.6,3.5,7.7,9.6,defender
+2.5,7.3,9.9,6.7,demon hunter
+9.9,6.1,8,10.1,defender
+5.4,5.2,10.3,8,demon hunter
+6.2,6.3,3.9,1.1,demon hunter
+2.1,9.4,10.2,9.1,wizard
+5,1.5,1.4,4,defender
+10.9,7.1,8.1,10.8,monk
+7.9,1.4,2.4,5,defender
+5.8,9.8,10,5.2,demon hunter
+4.3,8.4,4.5,1.3,demon hunter
+3.8,1.9,7.5,3,defender
+2.9,4,1.3,8.6,monk
+5,3.2,8.4,3.5,defender
+6.9,4.4,2.6,7.3,defender
+2.1,6.3,9.3,10.7,monk
+10.3,1.8,6.2,6,defender
+7.6,3.6,4.5,8.5,defender
+4.4,1.6,3.9,1.8,defender
+10.1,2.3,1.3,6.1,defender
+4.2,7.1,9.3,6.5,demon hunter
+4.7,1.2,5.8,5.3,defender
+2.3,7.9,2.6,4.2,wizard
+9.5,3.5,8.3,4.3,defender
+3.3,9.4,8.6,5.2,demon hunter
+7.7,1.8,5.4,6.5,defender
+3.3,8.5,9.1,10.3,monk
+7.3,2.4,7.7,10.4,defender
+10.7,2.1,5.9,8.9,defender
+7.1,8,8,4.8,demon hunter
+3.6,10.3,10.8,1.9,demon hunter
+6.6,5.2,10.7,2,demon hunter
+9.2,1.9,3.3,10.4,defender
+3.3,8.4,5.9,9.9,monk
+1.3,1.8,1.2,8.1,monk
+3.3,6.5,7.2,10.8,monk
+2.1,4.7,6.8,3.9,demon hunter
+7.5,9.8,9.6,7.8,wizard
+9.2,5,8.8,3,defender
+4,10.4,7.4,9.1,wizard
+5.1,7.4,7.7,3.1,demon hunter
+2.4,6.5,1.8,5.2,wizard
+9.2,6.7,4.1,7.5,monk
+2.8,1.2,2.2,2.1,defender
+7.5,6.2,6.2,1.5,demon hunter
+6.1,6.2,7.2,3.9,demon hunter
+4.1,8.9,3.2,4.8,wizard
+5.8,6.9,4.7,9.7,monk
+7.9,6.6,10.1,10.6,monk
+3.1,9.9,4.1,8.9,wizard
+5,7.1,2.1,6.4,wizard
+6.1,8.5,10.6,7.1,demon hunter
+7.9,5.5,8.8,4.7,demon hunter
+7.7,3.5,1.2,1.9,defender
+10.2,8.6,6.8,9.1,monk
+3.5,8.6,7.1,4.2,demon hunter
+9,8,3.4,9.8,monk
+7.1,10.7,10.9,4.7,demon hunter
+10.6,5.8,7.6,9.5,defender
+6.2,10.2,7.5,8.1,wizard
+5.5,1.7,7.2,8.1,defender
+9,3.7,5.1,1.2,defender
+10,6.1,7.1,4.6,defender
+5.5,6.9,10.7,5.4,demon hunter
+6.5,4.5,6.2,5.4,monk
+7.2,10.8,5.7,10.8,wizard
+9.9,6.6,6.7,2.3,demon hunter
+9.9,7.2,9.5,3,demon hunter
+3.6,7.3,4.3,1.3,demon hunter
+6.1,10.6,8.2,6.3,demon hunter
+7.9,8.4,7.2,7.8,wizard
+7.4,2.5,7.9,7,defender
+6.1,1,4.9,9.9,defender
+3.7,9.3,6.3,5.5,wizard
+2.4,5.5,6.7,1.6,demon hunter
+3.3,3.9,7.3,6.2,monk
+6.1,6.6,10.9,3.1,demon hunter
+3.2,10.5,9.8,7.5,demon hunter
+2,3.3,7.5,6,demon hunter
+3,2.9,5.2,2.6,demon hunter
+9,3.9,8.1,6.5,defender
+5.3,2,10.3,6.6,defender
+5.8,5,10.4,9.6,monk
+3.1,7.5,8.4,2.6,demon hunter
+3.4,9.5,6.7,5.3,demon hunter
+3.1,2.5,8.8,8.3,monk
+8.7,6,3.4,1.9,demon hunter
+7.1,4.8,1.9,9,monk
+1,8.7,2.3,9.6,monk
+3.4,4,7.9,2.3,demon hunter
+10,7.2,8,7.3,monk
+1.1,7.7,1.5,5.7,wizard
+6.4,3.5,1.5,11,defender
+4.7,4.8,1.7,8.9,monk
+8.9,10.4,2.2,10.4,wizard
+1.6,10.9,8.2,4.9,demon hunter
+6.5,5,7.7,7.7,monk
+2.8,10.3,11,8,demon hunter
+3.7,9.9,6.4,9.1,wizard
+4,2.4,4.8,1.9,defender
+2.1,9.8,6.1,6.9,wizard
+6.4,7.5,11,10.6,monk
+5.5,10.7,1.6,2.3,wizard
+4.2,5.9,7.5,10.6,monk
+10,1.7,5.9,8.4,defender
+4.4,6.7,3.2,10.1,monk
+9,8.5,7.6,5,demon hunter
+7.8,6.5,8,4.6,demon hunter
+4.3,4.3,2.5,10.4,monk
+3.1,3.1,8.9,4.4,demon hunter
+2.8,3,4.6,10.7,monk
+9.7,2.4,10.8,3.6,defender
+7.6,4.5,4.4,5.5,defender
+2.8,5.6,6.8,7,monk
+5.6,9.2,9.9,4.3,demon hunter
+3.8,8,7.9,6.8,wizard
+10.2,8.9,6,10.3,monk
+9.9,10.3,6.5,2.1,demon hunter
+3.7,8.4,1.7,2.2,wizard
+5.8,10.9,9.1,3.1,demon hunter
+7.5,4.3,9.9,2.8,defender
+1.5,8.2,5.3,9.8,monk
+1.9,10.4,9.7,9.3,wizard
+10.6,2.9,8.3,3.3,defender
+4.5,8.2,6.6,7.2,wizard
+9,10.3,9.7,3.4,demon hunter
+7.4,10.4,9.3,8.2,wizard
+2.7,3.1,5.7,6,monk
+2.6,7.5,1.6,9,monk
+7.9,4.5,5.4,10.6,defender
+10.6,7.4,7.5,3.4,demon hunter
+6.7,1.5,6.9,10.3,defender
+1.4,5.5,10.9,5.5,demon hunter
+6.7,4.1,10.3,4.3,defender
+2.1,10.1,8.3,9.2,wizard
+4.4,1.8,1.9,8.3,defender
+9.8,5.7,4.6,2.8,defender
+10.9,3.6,9.7,1.7,defender
+3.2,8.5,10.1,7,demon hunter
+1.7,8.3,3.1,9.3,monk
+9.2,3.6,3.3,9.5,defender
+1.1,4.7,9.2,6.7,demon hunter
+9.5,2.6,4.5,5.2,defender
+8.6,4.5,5,1.7,defender
+8.1,6.1,2.6,5.5,wizard
+3,9.6,3.3,5.5,wizard
+3.7,2.3,7.5,9.6,defender
+4.8,7.1,5,6.8,wizard
+8.3,6.7,9.3,5.3,demon hunter
+5.2,6.9,9.4,5.2,demon hunter
+10.1,6.7,4.8,1.1,demon hunter
+3.9,7.9,1.5,5.8,wizard
+7.6,1.9,7.7,9.3,defender
+9.1,7.3,1.4,1.3,wizard
+4.1,9.6,3.3,9.5,wizard
+9.9,3.6,8.4,10.2,defender
+10.4,10.1,4.9,3.3,demon hunter
+8.8,4.4,6.9,9.6,defender
+2.3,8.1,2.8,10.4,monk
+6.3,5.1,6.7,7.8,monk
+1.2,9.1,4.8,10.3,monk
+4.4,5.6,6.8,10.9,monk
+9.1,6.9,3.6,2.2,demon hunter
+4.2,10,3.3,3.5,wizard
+8.5,5,6.6,1.4,defender
+2.4,6,10.4,9,monk
+2,2.1,7.1,9.7,monk
+9.6,7.4,5.5,5.3,wizard
+6.6,4.1,10.5,1.3,defender
+2.1,6.5,1.8,7.5,monk
+7.8,5.1,1.1,3.1,wizard
+8.7,8.2,2.2,4.1,wizard
+9.4,3,3.2,9.8,defender
+1.9,3.9,10.6,6.5,demon hunter
+4,4.8,6.4,10.4,monk
+4.2,3.2,4.6,6.3,monk
+1.5,9.4,6.5,2.6,demon hunter
+9.9,6.4,2.5,6.1,wizard
+1.6,4.4,7.5,3.3,demon hunter
+4,8.1,7.5,7.1,wizard
+8.4,7.6,10.1,1,demon hunter
+9.7,4.3,10.7,7.6,defender
+2.4,9.2,9.6,2.8,demon hunter
+5.1,9.6,6.1,3.2,demon hunter
+4.5,7.6,4.9,2.4,demon hunter
+8.6,10.7,1.2,3.3,wizard
+10.2,1.1,5.4,5.3,defender
+3.2,11,2.9,2.5,wizard
+5.7,2.4,3.3,7.2,defender
+8.9,10.3,1.6,1.8,wizard
+6.4,8.3,5.5,1.2,demon hunter
+10.5,6.8,9,9.8,monk
+5.3,2.9,7.7,10.6,defender
+1.6,1.4,2.3,3.8,monk
+3.2,2,1.3,4.2,defender
+9.2,10.2,6.1,6.8,wizard
+5.5,8.9,9.5,3.8,demon hunter
+9,1.1,2.9,7.8,defender
+8.6,4.7,10,8.5,defender
+2,1.9,10.4,1.5,demon hunter
+2.5,5,4.4,5.4,monk
+7.8,8.8,8.9,4.7,demon hunter
+6.1,6.1,6.5,2.4,demon hunter
+8.7,1.7,6.9,3.4,defender
+2.8,2.3,1.9,5.7,monk
+5.4,7.5,1.7,7.6,monk
+3.8,4.5,2.4,6.1,monk
+1.1,1.6,2.6,6,monk
+8.1,8.7,9.4,8.9,monk
+7.1,9.8,4.6,7.1,wizard
+3.7,10.9,3.5,10.3,wizard
+2.2,1.3,6.7,8.4,defender
+10.7,10,9.1,10.5,monk
+2.3,6.8,9.1,3.9,demon hunter
+3.3,3.8,4.1,6.3,monk
+6.5,7.3,4.4,2.7,demon hunter
+10.7,9,9.3,7.9,wizard
+9.8,4.3,3.3,2.7,defender
+4.2,1.9,8.2,6.7,defender
+4.2,8.2,10.3,8.8,monk
+1.9,3.4,1.9,7.2,monk
+3.3,7.1,5.4,3.1,demon hunter
+4.3,6.7,4.1,8.1,monk
+4,6,2.8,7.2,monk
+6.4,4.1,5.4,8.6,defender
+9.3,4.4,1.3,10.5,defender
+4.3,10.9,1.9,1.8,wizard
+2.6,8.5,10.5,4.1,demon hunter
+4.3,4.5,1,10.1,monk
+7.7,3,7.7,6.6,defender
+9.6,5.1,5.2,6.5,defender
+3.3,6.7,5,7.8,monk
+7.7,5.4,2.6,2.8,wizard
+2.3,8.6,9.3,4.3,demon hunter
+7.1,9.3,6.3,10.3,monk
+8.5,4.1,4,3.3,defender
+3.3,9.1,6.6,5.7,wizard
+9.8,9.3,3.4,7.9,wizard
+7.5,1.9,3.6,8.5,defender
+5.1,4.3,5.2,5.4,monk
+10,1.7,4.3,8.2,defender
+1,9.5,1.9,9.1,wizard
+5.9,10,6.7,4.8,demon hunter
+8.2,2.6,4.5,2.3,defender
+7.2,3.6,10.5,4.4,defender
+10.1,7,8.6,10.7,monk
+7.5,1.3,4.1,7.9,defender
+4.4,3.8,7.7,7.6,monk
+1.2,6.5,3.3,4.2,wizard
+7.2,5.7,7.8,8.3,monk
+1.7,6.2,4.9,3.6,demon hunter
+7.8,7,3.2,7,wizard
+2.8,9.5,1.2,4.7,wizard
+3,5.1,3.1,2.3,demon hunter
+6.6,10.7,1.4,3.3,wizard
+10.7,10.4,5,10.7,monk
+3.6,10.8,6.9,5.8,wizard
+9.4,8.2,5.9,6.4,wizard
+9.7,10.3,10.4,6.1,demon hunter
+2.2,1.5,4,7.6,monk
+2.9,6.5,3.6,8.1,monk
