@@ -1,0 +1,63 @@
+Accuracy :
+
+  training : 0.991666666667
+  test     : 0.966666666667
+  total    : 0.986666666667
+
+
+3 Feature(s) Used :
+
+  petal_width
+    Collision Proportion :
+      Iris-setosa     : 0.608333333333
+      Iris-versicolor : 0.783333333333
+      Iris-virginica  : 0.808333333333
+    Standard Deviation :
+      Iris-setosa     : 0.159585917081
+      Iris-versicolor : 0.133398421613
+      Iris-virginica  : 0.12464794172
+    Intrusion Proportion :
+      Iris-setosa     : 0.941666666667
+      Iris-versicolor : 0.808333333333
+      Iris-virginica  : 0.891666666667
+    Means :
+      Iris-setosa     : 0.586458333333
+      Iris-versicolor : 0.3125
+      Iris-virginica  : 0.428125
+
+  petal_width
+    Collision Proportion :
+      Iris-setosa     : 0.608333333333
+      Iris-versicolor : 0.783333333333
+      Iris-virginica  : 0.808333333333
+    Standard Deviation :
+      Iris-setosa     : 0.159585917081
+      Iris-versicolor : 0.133398421613
+      Iris-virginica  : 0.12464794172
+    Intrusion Proportion :
+      Iris-setosa     : 0.941666666667
+      Iris-versicolor : 0.808333333333
+      Iris-virginica  : 0.891666666667
+    Means :
+      Iris-setosa     : 0.586458333333
+      Iris-versicolor : 0.3125
+      Iris-virginica  : 0.428125
+
+  (sqrt(sqr(sqrt(sqr(sepal_length+sepal_length)/2)+sepal_width)/2)) / (sigmoid(sqrt(sqr((petal_width) - (sqrt(sqr(sqrt(sqr(sqrt(sqr((petal_width) - (petal_length)+sqrt(sqr(sqrt(sqr(sepal_length+(petal_length) / (sqrt(sqr(sepal_length+petal_width)/2)))/2)+sepal_length)/2))/2)+petal_length)/2)+sqrt(sqrt(sepal_length)))/2))+petal_length)/2)))
+    Collision Proportion :
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.0
+      Iris-virginica  : 0.0
+    Standard Deviation :
+      Iris-setosa     : 0.0253518221497
+      Iris-versicolor : 0.0763572667493
+      Iris-virginica  : 0.0699151056948
+    Intrusion Proportion :
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.383333333333
+      Iris-virginica  : 0.0583333333333
+    Means :
+      Iris-setosa     : 0.0688661852903
+      Iris-versicolor : 0.548865516648
+      Iris-virginica  : 0.789431510174
+

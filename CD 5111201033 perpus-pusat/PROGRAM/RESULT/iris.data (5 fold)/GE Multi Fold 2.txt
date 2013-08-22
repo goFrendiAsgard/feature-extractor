@@ -1,0 +1,63 @@
+Accuracy :
+
+  training : 0.991666666667
+  test     : 0.833333333333
+  total    : 0.96
+
+
+3 Feature(s) Used :
+
+  sepal_length
+    Collision Proportion :
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.158333333333
+      Iris-virginica  : 0.158333333333
+    Standard Deviation :
+      Iris-setosa     : 0.0307429782156
+      Iris-versicolor : 0.0813724824268
+      Iris-virginica  : 0.0978474150561
+    Intrusion Proportion :
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.408333333333
+      Iris-virginica  : 0.208333333333
+    Means :
+      Iris-setosa     : 0.0779661016949
+      Iris-versicolor : 0.547033898305
+      Iris-virginica  : 0.777118644068
+
+  (petal_length) - (sqrt(sqr(sepal_length+sqrt(sqr(abs(petal_length)+(sqrt(sqr(petal_length+petal_width)/2)) - (abs(-((sepal_width) - (petal_width)))))/2))/2))
+    Collision Proportion :
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.0
+      Iris-virginica  : 0.0
+    Standard Deviation :
+      Iris-setosa     : 0.0307528235305
+      Iris-versicolor : 0.068198845369
+      Iris-virginica  : 0.0752226382296
+    Intrusion Proportion :
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.341666666667
+      Iris-virginica  : 0.025
+    Means :
+      Iris-setosa     : 0.917308195062
+      Iris-versicolor : 0.428363155027
+      Iris-virginica  : 0.190681362803
+
+  (sepal_width) / ((sqrt(petal_width)) / (sepal_length))
+    Collision Proportion :
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.0
+      Iris-virginica  : 0.0
+    Standard Deviation :
+      Iris-setosa     : 0.00928781999377
+      Iris-versicolor : 0.0751692327858
+      Iris-virginica  : 0.117744119578
+    Intrusion Proportion :
+      Iris-setosa     : 0.0
+      Iris-versicolor : 0.35
+      Iris-virginica  : 0.025
+    Means :
+      Iris-setosa     : 0.012769152665
+      Iris-versicolor : 0.33804250416
+      Iris-virginica  : 0.670623104581
+

@@ -1,0 +1,13 @@
+x,y,sign
+0,0,bunder
+0,1,bunder
+0,2,bunder
+1,0,bunder
+1,1,bunder
+2,0,bunder
+0,3,kotak
+1,3,kotak
+1,2,kotak
+2,1,kotak
+2,2,kotak
+2,3,kotak

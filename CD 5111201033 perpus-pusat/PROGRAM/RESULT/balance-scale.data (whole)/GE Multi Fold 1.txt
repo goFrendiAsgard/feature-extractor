@@ -1,0 +1,27 @@
+Accuracy :
+
+  training : 0.9168
+  test     : 0.9168
+  total    : 0.9168
+
+
+1 Feature(s) Used :
+
+  (sqrt(sqr(right_distance+right_weight)/2)) / (sqrt(sqr(left_weight+left_distance)/2))
+    Collision Proportion :
+      B : 0.184
+      L : 0.224
+      R : 0.224
+    Standard Deviation :
+      B : 0.0134685663788
+      L : 0.0419947351253
+      R : 0.140941625562
+    Intrusion Proportion :
+      B : 0.376
+      L : 0.352
+      R : 0.352
+    Means :
+      B : 0.167091836735
+      L : 0.0989543145576
+      R : 0.305051486258
+

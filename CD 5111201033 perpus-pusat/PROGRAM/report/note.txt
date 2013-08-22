@@ -1,0 +1,22 @@
+untuk plot digunakan simbol atau huruf [done]
+Background flowchart diganti putih [done]
+
+Penelitian sebelumnya diurutkan ascending berdasarkan tahun [done]
+Secara lisan sampaikan tentang penelitian yang menghasilkan GE Global
+Secara lisan, sampaikan kontribusi penelitian adalah 2 metode terakhir
+1 halaman tambahan utk menjelaskan data sintesis 1-3 [done]
+    jumlah data
+    dimensi
+    bagaimana men-generate data tsb (formula)
+Secara lisan, sampaikan bahwa perbandingan data ada di halaman tersendiri
+
+Running program sebelum summary [done]
+Di bagian summary data, All <-- All (average) [done]
+
+Di laporan, gambar 4.4 dan 4.3 ada yg hilang [done]
+
+ppt terpisah utk dimensi lebih besar dari 3 [use whiteboard]
+ppt terpisah utk varriance & stdev (tabel ringkasan) [done, table]
+
+Persiapkan utk kesimpulan point terakhir <-- dari uji coba yang mana? [done]
+
